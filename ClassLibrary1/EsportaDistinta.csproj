@@ -76,5 +76,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="SQLServer\ICMCalcoloConsumoSp.sql" />
+    <Content Include="SQLServer\ICM_Conf_GetConfiUltVerSp.sql" />
+    <Content Include="SQLServer\ICM_Conf_GetPromossoSP.sql" />
+    <Content Include="SQLServer\ICM_Importa_Distinta_In_Arca_Gestionale.sql" />
+    <Content Include="SQLServer\xInserisciStati.sql" />
+    <Content Include="SQLServer\XPORT_ANAG.sql" />
+    <Content Include="SQLServer\XPORT_DIST.sql" />
+    <Content Include="SQLServer\xSOLIDCancellaDistintaSp.sql" />
+    <Content Include="SQLServer\xSOLIDCheckDIBASp.sql" />
+    <Content Include="SQLServer\xSOLIDCreaArticoloSp.sql" />
+    <Content Include="SQLServer\xSOLIDTTInsert.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
