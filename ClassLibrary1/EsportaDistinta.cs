@@ -199,8 +199,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //Connessione al DB e inizio transazione
 
-                        connectionString = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
-                        //connectionString = "Data Source='ws91';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                        //connectionString = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                        connectionString = "Data Source='ws91';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
 
                         cnn = new SqlConnection(connectionString);
 
@@ -372,8 +372,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         TS.WriteLine("Importazione distinta in ARCA");
 
-                        connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO_TEST; User ID = sa; Password = 'Logitech0'";
+                        //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO_TEST; User ID = sa; Password = 'Logitech0'";
 
                         cnn = new SqlConnection(connectionString);
 
@@ -526,6 +526,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 if (cacheDictionary.ContainsKey(toFind))
                 {
+                    
 
                     Tuple<string, string, int> toReturn;
 
@@ -711,7 +712,111 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 //MessageBox.Show(cFileName + " --- " + sConf);
 
-                bomView = aFile.GetComputedBOM(cTipoDistinta, /*iVersione*/ -1, sConf, (int)EdmBomFlag.EdmBf_ShowSelected);
+
+                IEdmEnumeratorVariable7 enumVar;
+
+                object[] ppoRetVars = null;
+                string[] ppoRetConfs = null;
+                EdmGetVarData poRetDat = new EdmGetVarData();
+                string sVersion;
+                string BomName;
+
+                enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
+                enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
+
+                sVersion = poRetDat.mlLatestVersion.ToString();
+
+                EdmBomInfo[] derivedBOMs = null;
+                aFile.GetDerivedBOMs(out derivedBOMs);
+
+                int arrSizeBom = 0;
+                
+                int iBom = 0;
+                arrSizeBom = derivedBOMs.Length;
+                
+                bool lFoundBom;
+                string sNamedBom;
+
+                string cNamedBom;
+                cNamedBom = "";
+                int kIndexBom;
+                kIndexBom = 0;
+
+                lFoundBom = false;
+                IEdmBom namedBom;
+
+
+                /* get Configuration GUID */
+
+                bool lOK;
+                object poRetValue;
+                string sICMBOMGUID;
+                int iIdBom;
+
+                IEdmEnumeratorVariable8 EnumVarObj = default(IEdmEnumeratorVariable8);
+                //Keeps the file open
+                EnumVarObj = (IEdmEnumeratorVariable8)aFile.GetEnumeratorVariable();
+
+                lOK = EnumVarObj.GetVar(
+                    "ICMBOMGUID",
+                    sConf,
+                    out poRetValue);
+
+                if (lOK)
+                {
+
+                    sICMBOMGUID = (string)poRetValue;
+
+
+                    while (iBom < arrSizeBom)
+                    {
+
+                        // Cerco Named BOM
+                        string sBomName;
+
+                        sBomName = (sICMBOMGUID + "_" + sConf + "_" + sVersion);
+
+                        sBomName = sBomName.Replace("\\", "_");
+
+                        //MessageBox.Show(derivedBOMs[iBom].mbsBomName + (char)10 + sBomName);
+
+                        if (derivedBOMs[iBom].mbsBomName == sBomName)
+                        {
+                            lFoundBom = true;                            
+                            kIndexBom = iBom;
+                            break;
+
+
+                        }
+
+
+                        iBom++;
+
+                    }
+                }
+                
+                
+                /*if (lFoundBom)
+                {
+
+
+
+                    iIdBom = derivedBOMs[kIndexBom].mlBomID;
+                    namedBom = (IEdmBom)this.vault.GetObject(EdmObjectType.EdmObject_BOM, iIdBom);
+
+                    TS.WriteLine("Uso DerivedBOM BOM " + namedBom.Name);
+
+                    bomView = namedBom.GetView(0);
+                }
+                else
+                {*/
+
+                    TS.WriteLine("Uso Computed BOM ");
+
+                    bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConf, (int)EdmBomFlag.EdmBf_ShowSelected);
+                    
+
+                /*}*/
 
                 EdmBomColumn[] ppoColumns = null;
                 bomView.GetColumns(out ppoColumns);
@@ -1035,13 +1140,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 bomView.GetRows(out ppoRows);
                 int i = 0;
                 int arrSize = ppoRows.Length;
-
+                
                 string str = "";
 
                 bool bNonCodificato;
 
-                
-
+                //MessageBox.Show(arrSize.ToString());
+              
                 while (i < arrSize)
                 {
 
@@ -2634,6 +2739,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
             SwDM.SwDMDocument19 swDoc19;
             SwDM.SwDMConfiguration12 config;
+            SwDM.SwDMConfiguration15 config15;
 
             SwDM.SwDMConfiguration12 configCostr;
 
@@ -2649,6 +2755,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string cPathName;
 
             OpenFile(cFileName, out swDoc19, false, true);
+
+            //Debugger.Launch();
 
             string[] vCustPropNameArr = null;
             string sCustPropStr = null;
@@ -2669,9 +2777,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             string sFaiAcquista;
 
+            bool lChangedGUID;
+
             sFaiAcquista = "";
 
             string sParteAssieme;
+
+            string configurationGUID;
 
             if (cFileName.ToUpper().EndsWith(".SLDASM"))
                 sParteAssieme = "Assieme";
@@ -2695,6 +2807,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             }
 
+            
 
             for (i = 0; i < vCfgNameArr.Length; i++)
             {
@@ -2710,6 +2823,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     throw new ApplicationException("ERROR: Errore in ottenimento configurazione " + sConfig + "per file: " + swDoc19.FullName);
 
                 }
+
+                config15 = (SwDMConfiguration15)config;
+
+
+                if (config15.ShowChildComponentsInBOM2 == (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_TRUE)
+                    config15.ShowChildComponentsInBOM2 = (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_FALSE;
 
                 /* cerco configurazione costruttiva */
                 sConfigurazioneCostr = sConfig;
@@ -2862,7 +2981,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                    
                 }
 
+                lChangedGUID = false;
 
+                configurationGUID = "";
 
 
                 if (lFoundGuid)
@@ -2880,6 +3001,16 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         config.SetCustomProperty("ICMBOMGUID", newGuid.ToString());
 
+                        lChangedGUID = true;
+                        configurationGUID = newGuid.ToString();
+
+                    }
+                    else
+                    {
+
+                        configurationGUID = sCurrentGuid;
+
+
                     }
 
                 }
@@ -2890,6 +3021,81 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     newGuid = Guid.NewGuid();
 
                     config.AddCustomProperty("ICMBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, newGuid.ToString());
+
+                    lChangedGUID = true;
+
+                    configurationGUID = newGuid.ToString();
+
+                }
+
+                /* salva Computed BOM per configurazione */                
+
+                if (true)
+                {
+
+                    IEdmFile7 aFile;
+                    IEdmFolder5 ppoRetParentFolder;
+
+                    string cTipoDistinta;
+
+                    int plFocusNode = 0;
+
+                    string sErrorMessage;
+
+                    sErrorMessage = "";
+
+                    aFile = (IEdmFile7)this.vault.GetFileFromPath(cFileName, out ppoRetParentFolder);
+
+                    if (aFile != null)
+                    {
+                        IEdmEnumeratorVariable7 enumVar;
+
+                        object[] ppoRetVars = null;
+                        string[] ppoRetConfs = null;
+                        EdmGetVarData poRetDat = new EdmGetVarData();
+                        string sVersion;
+
+                        enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
+                        enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
+
+
+                        sVersion = poRetDat.mlLatestVersion.ToString();
+
+
+                        //MessageBox.Show(cFileName + " --- " + sConf);
+                        if (sParteAssieme == "Assieme")
+                            cTipoDistinta = "DistintaAssiemePerArca";
+                        else
+                            cTipoDistinta = "DistintaPartePerArca";
+
+
+
+                        bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConfig, (int)EdmBomFlag.EdmBf_ShowSelected);
+
+                        object[] ppoRows = null;
+                        IEdmBomCell ppoRow = default(IEdmBomCell);
+                        bomView.GetRows(out ppoRows);                        
+                        int arrSize = ppoRows.Length;
+
+                        //MessageBox.Show(arrSize.ToString());
+                        string sBomName;
+
+                        sBomName = (configurationGUID + "_" + sConfig + "_" + sVersion);
+
+                        sBomName = sBomName.Replace("\\", "_");
+
+                        bomView.Commit(sBomName, out sErrorMessage, out plFocusNode);
+
+                        if (sErrorMessage != "")
+                        {
+
+                            TS.WriteLine(sErrorMessage, TraceEventType.Error);
+                        
+                        
+                        }
+                        
+                    }
+
 
                 }
 
