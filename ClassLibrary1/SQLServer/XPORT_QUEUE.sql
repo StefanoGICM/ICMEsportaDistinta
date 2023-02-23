@@ -11,6 +11,8 @@ GO
 CREATE TABLE [dbo].[XPORT_QUEUE](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Filename] [nvarchar](500) NULL,
+	[DocumentID] int NULL,
+	[Vault] nvarchar(200),
 	[DataLancio] [datetime] NULL,
 	[DataImport] [datetime] NULL,
 	[Importato] [smallint] NOT NULL,
