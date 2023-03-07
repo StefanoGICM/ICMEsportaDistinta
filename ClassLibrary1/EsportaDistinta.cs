@@ -56,6 +56,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         List<string> cacheFile;
 
+        Guid currentSessionGuid;
+
 
         /*struct ReturnData
         {
@@ -183,6 +185,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             bool lWarn;
 
+            currentSessionGuid = Guid.NewGuid();
+
             DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Started;
 
             try
@@ -220,7 +224,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         TS.WriteLine("Cancellazione tabelle temporanee");
 
-                        query = "DELETE FROM [dbo].[XPORT_DIST]";
+                        query = "DELETE FROM [dbo].[XPORT_DIST] WHERE SessionID = '" + currentSessionGuid + "'";
 
                         SqlCommand command = new SqlCommand(query, cnn);
                         command.CommandTimeout = 0;
@@ -229,7 +233,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         command.ExecuteNonQuery();
 
 
-                        query = "DELETE FROM [dbo].[XPORT_ANAG]";
+                        query = "DELETE FROM [dbo].[XPORT_ANAG] WHERE SessionID = '" + currentSessionGuid + "'";
 
                         SqlCommand command1 = new SqlCommand(query, cnn);
 
@@ -237,15 +241,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         command1.ExecuteNonQuery();
 
-                        query = "DELETE FROM [dbo].[tmp_ICM_Consumo]";
-
-                        SqlCommand command1_0 = new SqlCommand(query, cnn);
-
-                        command1_0.Transaction = transaction;
-
-                        command1_0.ExecuteNonQuery();
-
-                        itmp_Consumo = 0;
 
                         TS.WriteLine("Importazione distinta in tabelle temporanee");
 
@@ -257,73 +252,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         bool bNonCodificato;
 
-                        insertXPORT(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato);
-
-                    
-
-                        //if (lStop) 
-                        /*if (lStop )
-                        {
-
-                            transaction.Commit();
-
-                            cnn.Close();
-                            //cnnVault.Close();
-
-
-                            transaction = null;
-
-                            throw new ApplicationException("Errore: trovati assiemi o parti o body non codificati; le tabelle di frontiera sono state popolate con codici automatici, ma non possono essere importate in ARCA");
-
-
-                        }*/
-
-                        // Attenzione: togliere (temporaneo perchè non sono impostate le famiglie e categorie)
-
-                        /*
-                        query = "UPDATE [dbo].[XPORT_ANAG] SET FAMIGLIA1_PREFIX = '505',   FAMIGLIA2_PREFIX = '01',   FAMIGLIA3_PREFIX = '01' WHERE ISNULL(FAMIGLIA1_PREFIX,'') = '' ";
-
-                        SqlCommand commandTemp = new SqlCommand(query, cnn);
-
-                        commandTemp.Transaction = transaction;
-
-                        commandTemp.ExecuteNonQuery();
-
-                        query = "UPDATE [dbo].[tmp_ICM_Consumo] SET FAMIGLIA1_PREFIX = '505',   FAMIGLIA2_PREFIX = '01',   FAMIGLIA3_PREFIX = '01' WHERE ISNULL(FAMIGLIA1_PREFIX,'') = '' ";
-
-                        commandTemp = new SqlCommand(query, cnn);
-
-                        commandTemp.Transaction = transaction;
-
-                        commandTemp.ExecuteNonQuery();
-
-
-                        query = "UPDATE [dbo].[XPORT_ANAG] SET CATEGORIA1_PREFIX = 'CA1',   CATEGORIA2_PREFIX = 'CA2',   CATEGORIA3_PREFIX = 'CA3' WHERE ISNULL(CATEGORIA1_PREFIX,'') = ''";
-
-                        commandTemp = new SqlCommand(query, cnn);
-
-                        commandTemp.Transaction = transaction;
-
-                        commandTemp.ExecuteNonQuery();
-                        
-
-
-                        //SqlCommand commandTemp;
-
-                        query = "UPDATE [dbo].[XPORT_ANAG] SET DED_COD = DEDID, DED_DIS = DEDID WHERE DEDID LIKE 'NONCODIF%'";
-
-                        commandTemp = new SqlCommand(query, cnn);
-
-                        commandTemp.Transaction = transaction;
-
-                        commandTemp.ExecuteNonQuery();
-
-                        */
-
-                        // Attenzione: togliere
-
+                        insertSW_ANAG_BOM(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato);
+                   
                         // Calcolo consumo
-
                         
                         TS.WriteLine("Calcolo consumo e creazione distinta");
 
@@ -503,7 +434,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
-        public void insertXPORT(int iDocument, string cFileName, int iVersione, string sConf, out string sDEDID, out string sDEDREV, bool first, bool bDaPromosso, string sDEDIDPromosso, string sDEDREVPromosso, double dQtyPromosso, out int iRetPromossoPar, out bool bNonCodificatoPar)
+        public void insertSW_ANAG_BOM(int iDocument, string cFileName, int iVersione, string sConf, out string sDEDID, out string sDEDREV, bool first, bool bDaPromosso, string sDEDIDPromosso, string sDEDREVPromosso, double dQtyPromosso, out int iRetPromossoPar, out bool bNonCodificatoPar)
         {
 
             //Debugger.Launch();
@@ -1187,9 +1118,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         /* Insert DEDANAG */
 
-                        string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[XPORT_ANAG] WHERE DEDID = <@DEDID> AND DEDREV = <@DEDREV>) " +
-                                       "INSERT INTO [dbo].[XPORT_ANAG] " +
-                                       "([DEDID]" +
+                        string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[SWANAG] WHERE SessionId = '" + currentSessionGuid + "' AND DEDID = <@DEDID> AND DEDREV = <@DEDREV>) " +
+                                       "INSERT INTO [dbo].[SWANAG] " +
+                                       "([SessionID]" +
+                                       ",[DEDID]" +
                                        ",[DEDREV]" +
                                        ",[CATEGORIA1]" +
                                        ",[CATEGORIA2]" +
@@ -1265,81 +1197,82 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                        ",[DEDLinear]" +
                                        ",[DEDMass])" +
                                        "VALUES" +
-                                       "(<@DEDID>" +
-                                       ",<@DEDREV>" +
-                                       ",<@CATEGORIA1>" +
-                                       ",<@CATEGORIA2>" +
-                                       ",<@CATEGORIA3>" +
-                                       ",<@CATEGORIA1_PREFIX>" +
-                                       ",<@CATEGORIA2_PREFIX>" +
-                                       ",<@CATEGORIA3_PREFIX>" +
-                                       ",<@FAMIGLIA1>" +
-                                       ",<@FAMIGLIA2>" +
-                                       ",<@FAMIGLIA3>" +
-                                       ",<@FAMIGLIA1_PREFIX>" +
-                                       ",<@FAMIGLIA2_PREFIX>" +
-                                       ",<@FAMIGLIA3_PREFIX>" +
-                                       ",<@COMMESSA>" +
-                                       ",<@DEDDATE>" +
-                                       ",<@DBPATH>" +
-                                       ",<@DED_COD>" +
-                                       ",<@DED_DIS>" +
-                                       ",<@DED_FILE>" +
-                                       ",<@DEDREVDATE>" +
-                                       ",<@DEDREVDESC>" +
-                                       ",<@DEDREVUSER>" +
-                                       ",<@DEDSTATEID>" +
-                                       ",<@DEDDESC>" +
-                                       ",<@LG>" +
-                                       ",<@MATERIALE>" +
-                                       ",<@NOTA_DI_TAGLIO>" +
-                                       ",<@PESO>" +
-                                       ",<@SUP_GOMMATA>" +
+                                       "('" + currentSessionGuid + "'" +
+                                       ",<@@@!!èà@@DEDID>" +
+                                       ",<@@@!!èà@@DEDREV>" +
+                                       ",<@@@!!èà@@CATEGORIA1>" +
+                                       ",<@@@!!èà@@CATEGORIA2>" +
+                                       ",<@@@!!èà@@CATEGORIA3>" +
+                                       ",<@@@!!èà@@CATEGORIA1_PREFIX>" +
+                                       ",<@@@!!èà@@CATEGORIA2_PREFIX>" +
+                                       ",<@@@!!èà@@CATEGORIA3_PREFIX>" +
+                                       ",<@@@!!èà@@FAMIGLIA1>" +
+                                       ",<@@@!!èà@@FAMIGLIA2>" +
+                                       ",<@@@!!èà@@FAMIGLIA3>" +
+                                       ",<@@@!!èà@@FAMIGLIA1_PREFIX>" +
+                                       ",<@@@!!èà@@FAMIGLIA2_PREFIX>" +
+                                       ",<@@@!!èà@@FAMIGLIA3_PREFIX>" +
+                                       ",<@@@!!èà@@COMMESSA>" +
+                                       ",<@@@!!èà@@DEDDATE>" +
+                                       ",<@@@!!èà@@DBPATH>" +
+                                       ",<@@@!!èà@@DED_COD>" +
+                                       ",<@@@!!èà@@DED_DIS>" +
+                                       ",<@@@!!èà@@DED_FILE>" +
+                                       ",<@@@!!èà@@DEDREVDATE>" +
+                                       ",<@@@!!èà@@DEDREVDESC>" +
+                                       ",<@@@!!èà@@DEDREVUSER>" +
+                                       ",<@@@!!èà@@DEDSTATEID>" +
+                                       ",<@@@!!èà@@DEDDESC>" +
+                                       ",<@@@!!èà@@LG>" +
+                                       ",<@@@!!èà@@MATERIALE>" +
+                                       ",<@@@!!èà@@NOTA_DI_TAGLIO>" +
+                                       ",<@@@!!èà@@PESO>" +
+                                       ",<@@@!!èà@@SUP_GOMMATA>" +
                                        ",''" +  //<@TIPOLOGIA>
-                                       ",<@TRATT_TERM>" +
+                                       ",<@@@!!èà@@TRATT_TERM>" +
                                        ",''" + //<@DEDSTATEID1>
-                                       ",<@ITEM>" +
-                                       ",<@POTENZA>" +
-                                       ",<@N_MOTORI>" +
-                                       ",<@SOTTOCOMMESSA>" +
-                                       ",<@Standard_DIN>" +
-                                       ",<@Standard_ISO>" +
-                                       ",<@Standard_UNI>" +
-                                       ",<@MPTH>" +
-                                       ",<@Produttore>" +
-                                       ",<@shmetal_AreaContorno_mm2>" +
-                                       ",<@shmetal_L1_Contorno>" +
-                                       ",<@shmetal_L2_Contorno>" +
-                                       ",<@shmetal_Piegature>" +
-                                       ",<@shmetal_RaggioDiPiegatura>" +
-                                       ",<@shmetal_Sp_Lamiera>" +
-                                       ",<@Designazione>" +
-                                       ",<@DesignazioneGeometrica>" +
-                                       ",<@DesignazioneGeometricaEN>" +
-                                       ",<@DesignazioneGeometricaENG>" +
-                                       ",<@DesignazioneGeometricaITA>" +
-                                       ",<@IngombroX>" +
-                                       ",<@IngombroY>" +
-                                       ",<@IngombroZ>" +
-                                       ",<@LargMacchina>" +
-                                       ",<@LungMacchina>" +
-                                       ",<@CATEGORIA4>" +
-                                       ",<@CATEGORIA4_PREFIX>" +
-                                       ",<@CodiceProduttore>" +
-                                       ",<@CATEGORIA0>" +
-                                       ",<@CATEGORIA0_PREFIX>" +
-                                       ",<@FaiAcquista>" +
-                                       ",<@DescTecnicaITA>" +
-                                       ",<@DescTecnicaENG>" +
-                                       ",<@DescCommercialeITA>" +
-                                       ",<@DescCommercialeENG>" +
-                                       ",<@TrattFinitura>" +
-                                       ",<@TrattGalvanico>" +
-                                       ",<@TrattProtezione>" +
-                                       ",<@TrattSuperficiale>" +
-                                       ",<@Configurazione>" +
-                                       ",<@DEDLinear>" +
-                                       ",<@DEDMass>" +
+                                       ",<@@@!!èà@@ITEM>" +
+                                       ",<@@@!!èà@@POTENZA>" +
+                                       ",<@@@!!èà@@N_MOTORI>" +
+                                       ",<@@@!!èà@@SOTTOCOMMESSA>" +
+                                       ",<@@@!!èà@@Standard_DIN>" +
+                                       ",<@@@!!èà@@Standard_ISO>" +
+                                       ",<@@@!!èà@@Standard_UNI>" +
+                                       ",<@@@!!èà@@MPTH>" +
+                                       ",<@@@!!èà@@Produttore>" +
+                                       ",<@@@!!èà@@shmetal_AreaContorno_mm2>" +
+                                       ",<@@@!!èà@@shmetal_L1_Contorno>" +
+                                       ",<@@@!!èà@@shmetal_L2_Contorno>" +
+                                       ",<@@@!!èà@@shmetal_Piegature>" +
+                                       ",<@@@!!èà@@shmetal_RaggioDiPiegatura>" +
+                                       ",<@@@!!èà@@shmetal_Sp_Lamiera>" +
+                                       ",<@@@!!èà@@Designazione>" +
+                                       ",<@@@!!èà@@DesignazioneGeometrica>" +
+                                       ",<@@@!!èà@@DesignazioneGeometricaEN>" +
+                                       ",<@@@!!èà@@DesignazioneGeometricaENG>" +
+                                       ",<@@@!!èà@@DesignazioneGeometricaITA>" +
+                                       ",<@@@!!èà@@IngombroX>" +
+                                       ",<@@@!!èà@@IngombroY>" +
+                                       ",<@@@!!èà@@IngombroZ>" +
+                                       ",<@@@!!èà@@LargMacchina>" +
+                                       ",<@@@!!èà@@LungMacchina>" +
+                                       ",<@@@!!èà@@CATEGORIA4>" +
+                                       ",<@@@!!èà@@CATEGORIA4_PREFIX>" +
+                                       ",<@@@!!èà@@CodiceProduttore>" +
+                                       ",<@@@!!èà@@CATEGORIA0>" +
+                                       ",<@@@!!èà@@CATEGORIA0_PREFIX>" +
+                                       ",<@@@!!èà@@FaiAcquista>" +
+                                       ",<@@@!!èà@@DescTecnicaITA>" +
+                                       ",<@@@!!èà@@DescTecnicaENG>" +
+                                       ",<@@@!!èà@@DescCommercialeITA>" +
+                                       ",<@@@!!èà@@DescCommercialeENG>" +
+                                       ",<@@@!!èà@@TrattFinitura>" +
+                                       ",<@@@!!èà@@TrattGalvanico>" +
+                                       ",<@@@!!èà@@TrattProtezione>" +
+                                       ",<@@@!!èà@@TrattSuperficiale>" +
+                                       ",<@@@!!èà@@Configurazione>" +
+                                       ",<@@@!!èà@@DEDLinear>" +
+                                       ",<@@@!!èà@@DEDMass>" +
                                        ")";
 
 
@@ -1447,8 +1380,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         cParValue = "00";
                                     }
 
-
-
                                 }
 
 
@@ -1500,10 +1431,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 if (ppoColumns[j].mbsCaption == "TRATT_TERMICO")
                                 {
 
-                                    query = query.Replace("<@" + "TRATT_TERM" + ">", "'" + cParValue.Replace("'", "''") + "'");
+                                    query = query.Replace("<@@@!!èà@@" + "TRATT_TERM" + ">", "'" + cParValue.Replace("'", "''") + "'");
                                 }
                                 else
-                                    query = query.Replace("<@" + ppoColumns[j].mbsCaption + ">", "'" + cParValue.Replace("'", "''") + "'");
+                                    query = query.Replace("<@@@!!èà@@" + ppoColumns[j].mbsCaption + ">", "'" + cParValue.Replace("'", "''") + "'");
 
                                 //command.Parameters.AddWithValue("@" + ppoColumns[j].mbsCaption, cParValue);
 
@@ -1550,7 +1481,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         if (bNonCodificato)
                             return;
 
-                        query = query.Replace("<@" + "DEDDESC" + ">", "'" + descTecnicaITA.Replace("'", "''") + " --- " + descTecnicaENG.Replace("'", "''") + "'");
+                        query = query.Replace("<@@@!!èà@@@" + "DEDDESC" + ">", "'" + descTecnicaITA.Replace("'", "''") + " --- " + descTecnicaENG.Replace("'", "''") + "'");
 
                         //MessageBox.Show(query);
 
@@ -1615,26 +1546,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             /* cerco la configurazione costruttiva */                            
 
-                            /*
-                            ppoRow.GetVar(iConfCostrID
-                                          , ebctConfCostr
-                                          , out poValue
-                                          , out poComputedValue
-                                          , out pbsConfiguration
-                                          , out pbReadOnly);
                             
-                            
-
-                            sConfigurazioneCostruttivaGUID = poValue.ToString();
-                            
-
-                            if (sConfigurazioneCostruttivaGUID == null || sConfigurazioneCostruttivaGUID.Trim() == "")
-                            {
-
-                                throw new ApplicationException("GUID Configurazione Costruttiva non trovato nel file: " + cFileName);
-
-                            }
-                            */
 
                             ppoRow.GetVar(iQtyID
                                           , ebctQty
@@ -1895,9 +1807,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             bool bGetNonCodificato;
 
                             if (iPromosso == 2)
-                                insertXPORT(iIDChild, sFileNameDocCostr, iVersioneChild, sConfigurazioneCostruttiva, out sDEDIDC, out sDEDREVC, false, true, sDEDIDPromosso, sDEDREVPromosso, dQty, out iRetPromosso, out bGetNonCodificato);                                
+                                insertSW_ANAG_BOM(iIDChild, sFileNameDocCostr, iVersioneChild, sConfigurazioneCostruttiva, out sDEDIDC, out sDEDREVC, false, true, sDEDIDPromosso, sDEDREVPromosso, dQty, out iRetPromosso, out bGetNonCodificato);                                
                             else
-                                insertXPORT(iIDChild, sFileNameDocCostr, iVersioneChild, sConfigurazioneCostruttiva, out sDEDIDC, out sDEDREVC, false, false, sDEDIDP, sDEDREVP, 1, out iRetPromosso, out bGetNonCodificato);
+                                insertSW_ANAG_BOM(iIDChild, sFileNameDocCostr, iVersioneChild, sConfigurazioneCostruttiva, out sDEDIDC, out sDEDREVC, false, false, sDEDIDP, sDEDREVP, 1, out iRetPromosso, out bGetNonCodificato);
 
                             if (bGetNonCodificato)
                             {
@@ -1995,8 +1907,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             itmp_Consumo += 1;
                             string stmp_Consumo = itmp_Consumo.ToString();
 
-                            string query = "INSERT INTO [dbo].[tmp_ICM_Consumo] " +
-                            "(id" +
+                            string query =
+                            "IF NOT EXISTS (SELECT 1 FROM [dbo].[SWBOM] WHERE " +
+                            "[SessionID] = '" + currentSessionGuid + "' AND " +
+                            "[DEDIDP] = <@@@!!èà@@DEDIDP> AND " +
+                            "[DEREVP] = <@@@!!èà@@DEREVP> AND " +
+                            "[DEDIDC] = <@@@!!èà@@DEDIDC> AND " +
+                            "[DEREVC] = <@@@!!èà@@DEREVC> " +
+                            "INSERT INTO [dbo].[SWBOM] " +
+                            "([SessionID]" +
                             ",[DEDIDP]" +
                             ",[DEDREVP]" +
                             ",[DEDIDC]" +
@@ -2004,75 +1923,35 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",[QTA]" +
                             ",[FAMIGLIA1_PREFIX]" +
                             ",[FAMIGLIA2_PREFIX]" +
-                            ",[FAMIGLIA3_PREFIX]" +
-                            ",[LG]" +
-                            ",[SUP_GOMMATA]" +
-                            ",[PESO]" +
-                            ",[DEDLinear]" +
-                            ",[DEDMass])" +
+                            ",[FAMIGLIA3_PREFIX])" +
                             "VALUES" +
-                            "(<@Id>" +
-                            ",<@DEDIDP>" +
-                            ",<@DEDREVP>" +
-                            ",<@DEDIDC>" +
-                            ",<@DEDREVC>" +
-                            ",<@QTA>" +
-                            ",<@FAMIGLIA1_PREFIX>" +
-                            ",<@FAMIGLIA2_PREFIX>" +
-                            ",<@FAMIGLIA3_PREFIX>" +
-                            ",<@LG>" +
-                            ",<@SUP_GOMMATA>" +
-                            ",<@PESO>" +
-                            ",<@DEDLinear>" +
-                            ",<@DEDMass>" +
-                            ")";
+                            "('" + currentSessionGuid + "'" +
+                            "<@@@!!èà@@DEDIDP>" +
+                            ",<@@@!!èà@@DEDREVP>" +
+                            ",<@@@!!èà@@DEDIDC>" +
+                            ",<@@@!!èà@@DEDREVC>" +
+                            ",<@@@!!èà@@QTA>" +
+                            ",<@@@!!èà@@FAMIGLIA1_PREFIX>" +
+                            ",<@@@!!èà@@FAMIGLIA2_PREFIX>" +
+                            ",<@@@!!èà@@FAMIGLIA3_PREFIX>" +
+                            ") ELSE UPDATE [dbo].[SWBOM] SET [QTA] = [QTA] + <@@@!!èà@@QTA> WHERE " +
+                            "[SessionID] = '" + currentSessionGuid + "'" +
+                            "[DEDIDP] = <@@@!!èà@@DEDIDP> AND" +
+                            "[DEREVP] = <@@@!!èà@@DEREVP> AND" +
+                            "[DEDIDC] = <@@@!!èà@@DEDIDC> AND" +
+                            "[DEREVC] = <@@@!!èà@@DEREVC> ";
 
 
+                            
+                            query = query.Replace("<@@@!!èà@@DEDIDP>", "'" + tmp_DEDIDP.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@DEDREVP>", "'" + tmp_DEDREVP.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@DEDIDC>", "'" + tmp_DEDIDC.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@DEDREVC>", "'" + tmp_DEDREVC.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@QTA>", "'" + tmp_QTA.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@FAMIGLIA1_PREFIX>", "'" + tmp_FAMIGLIA1_PREFIX.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@FAMIGLIA2_PREFIX>", "'" + tmp_FAMIGLIA2_PREFIX.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@FAMIGLIA3_PREFIX>", "'" + tmp_FAMIGLIA3_PREFIX.Replace("'", "''") + "'");
 
-                            query = query.Replace("<@Id>", "'" + stmp_Consumo.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDIDP>", "'" + tmp_DEDIDP.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDREVP>", "'" + tmp_DEDREVP.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDIDC>", "'" + tmp_DEDIDC.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDREVC>", "'" + tmp_DEDREVC.Replace("'", "''") + "'");
-                            query = query.Replace("<@QTA>", "'" + tmp_QTA.Replace("'", "''") + "'");
-                            query = query.Replace("<@FAMIGLIA1_PREFIX>", "'" + tmp_FAMIGLIA1_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@FAMIGLIA2_PREFIX>", "'" + tmp_FAMIGLIA2_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@FAMIGLIA3_PREFIX>", "'" + tmp_FAMIGLIA3_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@LG>", "'" + tmp_LG.Replace("'", "''") + "'");
-                            query = query.Replace("<@SUP_GOMMATA>", "'" + tmp_SUP_GOMMATA.Replace("'", "''") + "'");
-                            query = query.Replace("<@PESO>", "'" + tmp_PESO.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDLinear>", "'" + tmp_DEDLinear.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDMass>", "'" + tmp_DEDMass.Replace("'", "''") + "'");
-
-
-                            /*string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[XPORT_DIST] WHERE DEDIDP = <@DEDIDP> AND DEDREVP = <@DEDREVP> AND DEDIDC =  <@DEDIDC> AND DEDREVC = <@DEDREVC>) " +
-
-                                "INSERT INTO [dbo].[XPORT_DIST] (" +
-                                "[DEDIDP]" +
-                                ",[DEDREVP]" +
-                                ",[DEDIDC]" +
-                                ",[DEDREVC]" +
-                                ",[QTA]" +                                
-                                ")VALUES(" +
-                                "<@DEDIDP>" +
-                                ",<@DEDREVP>" +
-                                ",<@DEDIDC>" +
-                                ",<@DEDREVC>" +
-                                ",<@QTA>)" +
-                                "ELSE " +
-                                "UPDATE [dbo].[XPORT_DIST] SET QTA = QTA + <@QTA> " +
-                                "WHERE [DEDIDP] = <@DEDIDP> " +
-                                "AND [DEDREVP] = <@DEDREVP> " +
-                                "AND [DEDIDC] = <@DEDIDC> " +
-                                "AND [DEDREVC] = <@DEDREVC> ";
-
-                            query = query.Replace("<@DEDIDP>", "'" + sDEDIDP.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDREVP>", "'" + sDEDREVP.Replace("'", "''") + "'");
-
-                            query = query.Replace("<@DEDIDC>", "'" + sDEDIDC.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDREVC>", "'" + sDEDREVC.Replace("'", "''") + "'");*/
-
-                            //query = query.Replace("<@QTA>", /*"'" + */ sQty.Replace("'", "''") /*+"'"*/);
 
 
                             //Debugger.Launch();
@@ -2115,9 +1994,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             /* Insert DEDANAG per CutList*/
 
-                            string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[XPORT_ANAG] WHERE DEDID = <@DEDID> AND DEDREV = <@DEDREV>) " +
+                            string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[XPORT_ANAG] WHERE SessionId = '" + currentSessionGuid + "' AND DEDID = <@DEDID> AND DEDREV = <@DEDREV>) " +
                                            "INSERT INTO [dbo].[XPORT_ANAG] " +
-                                           "([DEDID]" +
+                                           "([SessionID]" +
+                                           ",[DEDID]" +
                                            ",[DEDREV]" +
                                            ",[CATEGORIA1]" +
                                            ",[CATEGORIA2]" +
@@ -2194,81 +2074,82 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                            ",[DEDMass]" +
                                            ")" +
                                            "VALUES" +
-                                           "(<@DEDID>" +
-                                           ",<@DEDREV>" +
-                                           ",<@CATEGORIA1>" +
-                                           ",<@CATEGORIA2>" +
-                                           ",<@CATEGORIA3>" +
-                                           ",<@CATEGORIA1_PREFIX>" +
-                                           ",<@CATEGORIA2_PREFIX>" +
-                                           ",<@CATEGORIA3_PREFIX>" +
-                                           ",<@FAMIGLIA1>" +
-                                           ",<@FAMIGLIA2>" +
-                                           ",<@FAMIGLIA3>" +
-                                           ",<@FAMIGLIA1_PREFIX>" +
-                                           ",<@FAMIGLIA2_PREFIX>" +
-                                           ",<@FAMIGLIA3_PREFIX>" +
-                                           ",<@COMMESSA>" +
-                                           ",<@DEDDATE>" +
-                                           ",<@DBPATH>" +
-                                           ",<@DED_COD>" +
-                                           ",<@DED_DIS>" +
-                                           ",<@DED_FILE>" +
-                                           ",<@DEDREVDATE>" +
-                                           ",<@DEDREVDESC>" +
-                                           ",<@DEDREVUSER>" +
-                                           ",<@DEDSTATEID>" +
-                                           ",<@DEDDESC>" +
-                                           ",<@LG>" +
-                                           ",<@MATERIALE>" +
-                                           ",<@NOTA_DI_TAGLIO>" +
-                                           ",<@PESO>" +
-                                           ",<@SUP_GOMMATA>" +
+                                           "('" + currentSessionGuid + "'" +
+                                           ",<@@@!!èà@@DEDID>" +
+                                           ",<@@@!!èà@@DEDREV>" +
+                                           ",<@@@!!èà@@CATEGORIA1>" +
+                                           ",<@@@!!èà@@CATEGORIA2>" +
+                                           ",<@@@!!èà@@CATEGORIA3>" +
+                                           ",<@@@!!èà@@CATEGORIA1_PREFIX>" +
+                                           ",<@@@!!èà@@CATEGORIA2_PREFIX>" +
+                                           ",<@@@!!èà@@CATEGORIA3_PREFIX>" +
+                                           ",<@@@!!èà@@FAMIGLIA1>" +
+                                           ",<@@@!!èà@@FAMIGLIA2>" +
+                                           ",<@@@!!èà@@FAMIGLIA3>" +
+                                           ",<@@@!!èà@@FAMIGLIA1_PREFIX>" +
+                                           ",<@@@!!èà@@FAMIGLIA2_PREFIX>" +
+                                           ",<@@@!!èà@@FAMIGLIA3_PREFIX>" +
+                                           ",<@@@!!èà@@COMMESSA>" +
+                                           ",<@@@!!èà@@DEDDATE>" +
+                                           ",<@@@!!èà@@DBPATH>" +
+                                           ",<@@@!!èà@@DED_COD>" +
+                                           ",<@@@!!èà@@DED_DIS>" +
+                                           ",<@@@!!èà@@DED_FILE>" +
+                                           ",<@@@!!èà@@DEDREVDATE>" +
+                                           ",<@@@!!èà@@DEDREVDESC>" +
+                                           ",<@@@!!èà@@DEDREVUSER>" +
+                                           ",<@@@!!èà@@DEDSTATEID>" +
+                                           ",<@@@!!èà@@DEDDESC>" +
+                                           ",<@@@!!èà@@LG>" +
+                                           ",<@@@!!èà@@MATERIALE>" +
+                                           ",<@@@!!èà@@NOTA_DI_TAGLIO>" +
+                                           ",<@@@!!èà@@PESO>" +
+                                           ",<@@@!!èà@@SUP_GOMMATA>" +
                                            ",''" +  //<@TIPOLOGIA>
-                                           ",<@TRATT_TERM>" +
+                                           ",<@@@!!èà@@TRATT_TERM>" +
                                            ",''" + //<@DEDSTATEID1>
-                                           ",<@ITEM>" +
-                                           ",<@POTENZA>" +
-                                           ",<@N_MOTORI>" +
-                                           ",<@SOTTOCOMMESSA>" +
-                                           ",<@Standard_DIN>" +
-                                           ",<@Standard_ISO>" +
-                                           ",<@Standard_UNI>" +
-                                           ",<@MPTH>" +
-                                           ",<@Produttore>" +
-                                           ",<@shmetal_AreaContorno_mm2>" +
-                                           ",<@shmetal_L1_Contorno>" +
-                                           ",<@shmetal_L2_Contorno>" +
-                                           ",<@shmetal_Piegature>" +
-                                           ",<@shmetal_RaggioDiPiegatura>" +
-                                           ",<@shmetal_Sp_Lamiera>" +
-                                           ",<@Designazione>" +
-                                           ",<@DesignazioneGeometrica>" +
-                                           ",<@DesignazioneGeometricaEN>" +
-                                           ",<@DesignazioneGeometricaENG>" +
-                                           ",<@DesignazioneGeometricaITA>" +
-                                           ",<@IngombroX>" +
-                                           ",<@IngombroY>" +
-                                           ",<@IngombroZ>" +
-                                           ",<@LargMacchina>" +
-                                           ",<@LungMacchina>" +
-                                           ",<@CATEGORIA4>" +
-                                           ",<@CATEGORIA4_PREFIX>" +
-                                           ",<@CodiceProduttore>" +
-                                           ",<@CATEGORIA0>" +
-                                           ",<@CATEGORIA0_PREFIX>" +
+                                           ",<@@@!!èà@@ITEM>" +
+                                           ",<@@@!!èà@@POTENZA>" +
+                                           ",<@@@!!èà@@N_MOTORI>" +
+                                           ",<@@@!!èà@@SOTTOCOMMESSA>" +
+                                           ",<@@@!!èà@@Standard_DIN>" +
+                                           ",<@@@!!èà@@Standard_ISO>" +
+                                           ",<@@@!!èà@@Standard_UNI>" +
+                                           ",<@@@!!èà@@MPTH>" +
+                                           ",<@@@!!èà@@Produttore>" +
+                                           ",<@@@!!èà@@shmetal_AreaContorno_mm2>" +
+                                           ",<@@@!!èà@@shmetal_L1_Contorno>" +
+                                           ",<@@@!!èà@@shmetal_L2_Contorno>" +
+                                           ",<@@@!!èà@@shmetal_Piegature>" +
+                                           ",<@@@!!èà@@shmetal_RaggioDiPiegatura>" +
+                                           ",<@@@!!èà@@shmetal_Sp_Lamiera>" +
+                                           ",<@@@!!èà@@Designazione>" +
+                                           ",<@@@!!èà@@DesignazioneGeometrica>" +
+                                           ",<@@@!!èà@@DesignazioneGeometricaEN>" +
+                                           ",<@@@!!èà@@DesignazioneGeometricaENG>" +
+                                           ",<@@@!!èà@@DesignazioneGeometricaITA>" +
+                                           ",<@@@!!èà@@IngombroX>" +
+                                           ",<@@@!!èà@@IngombroY>" +
+                                           ",<@@@!!èà@@IngombroZ>" +
+                                           ",<@@@!!èà@@LargMacchina>" +
+                                           ",<@@@!!èà@@LungMacchina>" +
+                                           ",<@@@!!èà@@CATEGORIA4>" +
+                                           ",<@@@!!èà@@CATEGORIA4_PREFIX>" +
+                                           ",<@@@!!èà@@CodiceProduttore>" +
+                                           ",<@@@!!èà@@CATEGORIA0>" +
+                                           ",<@@@!!èà@@CATEGORIA0_PREFIX>" +
                                            ",'Acquista'" +     // Se importiamo il body, allora deve essere acquistato
-                                           ",<@DescTecnicaITA>" +
-                                           ",<@DescTecnicaENG>" +
-                                           ",<@DescCommercialeITA>" +
-                                           ",<@DescCommercialeENG>" +
-                                           ",<@TrattFinitura>" +
-                                           ",<@TrattGalvanico>" +
-                                           ",<@TrattProtezione>" +
-                                           ",<@TrattSuperficiale>" +
-                                           ",<@Configurazione>" +
-                                           ",<@DEDLinear>" +
-                                           ",<@DEDMass>" +
+                                           ",<@@@!!èà@@DescTecnicaITA>" +
+                                           ",<@@@!!èà@@DescTecnicaENG>" +
+                                           ",<@@@!!èà@@DescCommercialeITA>" +
+                                           ",<@@@!!èà@@DescCommercialeENG>" +
+                                           ",<@@@!!èà@@TrattFinitura>" +
+                                           ",<@@@!!èà@@TrattGalvanico>" +
+                                           ",<@@@!!èà@@TrattProtezione>" +
+                                           ",<@@@!!èà@@TrattSuperficiale>" +
+                                           ",<@@@!!èà@@Configurazione>" +
+                                           ",<@@@!!èà@@DEDLinear>" +
+                                           ",<@@@!!èà@@DEDMass>" +
                                            ")";
 
 
@@ -2283,10 +2164,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             sFAMIGLIA2_PREFIX = "";
                             sFAMIGLIA3_PREFIX = "";
 
-
                             while (j < arrSize2)
                             {
-
 
 
                                 //MessageBox.Show(ppoColumns[j].mbsCaption + " --- " + ppoColumns[j].mlFlags.ToString());
@@ -2393,10 +2272,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     if (ppoColumns[j].mbsCaption == "TRATT_TERMICO")
                                     {
 
-                                        query = query.Replace("<@" + "TRATT_TERM" + ">", "'" + cParValue.Replace("'", "''") + "'");
+                                        query = query.Replace("<@@@!!èà@@" + "TRATT_TERM" + ">", "'" + cParValue.Replace("'", "''") + "'");
                                     }
                                     else
-                                        query = query.Replace("<@" + ppoColumns[j].mbsCaption + ">", "'" + cParValue.Replace("'", "''") + "'");
+                                        query = query.Replace("<@@@!!èà@@" + ppoColumns[j].mbsCaption + ">", "'" + cParValue.Replace("'", "''") + "'");
 
                                     //command.Parameters.AddWithValue("@" + ppoColumns[j].mbsCaption, cParValue);
 
@@ -2482,7 +2361,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (bNonCodificato)
                                 continue;
 
-                            query = query.Replace("<@" + "DEDDESC" + ">", "'" + descTecnicaITA.Replace("'", "''") + " --- " + descTecnicaENG.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@" + "DEDDESC" + ">", "'" + descTecnicaITA.Replace("'", "''") + " --- " + descTecnicaENG.Replace("'", "''") + "'");
 
                             TS.WriteLine("Esporta " + sDEDIDCCut + "//" + sDEDREVCCut + " --- " + descTecnicaITA);
 
@@ -2562,8 +2441,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             itmp_Consumo += 1;
                             string stmp_Consumo = itmp_Consumo.ToString();
 
-                            query = "INSERT INTO [dbo].[tmp_ICM_Consumo] " +
-                            "(id" +
+
+                            query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[SWBOM] WHERE " +
+                            "[SessionID] = '" + currentSessionGuid + "' AND " +
+                            "[DEDIDP] = <@@@!!èà@@DEDIDP> AND " +
+                            "[DEREVP] = <@@@!!èà@@DEREVP> AND " +
+                            "[DEDIDC] = <@@@!!èà@@DEDIDC> AND " +
+                            "[DEREVC] = <@@@!!èà@@DEREVC> " +
+                            "INSERT INTO [dbo].[SWBOM] " +
+                            "([SessionID]" +
                             ",[DEDIDP]" +
                             ",[DEDREVP]" +
                             ",[DEDIDC]" +
@@ -2571,45 +2457,33 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",[QTA]" +
                             ",[FAMIGLIA1_PREFIX]" +
                             ",[FAMIGLIA2_PREFIX]" +
-                            ",[FAMIGLIA3_PREFIX]" +
-                            ",[LG]" +
-                            ",[SUP_GOMMATA]" +
-                            ",[PESO]" +
-                            ",[DEDLinear]" +
-                            ",[DEDMass])" +
+                            ",[FAMIGLIA3_PREFIX])" +
                             "VALUES" +
-                            "(<@Id>" +
-                            ",<@DEDIDP>" +
-                            ",<@DEDREVP>" +
-                            ",<@DEDIDC>" +
-                            ",<@DEDREVC>" +
-                            ",<@QTA>" +
-                            ",<@FAMIGLIA1_PREFIX>" +
-                            ",<@FAMIGLIA2_PREFIX>" +
-                            ",<@FAMIGLIA3_PREFIX>" +
-                            ",<@LG>" +
-                            ",<@SUP_GOMMATA>" +
-                            ",<@PESO>" +
-                            ",<@DEDLinear>" +
-                            ",<@DEDMass>" +
-                            ")";
+                            "('" + currentSessionGuid + "'" +
+                            "<@@@!!èà@@DEDIDP>" +
+                            ",<@@@!!èà@@DEDREVP>" +
+                            ",<@@@!!èà@@DEDIDC>" +
+                            ",<@@@!!èà@@DEDREVC>" +
+                            ",<@@@!!èà@@QTA>" +
+                            ",<@@@!!èà@@FAMIGLIA1_PREFIX>" +
+                            ",<@@@!!èà@@FAMIGLIA2_PREFIX>" +
+                            ",<@@@!!èà@@FAMIGLIA3_PREFIX>" +
+                            ") ELSE UPDATE [dbo].[SWBOM] SET [QTA] = [QTA] + <@@@!!èà@@QTA> WHERE " +
+                            "[SessionID] = '" + currentSessionGuid + "'" +
+                            "[DEDIDP] = <@@@!!èà@@DEDIDP> AND" +
+                            "[DEREVP] = <@@@!!èà@@DEREVP> AND" +
+                            "[DEDIDC] = <@@@!!èà@@DEDIDC> AND" +
+                            "[DEREVC] = <@@@!!èà@@DEREVC> ";
 
 
-
-                            query = query.Replace("<@Id>", "'" + stmp_Consumo.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDIDP>", "'" + tmp_DEDIDP.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDREVP>", "'" + tmp_DEDREVP.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDIDC>", "'" + tmp_DEDIDC.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDREVC>", "'" + tmp_DEDREVC.Replace("'", "''") + "'");
-                            query = query.Replace("<@QTA>", "'" + tmp_QTA.Replace("'", "''") + "'");
-                            query = query.Replace("<@FAMIGLIA1_PREFIX>", "'" + tmp_FAMIGLIA1_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@FAMIGLIA2_PREFIX>", "'" + tmp_FAMIGLIA2_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@FAMIGLIA3_PREFIX>", "'" + tmp_FAMIGLIA3_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@LG>", "'" + tmp_LG.Replace("'", "''") + "'");
-                            query = query.Replace("<@SUP_GOMMATA>", "'" + tmp_SUP_GOMMATA.Replace("'", "''") + "'");
-                            query = query.Replace("<@PESO>", "'" + tmp_PESO.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDLinear>", "'" + tmp_DEDLinear.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDMass>", "'" + tmp_DEDMass.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@DEDIDP>", "'" + tmp_DEDIDP.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@DEDREVP>", "'" + tmp_DEDREVP.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@DEDIDC>", "'" + tmp_DEDIDC.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@DEDREVC>", "'" + tmp_DEDREVC.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@QTA>", "'" + tmp_QTA.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@FAMIGLIA1_PREFIX>", "'" + tmp_FAMIGLIA1_PREFIX.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@FAMIGLIA2_PREFIX>", "'" + tmp_FAMIGLIA2_PREFIX.Replace("'", "''") + "'");
+                            query = query.Replace("<@@@!!èà@@FAMIGLIA3_PREFIX>", "'" + tmp_FAMIGLIA3_PREFIX.Replace("'", "''") + "'");
 
                             //MessageBox.Show(query);
 

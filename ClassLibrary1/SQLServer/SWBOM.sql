@@ -1,6 +1,3 @@
-USE [EPDMSuite]
-GO
-
 /****** Object:  Table [dbo].[XPORT_DIST]    Script Date: 12/1/2022 4:55:37 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -9,18 +6,20 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE TABLE [dbo].[SWBOM](
+    [SessionID] [uniqueidentifier] NOT NULL,
 	[DEDIDP] [nvarchar](50) NOT NULL,
 	[DEDREVP] [nvarchar](50) NOT NULL,
 	[DEDIDC] [nvarchar](50) NOT NULL,
 	[DEDREVC] [nvarchar](50) NOT NULL,
 	[QTA] numeric(21,6) NOT NULL DEFAULT (0),
 	[CONSUMO] [numeric] (21, 6) NOT NULL DEFAULT (0),
-	[UM] [nvarchar](50) NOT NULL DEFAULT (''),
+	[UMCONSUMO] [nvarchar](50) NOT NULL DEFAULT (''),
 	[FAMIGLIA1_PREFIX] nvarchar(200),
 	[FAMIGLIA2_PREFIX] nvarchar(200),
 	[FAMIGLIA3_PREFIX] nvarchar(200),
  CONSTRAINT [PK_SWBOM] PRIMARY KEY CLUSTERED 
 (
+	[SessionID] ASC,
 	[DEDIDP] ASC,
 	[DEDREVP] ASC,
 	[DEDIDC] ASC,
