@@ -82,7 +82,7 @@ BEGIN
 
 	  CREATE TABLE ICM_UMAcq (id INT, name varchar(50), entity varchar(100), PRIMARY KEY (id))
 
-	  if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME= 'tmp_ICM_Consumo')
+	  /*if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME= 'tmp_ICM_Consumo')
 	    DROP TABLE tmp_ICM_Consumo
 
 	  CREATE TABLE tmp_ICM_Consumo
@@ -102,7 +102,7 @@ BEGIN
 	  , DEDMass nvarchar(200)
 	   PRIMARY KEY (id)
 	  )
-
+	  */
 
 
 

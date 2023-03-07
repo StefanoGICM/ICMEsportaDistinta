@@ -78,12 +78,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="SQLServer\ICMCalcoloConsumoSp.sql" />
+    <Content Include="SQLServer\ICMSWData.sql" />
     <Content Include="SQLServer\ICM_Conf_GetConfiUltVerSp.sql" />
     <Content Include="SQLServer\ICM_Conf_GetPromossoSP.sql" />
     <Content Include="SQLServer\ICM_Importa_Distinta_In_Arca_Gestionale.sql" />
     <Content Include="SQLServer\xInserisciStati.sql" />
-    <Content Include="SQLServer\XPORT_ANAG.sql" />
-    <Content Include="SQLServer\XPORT_DIST.sql" />
+    <Content Include="SQLServer\SWANAG.sql" />
+    <Content Include="SQLServer\SWBOM.sql" />
     <Content Include="SQLServer\XPORT_Elab.sql" />
     <Content Include="SQLServer\XPORT_Pro.sql" />
     <Content Include="SQLServer\XPORT_QUEUE.sql" />
