@@ -84,6 +84,8 @@
     <Content Include="SQLServer\xInserisciStati.sql" />
     <Content Include="SQLServer\XPORT_ANAG.sql" />
     <Content Include="SQLServer\XPORT_DIST.sql" />
+    <Content Include="SQLServer\XPORT_Elab.sql" />
+    <Content Include="SQLServer\XPORT_Pro.sql" />
     <Content Include="SQLServer\XPORT_QUEUE.sql" />
     <Content Include="SQLServer\xSOLIDCancellaDistintaSp.sql" />
     <Content Include="SQLServer\xSOLIDCheckDIBASp.sql" />

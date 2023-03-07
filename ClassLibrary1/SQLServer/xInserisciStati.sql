@@ -1,5 +1,3 @@
-USE [ADB_FREDDO]
-GO
 
 INSERT INTO [dbo].[xStatoDED]
            ([Cd_xStatoDED]
@@ -14,6 +12,13 @@ INSERT INTO [dbo].[xStatoDED]
      VALUES
            ('500'
            ,'Under Editing')
+
+INSERT INTO [dbo].[xStatoDED]
+           ([Cd_xStatoDED]
+           ,[Descrizione])
+     VALUES
+           ('600'
+           ,'Approved')
 GO
 
 
