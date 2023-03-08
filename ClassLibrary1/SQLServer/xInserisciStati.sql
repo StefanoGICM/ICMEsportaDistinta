@@ -19,6 +19,14 @@ INSERT INTO [dbo].[xStatoDED]
      VALUES
            ('600'
            ,'Approved')
+
+INSERT INTO [dbo].[xStatoDED]
+           ([Cd_xStatoDED]
+           ,[Descrizione])
+     VALUES
+           ('550'
+           ,'Change Pending Approval')
+
 GO
 
 

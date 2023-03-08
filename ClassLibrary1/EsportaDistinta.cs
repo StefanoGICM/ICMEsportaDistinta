@@ -32,9 +32,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         IEdmBomMgr bomMgr;
         IEdmBomView bomView;
         string connectionString;
+
+        string connectionStringSWICMDATA = "Data Source='ws91';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
+        string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO_TEST; User ID = sa; Password = 'Logitech0'";
+
+
         string connectionStringVault;
         Dictionary<Tuple<string, string>, Tuple<string, string, int>> cacheDictionary;
         SqlConnection cnn;
+        SqlConnection cnnARCA;
         //SqlConnection cnnVault;
         string sFileName;
         string cTempCodice = "NONCODIFICATO";
@@ -187,6 +193,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             currentSessionGuid = Guid.NewGuid();
 
+            TS.WriteLine("SessionID: " + currentSessionGuid.ToString());
+
             DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Started;
 
             try
@@ -203,8 +211,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //Connessione al DB e inizio transazione
 
-                        //connectionString = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
-                        connectionString = "Data Source='ws91';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                        connectionString = connectionStringSWICMDATA;
 
                         cnn = new SqlConnection(connectionString);
 
@@ -224,7 +231,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         TS.WriteLine("Cancellazione tabelle temporanee");
 
-                        query = "DELETE FROM [dbo].[XPORT_DIST] WHERE SessionID = '" + currentSessionGuid + "'";
+                        query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
 
                         SqlCommand command = new SqlCommand(query, cnn);
                         command.CommandTimeout = 0;
@@ -233,7 +240,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         command.ExecuteNonQuery();
 
 
-                        query = "DELETE FROM [dbo].[XPORT_ANAG] WHERE SessionID = '" + currentSessionGuid + "'";
+                        query = "DELETE FROM [dbo].[SWANAG] WHERE SessionID = '" + currentSessionGuid + "'";
 
                         SqlCommand command1 = new SqlCommand(query, cnn);
 
@@ -256,13 +263,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                    
                         // Calcolo consumo
                         
-                        TS.WriteLine("Calcolo consumo e creazione distinta");
+                        TS.WriteLine("Calcolo consumo");
 
                         SqlCommand command2 = new SqlCommand("dbo.ICMCalcoloConsumoSp", cnn);
                         command2.Transaction = transaction;
                         command2.CommandType = CommandType.StoredProcedure;
 
-                        SqlParameter sqlParam = new SqlParameter("@XErrore", SqlDbType.VarChar, 1000);
+                        SqlParameter sqlParam = new SqlParameter("@SessionID", SqlDbType.UniqueIdentifier);
+                        sqlParam.Direction = ParameterDirection.Input;
+                        sqlParam.Value = currentSessionGuid;
+                        command2.Parameters.Add(sqlParam);
+
+                        sqlParam = new SqlParameter("@XErrore", SqlDbType.VarChar, 1000);
                         //sqlParam.ParameterName = "@Result";
                         //sqlParam.DbType = DbType.Boolean;
                         sqlParam.Direction = ParameterDirection.Output;
@@ -281,18 +293,17 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         if (!(XErrore.Trim() == "" || XErrore == null))
                         {
 
-
                             throw new ApplicationException("Errore in calcolo consumo per distinta: " + XErrore);
-
 
                         }
                         
                         
                         transaction.Commit();
 
-                        cnn.Close();
+                        //cnn.Close();
                         //cnnVault.Close();
 
+                        
 
                         transaction = null;
 
@@ -302,20 +313,30 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         //MessageBox.Show("Importa in ARCA");
 
                         TS.WriteLine("Importazione distinta in ARCA");
+                        
+                        connectionString = connectionStringARCA;
 
-                        //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO_TEST; User ID = sa; Password = 'Logitech0'";
+                        cnnARCA = new SqlConnection(connectionString);
 
-                        cnn = new SqlConnection(connectionString);
+                        cnnARCA.Open();
 
-                        cnn.Open();
-
-                        SqlCommand cmd2 = new SqlCommand("xICM_Importa_Distinta_In_ArcaSp", cnn);
+                        SqlCommand cmd2 = new SqlCommand("xICM_Importa_Distinta_In_ArcaSp", cnnARCA);
 
                         cmd2.CommandType = CommandType.StoredProcedure;
 
                         cmd2.CommandTimeout = 0;
 
+                        SqlParameter sqlParam20 = new SqlParameter("@SessionID", SqlDbType.UniqueIdentifier);
+                        sqlParam20.Direction = ParameterDirection.Input;
+                        sqlParam20.Value = currentSessionGuid;
+                        cmd2.Parameters.Add(sqlParam20);
+
+                        SqlParameter sqlParam21 = new SqlParameter("@POnlyTop", SqlDbType.Int);
+                        sqlParam21.Direction = ParameterDirection.Input;
+                        sqlParam21.Value = 0;
+                        cmd2.Parameters.Add(sqlParam21);
+
+                        
                         SqlParameter sqlParam2 = new SqlParameter("@XWarning", SqlDbType.VarChar, -1);
                         //sqlParam.ParameterName = "@Result";
                         //sqlParam.DbType = DbType.Boolean;
@@ -327,6 +348,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         cmd2.Parameters.Add(sqlParam2);
 
+                        
 
 
                         //sqlParam2.Size = -1;
@@ -336,6 +358,33 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         cmd2.ExecuteNonQuery();
 
                         XWarning = cmd2.Parameters["@XWarning"].Value.ToString();
+
+                        cnnARCA.Close();
+
+                        transaction = cnn.BeginTransaction();
+
+                        TS.WriteLine("Cancellazione tabelle temporanee");
+
+                        query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
+
+                        command = new SqlCommand(query, cnn);
+                        command.CommandTimeout = 0;
+                        command.Transaction = transaction;
+
+                        command.ExecuteNonQuery();
+
+
+                        query = "DELETE FROM [dbo].[SWANAG] WHERE SessionID = '" + currentSessionGuid + "'";
+
+                        command1 = new SqlCommand(query, cnn);
+
+                        command1.Transaction = transaction;
+
+                        command1.ExecuteNonQuery();
+
+                        transaction.Commit();
+
+                        cnn.Close();
 
                         if (!(XWarning.Trim() == "" || XWarning == null))
                         {                            
@@ -1118,7 +1167,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         /* Insert DEDANAG */
 
-                        string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[SWANAG] WHERE SessionId = '" + currentSessionGuid + "' AND DEDID = <@DEDID> AND DEDREV = <@DEDREV>) " +
+                        string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[SWANAG] WHERE SessionId = '" + currentSessionGuid + "' AND DEDID = <@@@!!èà@@DEDID> AND DEDREV = <@@@!!èà@@DEDREV>) " +
                                        "INSERT INTO [dbo].[SWANAG] " +
                                        "([SessionID]" +
                                        ",[DEDID]" +
@@ -1195,7 +1244,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                        ",[TrattSuperficiale]" +
                                        ",[Configurazione]" +
                                        ",[DEDLinear]" +
-                                       ",[DEDMass])" +
+                                       ",[DEDMass]" +
+                                       ",[DateIns]" +
+                                       ",[DateUpd])" +
                                        "VALUES" +
                                        "('" + currentSessionGuid + "'" +
                                        ",<@@@!!èà@@DEDID>" +
@@ -1273,7 +1324,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                        ",<@@@!!èà@@Configurazione>" +
                                        ",<@@@!!èà@@DEDLinear>" +
                                        ",<@@@!!èà@@DEDMass>" +
-                                       ")";
+                                       ",GETDATE()" +
+                                       ",GETDATE())";
 
 
 
@@ -1481,7 +1533,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         if (bNonCodificato)
                             return;
 
-                        query = query.Replace("<@@@!!èà@@@" + "DEDDESC" + ">", "'" + descTecnicaITA.Replace("'", "''") + " --- " + descTecnicaENG.Replace("'", "''") + "'");
+                        query = query.Replace("<@@@!!èà@@" + "DEDDESC" + ">", "'" + descTecnicaITA.Replace("'", "''") + " --- " + descTecnicaENG.Replace("'", "''") + "'");
 
                         //MessageBox.Show(query);
 
@@ -1497,6 +1549,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         if (!((iPromosso == 2) && cTipoDistinta == "DistintaAssiemePerArca"))
                         {
+
+
+                            //TS.WriteLine(query);
 
                             SqlCommand command = new SqlCommand(query, cnn);
                             command.Transaction = transaction;
@@ -1911,9 +1966,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             "IF NOT EXISTS (SELECT 1 FROM [dbo].[SWBOM] WHERE " +
                             "[SessionID] = '" + currentSessionGuid + "' AND " +
                             "[DEDIDP] = <@@@!!èà@@DEDIDP> AND " +
-                            "[DEREVP] = <@@@!!èà@@DEREVP> AND " +
+                            "[DEDREVP] = <@@@!!èà@@DEDREVP> AND " +
                             "[DEDIDC] = <@@@!!èà@@DEDIDC> AND " +
-                            "[DEREVC] = <@@@!!èà@@DEREVC> " +
+                            "[DEDREVC] = <@@@!!èà@@DEDREVC>) " +
                             "INSERT INTO [dbo].[SWBOM] " +
                             "([SessionID]" +
                             ",[DEDIDP]" +
@@ -1923,10 +1978,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",[QTA]" +
                             ",[FAMIGLIA1_PREFIX]" +
                             ",[FAMIGLIA2_PREFIX]" +
-                            ",[FAMIGLIA3_PREFIX])" +
+                            ",[FAMIGLIA3_PREFIX]" +
+                            ",[DateIns]" +
+                            ",[DateUpd])" +
                             "VALUES" +
                             "('" + currentSessionGuid + "'" +
-                            "<@@@!!èà@@DEDIDP>" +
+                            ",<@@@!!èà@@DEDIDP>" +
                             ",<@@@!!èà@@DEDREVP>" +
                             ",<@@@!!èà@@DEDIDC>" +
                             ",<@@@!!èà@@DEDREVC>" +
@@ -1934,12 +1991,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",<@@@!!èà@@FAMIGLIA1_PREFIX>" +
                             ",<@@@!!èà@@FAMIGLIA2_PREFIX>" +
                             ",<@@@!!èà@@FAMIGLIA3_PREFIX>" +
-                            ") ELSE UPDATE [dbo].[SWBOM] SET [QTA] = [QTA] + <@@@!!èà@@QTA> WHERE " +
-                            "[SessionID] = '" + currentSessionGuid + "'" +
-                            "[DEDIDP] = <@@@!!èà@@DEDIDP> AND" +
-                            "[DEREVP] = <@@@!!èà@@DEREVP> AND" +
-                            "[DEDIDC] = <@@@!!èà@@DEDIDC> AND" +
-                            "[DEREVC] = <@@@!!èà@@DEREVC> ";
+                            ",GETDATE()" +
+                            ",GETDATE()" +
+                            ") ELSE UPDATE [dbo].[SWBOM] SET [QTA] = [QTA] + <@@@!!èà@@QTA>,DateUpd = GETDATE() WHERE " +
+                            "[SessionID] = '" + currentSessionGuid + "' AND " +
+                            "[DEDIDP] = <@@@!!èà@@DEDIDP> AND " +
+                            "[DEDREVP] = <@@@!!èà@@DEDREVP> AND " +
+                            "[DEDIDC] = <@@@!!èà@@DEDIDC> AND " +
+                            "[DEDREVC] = <@@@!!èà@@DEDREVC> ";
 
 
                             
@@ -1962,6 +2021,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 SqlCommand command = new SqlCommand(query, cnn);
                                 command.Transaction = transaction;
+
+                                //TS.WriteLine(query);
 
                                 command.ExecuteNonQuery();
 
@@ -1994,8 +2055,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             /* Insert DEDANAG per CutList*/
 
-                            string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[XPORT_ANAG] WHERE SessionId = '" + currentSessionGuid + "' AND DEDID = <@DEDID> AND DEDREV = <@DEDREV>) " +
-                                           "INSERT INTO [dbo].[XPORT_ANAG] " +
+                            string query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[SWANAG] WHERE SessionId = '" + currentSessionGuid + "' AND DEDID = <@@@!!èà@@DEDID> AND DEDREV = <@@@!!èà@@DEDREV>) " +
+                                           "INSERT INTO [dbo].[SWANAG] " +
                                            "([SessionID]" +
                                            ",[DEDID]" +
                                            ",[DEDREV]" +
@@ -2072,6 +2133,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                            ",[Configurazione]" +
                                            ",[DEDLinear]" +
                                            ",[DEDMass]" +
+                                           ",[DateIns]" +
+                                           ",[DateUpd]" +
                                            ")" +
                                            "VALUES" +
                                            "('" + currentSessionGuid + "'" +
@@ -2150,6 +2213,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                            ",<@@@!!èà@@Configurazione>" +
                                            ",<@@@!!èà@@DEDLinear>" +
                                            ",<@@@!!èà@@DEDMass>" +
+                                           ",GETDATE()" +
+                                           ",GETDATE()" +
                                            ")";
 
 
@@ -2368,6 +2433,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             SqlCommand command = new SqlCommand(query, cnn);
                             command.Transaction = transaction;
 
+                            //TS.WriteLine(query);
+
                             command.ExecuteNonQuery();
 
                             // Insert DEDDIST per CutList
@@ -2445,9 +2512,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[SWBOM] WHERE " +
                             "[SessionID] = '" + currentSessionGuid + "' AND " +
                             "[DEDIDP] = <@@@!!èà@@DEDIDP> AND " +
-                            "[DEREVP] = <@@@!!èà@@DEREVP> AND " +
+                            "[DEDREVP] = <@@@!!èà@@DEDREVP> AND " +
                             "[DEDIDC] = <@@@!!èà@@DEDIDC> AND " +
-                            "[DEREVC] = <@@@!!èà@@DEREVC> " +
+                            "[DEDREVC] = <@@@!!èà@@DEDREVC>) " +
                             "INSERT INTO [dbo].[SWBOM] " +
                             "([SessionID]" +
                             ",[DEDIDP]" +
@@ -2457,10 +2524,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",[QTA]" +
                             ",[FAMIGLIA1_PREFIX]" +
                             ",[FAMIGLIA2_PREFIX]" +
-                            ",[FAMIGLIA3_PREFIX])" +
+                            ",[FAMIGLIA3_PREFIX]" +
+                            ",[DateIns]" +
+                            ",[DateUpd]" +
+                            ")" +
                             "VALUES" +
                             "('" + currentSessionGuid + "'" +
-                            "<@@@!!èà@@DEDIDP>" +
+                            ",<@@@!!èà@@DEDIDP>" +
                             ",<@@@!!èà@@DEDREVP>" +
                             ",<@@@!!èà@@DEDIDC>" +
                             ",<@@@!!èà@@DEDREVC>" +
@@ -2468,12 +2538,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",<@@@!!èà@@FAMIGLIA1_PREFIX>" +
                             ",<@@@!!èà@@FAMIGLIA2_PREFIX>" +
                             ",<@@@!!èà@@FAMIGLIA3_PREFIX>" +
-                            ") ELSE UPDATE [dbo].[SWBOM] SET [QTA] = [QTA] + <@@@!!èà@@QTA> WHERE " +
-                            "[SessionID] = '" + currentSessionGuid + "'" +
-                            "[DEDIDP] = <@@@!!èà@@DEDIDP> AND" +
-                            "[DEREVP] = <@@@!!èà@@DEREVP> AND" +
-                            "[DEDIDC] = <@@@!!èà@@DEDIDC> AND" +
-                            "[DEREVC] = <@@@!!èà@@DEREVC> ";
+                            ",GETDATE()" +
+                            ",GETDATE()" +
+                            ") ELSE UPDATE [dbo].[SWBOM] SET [QTA] = [QTA] + <@@@!!èà@@QTA>, DateUpd = GETDATE() WHERE " +
+                            "[SessionID] = '" + currentSessionGuid + "' AND " +
+                            "[DEDIDP] = <@@@!!èà@@DEDIDP> AND " +
+                            "[DEDREVP] = <@@@!!èà@@DEDREVP> AND " +
+                            "[DEDIDC] = <@@@!!èà@@DEDIDC> AND " +
+                            "[DEDREVC] = <@@@!!èà@@DEDREVC> ";
 
 
                             query = query.Replace("<@@@!!èà@@DEDIDP>", "'" + tmp_DEDIDP.Replace("'", "''") + "'");
@@ -2485,46 +2557,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             query = query.Replace("<@@@!!èà@@FAMIGLIA2_PREFIX>", "'" + tmp_FAMIGLIA2_PREFIX.Replace("'", "''") + "'");
                             query = query.Replace("<@@@!!èà@@FAMIGLIA3_PREFIX>", "'" + tmp_FAMIGLIA3_PREFIX.Replace("'", "''") + "'");
 
-                            //MessageBox.Show(query);
-
-
-                            /*
-                            query = "IF NOT EXISTS (SELECT 1 FROM [dbo].[XPORT_DIST] WHERE DEDIDP = <@DEDIDP> AND DEDREVP = <@DEDREVP> AND DEDIDC =  <@DEDIDC> AND DEDREVC = <@DEDREVC>) " +
-                            "INSERT INTO [dbo].[XPORT_DIST] (" +
-                            "[DEDIDP]" +
-                            ",[DEDREVP]" +
-                            ",[DEDIDC]" +
-                            ",[DEDREVC]" +
-                            ",[QTA]" +
-                            ")VALUES(" +
-                            "<@DEDIDP>" +
-                            ",<@DEDREVP>" +
-                            ",<@DEDIDC>" +
-                            ",<@DEDREVC>" +
-                            ",<@QTA>)" +
-                            "ELSE " +
-                            "UPDATE [dbo].[XPORT_DIST] SET QTA = QTA + <@QTA> " +
-                            "WHERE [DEDIDP] = <@DEDIDP> " +
-                            "AND [DEDREVP] = <@DEDREVP> " +
-                            "AND [DEDIDC] = <@DEDIDC> " +
-                            "AND [DEDREVC] = <@DEDREVC> ";
-                            
-
-                            query = query.Replace("<@DEDIDP>", "'" + sDEDIDP.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDREVP>", "'" + sDEDREVP.Replace("'", "''") + "'");
-
-                            query = query.Replace("<@DEDIDC>", "'" + sDEDIDCCut.Replace("'", "''") + "'");
-                            query = query.Replace("<@DEDREVC>", "'" + sDEDREVCCut.Replace("'", "''") + "'");
-                            */
-                            //query = query.Replace("<@QTA>", /*"'" + */ sQtyCut.Replace("'", "''") /*+"'"*/);
-                            //query = query.Replace("<@CREATIONDATE>", "'" + DateTime.Now.ToString().Replace("'", "''") + "'");
-                            //query = query.Replace("<@VALIDDATE>", "'" + new DateTime(9999, 12, 31).ToString().Replace("'", "''") + "'");
-
+                            //TS.WriteLine(query);
 
 
                             command = new SqlCommand(query, cnn);
                             command.Transaction = transaction;
 
+                            
                             command.ExecuteNonQuery();
 
 
@@ -2541,13 +2580,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-                    string query = "UPDATE [dbo].[XPORT_ANAG] " +
+                    string query = "UPDATE [dbo].[SWANAG] " +
                                    "SET DEDStart = 'S' " +
-                                   "WHERE DEDID =  <@DEDID> AND DEDREV =  <@DEDREV>";
+                                   "WHERE SessionID = '" + currentSessionGuid + "' AND DEDID =  <@@@!!èà@@DEDID> AND DEDREV =  <@@@!!èà@@DEDREV>";
 
 
-                    query = query.Replace("<@DEDID>", "'" + sDEDID.Replace("'", "''") + "'");
-                    query = query.Replace("<@DEDREV>", "'" + sDEDREV.Replace("'", "''") + "'");
+                    query = query.Replace("<@@@!!èà@@DEDID>", "'" + sDEDID.Replace("'", "''") + "'");
+                    query = query.Replace("<@@@!!èà@@DEDREV>", "'" + sDEDREV.Replace("'", "''") + "'");
 
                     SqlCommand command = new SqlCommand(query, cnn);
                     command.Transaction = transaction;
@@ -2884,7 +2923,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         configurationGUID = sCurrentGuid;
 
-
                     }
 
                 }
@@ -2902,9 +2940,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 }
 
-                /* salva Computed BOM per configurazione */                
+                /* salva Computed BOM per configurazione (non usare) */                
 
-                if (true)
+                /*if (true)
                 {
 
                     IEdmFile7 aFile;
@@ -2944,7 +2982,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-                        bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConfig, (int)EdmBomFlag.EdmBf_ShowSelected);
+                        bomView = aFile.GetComputedBOM(cTipoDistinta,  -1, sConfig, (int)EdmBomFlag.EdmBf_ShowSelected);
 
                         object[] ppoRows = null;
                         IEdmBomCell ppoRow = default(IEdmBomCell);
@@ -2972,6 +3010,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                 }
+                */
 
 
 

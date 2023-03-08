@@ -84,7 +84,9 @@ CREATE TABLE [dbo].[SWANAG](
 	[TipoSW] [nvarchar](200) NULL,
 	[DEDStart] [nvarchar](200) NULL,
 	[DEDLinear] [nvarchar](200) NULL,
-	[DEDMass] [nvarchar](200) NULL
+	[DEDMass] [nvarchar](200) NULL,
+	[DateIns] [datetime] NULL,
+	[DateUpd] [datetime] NULL,
  CONSTRAINT [PK_SWANAG] PRIMARY KEY CLUSTERED 
 (
 	[SessionID] ASC,
@@ -98,4 +100,10 @@ ALTER TABLE [dbo].[SWANAG] ADD  CONSTRAINT [DF_SWANAG_DEDStart]  DEFAULT ('N') F
 GO
 
 CREATE INDEX IX_SWANAG_DEDStart ON [dbo].[SWANAG] ([SessionID], [DEDStart]);
+GO
+
+CREATE INDEX IX_SWANAG_DateUpd ON [dbo].[SWANAG] ([DateUpd]);
+GO
+
+CREATE INDEX IX_SWANAG_DateIns ON [dbo].[SWANAG] ([DateIns]);
 GO

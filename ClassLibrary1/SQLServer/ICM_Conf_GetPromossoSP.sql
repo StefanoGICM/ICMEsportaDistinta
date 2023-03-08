@@ -72,6 +72,8 @@ BEGIN
 
 	END
 
+
+	/*
 	IF EXISTS (SELECT 1 FROM DocumentRevisionConfiguration 
 	           WHERE DocumentID = @DocumentID
 			     AND ConfigurationID = @ConfigurationID
@@ -144,7 +146,7 @@ BEGIN
 	END
 
 
-
+	*/
 
 
 END
