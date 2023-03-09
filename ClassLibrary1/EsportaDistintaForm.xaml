@@ -7,18 +7,26 @@
         xmlns:ICM.ConsoleControlWPF="clr-namespace:ICM.ConsoleControlWPF;assembly=ICM.ConsoleControlWPF" 
         mc:Ignorable="d"
         Title="EsportaDistintaForm" Height="768" Width="1024">
-    <Grid>
+    <Grid Margin="5,2,-1,0">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="79*"/>
-            <ColumnDefinition Width="433*"/>
+            <ColumnDefinition Width="157*"/>
+            <ColumnDefinition Width="67*"/>
+            <ColumnDefinition Width="795*"/>
         </Grid.ColumnDefinitions>
-        <ProgressBar x:Name="progBarAnalisi" Height="30" Margin="14,114,422,0" VerticalAlignment="Top" ValueChanged="ProgressBar_ValueChanged" Grid.ColumnSpan="2"/>
-        <ICM.ConsoleControlWPF:ConsoleControl x:Name="consoleControl" Margin="10,156,10,10" Grid.ColumnSpan="2"/>
-        <Button Content="Esporta Distinta" HorizontalAlignment="Right" Margin="0,130,12,0" VerticalAlignment="Top" Width="148" Click="Button_Click" Grid.Column="1"/>
-        <TextBox HorizontalAlignment="Left" Margin="11,12,0,0" x:Name ="DistintaTextBox" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="994" Height="22" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="ConfigurazioniTextBox" HorizontalAlignment="Left" Margin="22,51,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="825" Grid.Column="1" Height="22" Text="Default"/>
+        <ProgressBar x:Name="progBarAnalisi" Height="30" Margin="287,187,0,0" VerticalAlignment="Top" ValueChanged="ProgressBar_ValueChanged" Grid.Column="2" HorizontalAlignment="Left" Width="494"/>
+        <ICM.ConsoleControlWPF:ConsoleControl x:Name="consoleControl" Margin="11,224,9,-58" Grid.ColumnSpan="3"/>
+        <Button Content="Esporta Distinta" HorizontalAlignment="Right" Margin="0,192,62,0" VerticalAlignment="Top" Width="148" Click="Button_Click" Grid.ColumnSpan="2"/>
+        <TextBox HorizontalAlignment="Left" Margin="11,12,0,0" x:Name ="DistintaTextBox" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="994" Height="22" Grid.ColumnSpan="3"/>
+        <TextBox x:Name="ConfigurazioniTextBox" HorizontalAlignment="Left" Margin="22,51,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="825" Grid.Column="1" Height="22" Text="Default" Grid.ColumnSpan="2"/>
         <Label Content="Configurazioni da esportare:" HorizontalAlignment="Left" Margin="14,46,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.145,-0.268" Grid.ColumnSpan="2" Width="178"/>
-        <Button Grid.Column="1" Content="Aggiorna Distinta Pregressa" HorizontalAlignment="Left" Margin="503,130,0,0" VerticalAlignment="Top" Width="170" Click="Button_Click_1"/>
+        <Button Content="Aggiorna Distinta Pregressa" HorizontalAlignment="Left" Margin="598,85,0,0" VerticalAlignment="Top" Width="170" Click="Button_Click_1" Grid.Column="2"/>
+        <RadioButton x:Name="RB1" Content="Ultima Versione" HorizontalAlignment="Center" Margin="0,100,0,0" VerticalAlignment="Top" Checked="RadioButton_Checked" RenderTransformOrigin="1.866,-1.214" GroupName="GRB1" Click="RB1_Click"/>
+        <RadioButton x:Name="RB2" Content="Come Costruito" HorizontalAlignment="Center" Margin="0,121,0,0" VerticalAlignment="Top" GroupName="GRB1" Click="RB2_Click"/>
+        <RadioButton x:Name="RB3" Content="Ultima Revisione" HorizontalAlignment="Left" Margin="28,141,0,0" VerticalAlignment="Top" GroupName="GRB1" IsChecked="True" Click="RB3_Click"/>
+        <Rectangle HorizontalAlignment="Left" Height="80" Margin="22,88,0,0" Stroke="Black" VerticalAlignment="Top" Width="131"/>
+        <Rectangle x:Name="Rect1" HorizontalAlignment="Left" Height="80" Margin="157,89,0,0" Stroke="Black" VerticalAlignment="Top" Width="159" Grid.ColumnSpan="3" Visibility="Hidden"/>
+        <RadioButton x:Name="RB4" Grid.Column="1" Content="Ultima Versione Padre" HorizontalAlignment="Left" Margin="10,109,0,0" VerticalAlignment="Top" GroupName="GRB2" Grid.ColumnSpan="2" Visibility="Hidden"/>
+        <RadioButton x:Name="RB5" Grid.Column="1" Content="Versione Padre Locale" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB2" Grid.ColumnSpan="2" Visibility="Hidden"/>
         <!--<WPF:ConsoleControl x:Name="embeddedConsole" HorizontalAlignment="Center" Margin="0,217,0,0" VerticalAlignment="Top" Height="207" Width="780"/>-->
     </Grid>
 </Window>

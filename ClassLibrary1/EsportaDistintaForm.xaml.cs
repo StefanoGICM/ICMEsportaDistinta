@@ -102,6 +102,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;
 
+            string sPar1;
+            
+
             if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
             {
 
@@ -120,10 +123,37 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     try
                     {
 
+                        sPar1 = "";
+
+                        if ((bool)RB1.IsChecked)
+                        {
+                            sPar1 = "LV";                        
+                        }
+
+                        else if ((bool)RB2.IsChecked)
+                        {
+
+                            if ((bool)RB4.IsChecked)
+                                sPar1 = "ABLatest";
+                            else
+                                sPar1 = "ABLocal";
+                        }
+                        else if ((bool)RB3.IsChecked)
+                        {
+                            sPar1 = "LR";
+                        }
+
+                        if (sPar1 == "")
+                        {
+
+                            throw new ApplicationException("Parametri non corretti");
+
+                        }
+
                         progBarAnalisi.Foreground = Brushes.Green;
 
 
-                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, 1));
+                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, 1, sPar1));
 
                         EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
                         EspDistinta.WriteLog("Esportazione terminata con successso", TraceEventType.Information);
@@ -222,6 +252,43 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     //btnIniziaClonazione.IsEnabled = false;
                 }
             }
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void RB2_Click(object sender, RoutedEventArgs e)
+        {
+            Rect1.Visibility = Visibility.Visible;
+            RB4.Visibility = Visibility.Visible;
+            RB5.Visibility = Visibility.Visible;
+            RB4.IsChecked = false;
+            RB5.IsChecked = true;
+
+
+        }
+
+        private void RB1_Click(object sender, RoutedEventArgs e)
+        {
+            Rect1.Visibility = Visibility.Hidden;
+            RB4.Visibility = Visibility.Hidden;
+            RB5.Visibility = Visibility.Hidden;
+            RB4.IsChecked = false;
+            RB5.IsChecked = false;
+
+        }
+
+        private void RB3_Click(object sender, RoutedEventArgs e)
+        {
+            Rect1.Visibility = Visibility.Hidden;
+            RB4.Visibility = Visibility.Hidden;
+            RB5.Visibility = Visibility.Hidden;
+            RB4.IsChecked = false;
+            RB5.IsChecked = true;
+
+
         }
     }
 }

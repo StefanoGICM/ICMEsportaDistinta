@@ -28,6 +28,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public int iType = 0;   /* 1 da pulsante con log in console
                                    2 da task workflow con log in file */
 
+        public string Param1; /* "LV" Latest Version
+                                 "ABLatest" As Built, Father Latest Version
+                                 "ABLocal" As Built, Father Local version
+                                 "LR" Latest Revision */
+
         public TraceSource TS = new TraceSource("ICMTrace");
         IEdmVault5 vault;
 
@@ -261,9 +266,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, int iType)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, int iType, string sPar1)
         {
-            
+
+            this.Param1 = sPar1;
 
             this.iType = iType;
             
@@ -884,9 +890,22 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 else
                 {*/
 
-                    WriteLog("Uso Computed BOM ");
+                WriteLog("Uso Computed BOM ");
 
-                    bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConf, (int)EdmBomFlag.EdmBf_ShowSelected);
+                int iVersionBOM;
+
+                iVersionBOM = -2;
+
+                if ((this.Param1 == "LV") || (first && this.Param1 == "ABLatest"))
+                    iVersionBOM = -1;
+
+                if (!first && (this.Param1 == "ABLatest" || this.Param1 == "ABLocal"))
+                    iVersionBOM = iVersione;
+
+                if (first && this.Param1 == "ABLocal")
+                    iVersionBOM = iVersione;
+
+                bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConf, (int)EdmBomFlag.EdmBf_ShowSelected);
                     
 
                 /*}*/
@@ -1703,7 +1722,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             }
 
                             /* cerco la configurazione costruttiva */                            
-
                             
 
                             ppoRow.GetVar(iQtyID
