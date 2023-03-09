@@ -123,22 +123,22 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         progBarAnalisi.Foreground = Brushes.Green;
 
 
-                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault));
+                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, 1));
 
-                        EspDistinta.TS.WriteLine("-----------------------------------------------------------------------", TraceEventType.Information);
-                        EspDistinta.TS.WriteLine("Esportazione terminata con successso", TraceEventType.Information);
-                        EspDistinta.TS.WriteLine("-----------------------------------------------------------------------", TraceEventType.Information);
+                        EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
+                        EspDistinta.WriteLog("Esportazione terminata con successso", TraceEventType.Information);
+                        EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
 
                     }
                     catch (Exception ex)
                     {
                         System.Windows.Forms.MessageBox.Show(ex.Message);
 
-                        EspDistinta.TS.WriteLine(ex.Message, TraceEventType.Error);
+                        EspDistinta.WriteLog(ex.Message, TraceEventType.Error);
 
-                        EspDistinta.TS.WriteLine("-----------------------------------------------------------------------", TraceEventType.Error);
-                        EspDistinta.TS.WriteLine("Esportazione interrotta per errori", TraceEventType.Error);
-                        EspDistinta.TS.WriteLine("-----------------------------------------------------------------------", TraceEventType.Error);
+                        EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Error);
+                        EspDistinta.WriteLog("Esportazione interrotta per errori", TraceEventType.Error);
+                        EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Error);
 
                         progBarAnalisi.Foreground = Brushes.Red;
 

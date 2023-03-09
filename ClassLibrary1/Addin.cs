@@ -84,9 +84,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             {
 
 
-                                EsportaDistintaForm clonationForm = new EsportaDistintaForm(iDocument, sFileName, version, this.vault);
+                                EsportaDistintaForm esportaDistintaForm = new EsportaDistintaForm(iDocument, sFileName, version, this.vault);
 
-                                clonationForm.Show();
+                                esportaDistintaForm.Show();
 
                             }
 

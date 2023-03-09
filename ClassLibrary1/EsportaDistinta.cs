@@ -24,6 +24,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
     public partial class EsportaDistinta
     {
 
+
+        public int iType = 0;   /* 1 da pulsante con log in console
+                                   2 da task workflow con log in file */
+
         public TraceSource TS = new TraceSource("ICMTrace");
         IEdmVault5 vault;
 
@@ -32,6 +36,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         IEdmBomMgr bomMgr;
         IEdmBomView bomView;
         string connectionString;
+
+        string cLogFileName;
+
+        string @LogId;
+        int intIdLogValue;
+
+        string cLogFileNamePath;
 
         string connectionStringSWICMDATA = "Data Source='ws91';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
         string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO_TEST; User ID = sa; Password = 'Logitech0'";
@@ -47,6 +58,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         int iTempContRev = 0;
         string descTecnicaITA;
         string descTecnicaENG;
+
+        StreamWriter outputFile = default(StreamWriter);
 
         string sFAMIGLIA1_PREFIX;
         string sFAMIGLIA2_PREFIX;
@@ -172,13 +185,93 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault)
+
+        public void OpenLog(string sFileName)
+        {
+
+            if (iType == 2)
+            {
+                cLogFileName = "log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
+
+                cLogFileNamePath = @"D:\LocalView\SandBox\Log\EsportaGestionale";
+
+                outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
+            }
+
+        }
+
+
+        public void WriteLog(string content, TraceEventType eventType)
+        {
+            if (iType == 2)
+              outputFile.WriteLine(content);
+
+            if (iType == 1)
+            {
+
+                TS.WriteLine(content, eventType);
+            
+            }
+        }
+
+        public void WriteLog(string content)
+        {
+            if (iType == 2)
+                outputFile.WriteLine(content);
+
+            if (iType == 1)
+            {
+
+                TS.WriteLine(content);
+
+            }
+        }
+
+
+        public void CloseLog()
+        {
+            if (iType == 2)
+                outputFile.Close();
+
+        }
+
+        public void MoveLog(bool bSuccess)
+        {
+
+            if (iType == 2)
+            {
+                string newPath;
+                string cOld;
+                string cNew;
+
+
+                if (bSuccess)
+                    newPath = cLogFileNamePath + @"\Completed";
+                else
+                    newPath = cLogFileNamePath + @"\Failed";
+
+                cOld = Path.Combine(cLogFileNamePath, cLogFileName);
+                cNew = Path.Combine(newPath, cLogFileName);
+
+                File.Move(cOld, cNew);
+
+            }
+
+
+        }
+
+
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, int iType)
         {
             
 
+            this.iType = iType;
+            
             this.vault = vault;
             this.sFileName = sFileName;
             this.iVersione = iVersione;
+
+
 
             string @DEDID;
             string @DEDREV;
@@ -193,7 +286,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             currentSessionGuid = Guid.NewGuid();
 
-            TS.WriteLine("SessionID: " + currentSessionGuid.ToString());
+            WriteLog("SessionID: " + currentSessionGuid.ToString());
 
             DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Started;
 
@@ -202,7 +295,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 if (sFileName != null)
                 {
-                    TS.WriteLine("Inizio elaborazione");
+                    WriteLog("Inizio elaborazione");
 
                     foreach (string sConf in sConfigurazioni.Split(','))
                     {
@@ -225,11 +318,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //comincia transazione
 
-                        TS.WriteLine("Esportazione Distinta per Configurazione " + sConf);
+                        WriteLog("Esportazione Distinta per Configurazione " + sConf);
 
                         transaction = cnn.BeginTransaction();
 
-                        TS.WriteLine("Cancellazione tabelle temporanee");
+                        WriteLog("Cancellazione tabelle temporanee");
 
                         query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
 
@@ -249,7 +342,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         command1.ExecuteNonQuery();
 
 
-                        TS.WriteLine("Importazione distinta in tabelle temporanee");
+                        WriteLog("Importazione distinta in tabelle temporanee");
 
                         int iRetPromosso;
 
@@ -259,11 +352,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         bool bNonCodificato;
 
-                        insertSW_ANAG_BOM(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato);
+                        insertSW_ANAG_BOM(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato, bOnlyTop);
                    
                         // Calcolo consumo
                         
-                        TS.WriteLine("Calcolo consumo");
+                        WriteLog("Calcolo consumo");
 
                         SqlCommand command2 = new SqlCommand("dbo.ICMCalcoloConsumoSp", cnn);
                         command2.Transaction = transaction;
@@ -312,7 +405,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         //Importa in ARCA
                         //MessageBox.Show("Importa in ARCA");
 
-                        TS.WriteLine("Importazione distinta in ARCA");
+                        WriteLog("Importazione distinta in ARCA");
                         
                         connectionString = connectionStringARCA;
 
@@ -363,7 +456,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         transaction = cnn.BeginTransaction();
 
-                        TS.WriteLine("Cancellazione tabelle temporanee");
+                        WriteLog("Cancellazione tabelle temporanee");
 
                         query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
 
@@ -395,7 +488,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             {
 
                                 lWarn = true;
-                                TS.WriteLine(warnMessage, TraceEventType.Warning);
+                                WriteLog(warnMessage, TraceEventType.Warning);
 
                             }
 
@@ -405,8 +498,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         if (cNonCodificati != "")
                         {
 
-                            TS.WriteLine("Attenzione: i seguenti articoli non sono stati codificati e quindi non sono stati importati: ", TraceEventType.Warning);
-                            TS.WriteLine(cNonCodificati, TraceEventType.Warning);
+                            WriteLog("Attenzione: i seguenti articoli non sono stati codificati e quindi non sono stati importati: ", TraceEventType.Warning);
+                            WriteLog(cNonCodificati, TraceEventType.Warning);
 
                         }
 
@@ -483,7 +576,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
-        public void insertSW_ANAG_BOM(int iDocument, string cFileName, int iVersione, string sConf, out string sDEDID, out string sDEDREV, bool first, bool bDaPromosso, string sDEDIDPromosso, string sDEDREVPromosso, double dQtyPromosso, out int iRetPromossoPar, out bool bNonCodificatoPar)
+        public void insertSW_ANAG_BOM(int iDocument, string cFileName, int iVersione, string sConf, out string sDEDID, out string sDEDREV, bool first, bool bDaPromosso, string sDEDIDPromosso, string sDEDREVPromosso, double dQtyPromosso, out int iRetPromossoPar, out bool bNonCodificatoPar, bool bOnlyTop)
         {
 
             //Debugger.Launch();
@@ -791,7 +884,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 else
                 {*/
 
-                    TS.WriteLine("Uso Computed BOM ");
+                    WriteLog("Uso Computed BOM ");
 
                     bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConf, (int)EdmBomFlag.EdmBf_ShowSelected);
                     
@@ -1414,7 +1507,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         string cDED_FILE = poValueTemp.ToString();
 
 
-                                        TS.WriteLine("Attenzione: Codice mancante per " + cDBPATH + " --- " + cDED_FILE + ". Articolo non importato", TraceEventType.Warning);
+                                        WriteLog("Attenzione: Codice mancante per " + cDBPATH + " --- " + cDED_FILE + ". Articolo non importato", TraceEventType.Warning);
 
 
 
@@ -1537,7 +1630,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //MessageBox.Show(query);
 
-                        TS.WriteLine("Esporta " + sDEDID + "//" + sDEDREV + " --- " + descTecnicaITA);
+                        WriteLog("Esporta " + sDEDID + "//" + sDEDREV + " --- " + descTecnicaITA);
 
 
                         //cache
@@ -1545,7 +1638,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         cacheDictionary.Add(new Tuple<string, string>(cFileName, sConf), new Tuple<string, string, int>(sDEDID, sDEDREV, iPromosso));
 
 
-                        TS.WriteLine("Promosso ---> " + iPromosso.ToString());
+                        WriteLog("Promosso ---> " + iPromosso.ToString());
 
                         if (!((iPromosso == 2) && cTipoDistinta == "DistintaAssiemePerArca"))
                         {
@@ -1566,6 +1659,16 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                     else if (ppoRow.GetTreeLevel() == 1)
                     {
+
+
+                        /* se richiesto esporta solo un livello */
+                        if ((!first) && bOnlyTop)
+                        {
+
+                            i++;
+                            continue;
+
+                        }
 
                         //MessageBox.Show(ppoRow.GetPathName());
                         if (cTipoDistinta == "DistintaAssiemePerArca")
@@ -1853,18 +1956,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             iRetPromosso = 0;
 
-                            TS.WriteLine("---------------------------------");
-                            TS.WriteLine("Child ID: " + iIDChild.ToString());
-                            TS.WriteLine("Child FileName: " + sFileNameDocCostr);
-                            TS.WriteLine("Child Conf: " + sConfigurazioneCostruttiva);
-                            TS.WriteLine("---------------------------------");
+                            WriteLog("---------------------------------");
+                            WriteLog("Child ID: " + iIDChild.ToString());
+                            WriteLog("Child FileName: " + sFileNameDocCostr);
+                            WriteLog("Child Conf: " + sConfigurazioneCostruttiva);
+                            WriteLog("---------------------------------");
 
                             bool bGetNonCodificato;
 
                             if (iPromosso == 2)
-                                insertSW_ANAG_BOM(iIDChild, sFileNameDocCostr, iVersioneChild, sConfigurazioneCostruttiva, out sDEDIDC, out sDEDREVC, false, true, sDEDIDPromosso, sDEDREVPromosso, dQty, out iRetPromosso, out bGetNonCodificato);                                
+                                insertSW_ANAG_BOM(iIDChild, sFileNameDocCostr, iVersioneChild, sConfigurazioneCostruttiva, out sDEDIDC, out sDEDREVC, false, true, sDEDIDPromosso, sDEDREVPromosso, dQty, out iRetPromosso, out bGetNonCodificato, bOnlyTop);                                
                             else
-                                insertSW_ANAG_BOM(iIDChild, sFileNameDocCostr, iVersioneChild, sConfigurazioneCostruttiva, out sDEDIDC, out sDEDREVC, false, false, sDEDIDP, sDEDREVP, 1, out iRetPromosso, out bGetNonCodificato);
+                                insertSW_ANAG_BOM(iIDChild, sFileNameDocCostr, iVersioneChild, sConfigurazioneCostruttiva, out sDEDIDC, out sDEDREVC, false, false, sDEDIDP, sDEDREVP, 1, out iRetPromosso, out bGetNonCodificato, bOnlyTop);
 
                             if (bGetNonCodificato)
                             {
@@ -2296,7 +2399,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                             string cDED_FILE = poValueTemp.ToString();
 
 
-                                            TS.WriteLine("Attenzione: Codice mancante per " + cDBPATH + " --- " + cDED_FILE + "(Body). Articolo non importato", TraceEventType.Warning);
+                                            WriteLog("Attenzione: Codice mancante per " + cDBPATH + " --- " + cDED_FILE + "(Body). Articolo non importato", TraceEventType.Warning);
 
 
                                         }
@@ -2428,7 +2531,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             query = query.Replace("<@@@!!èà@@" + "DEDDESC" + ">", "'" + descTecnicaITA.Replace("'", "''") + " --- " + descTecnicaENG.Replace("'", "''") + "'");
 
-                            TS.WriteLine("Esporta " + sDEDIDCCut + "//" + sDEDREVCCut + " --- " + descTecnicaITA);
+                            WriteLog("Esporta " + sDEDIDCCut + "//" + sDEDREVCCut + " --- " + descTecnicaITA);
 
                             SqlCommand command = new SqlCommand(query, cnn);
                             command.Transaction = transaction;
@@ -2659,7 +2762,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             if (cacheFile.Contains(cFileName))
                 return;
 
-            TS.WriteLine("Elaborazione file: " + cFileName);
+            WriteLog("Elaborazione file: " + cFileName);
 
             //if (cFileName.ToUpper().IndexOf("D:\\LOCALVIEW\\ICM\\") > -1)
             //    return;
@@ -3324,7 +3427,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             }
 
             if (bTS)
-                TS.WriteLine("Apertura file con Document Manager: " + sDocFileName);
+                WriteLog("Apertura file con Document Manager: " + sDocFileName);
             
             swDoc19 = (SwDM.SwDMDocument19)swDocMgr.GetDocument(sDocFileName, nDocType, lReadonly, out nRetVal);
             
