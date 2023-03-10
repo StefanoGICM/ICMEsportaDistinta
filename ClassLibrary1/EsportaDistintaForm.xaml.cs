@@ -214,8 +214,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                     }
                     catch (Exception ex)
-                    {
-                        System.Windows.Forms.MessageBox.Show(ex.Message);
+                    {                        
+
+                        //System.Windows.Forms.MessageBox.Show(ex.Message);
 
                         EspDistinta.WriteLog(ex.Message, TraceEventType.Error);
 

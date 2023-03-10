@@ -19,6 +19,7 @@ using System.IO;
 using System.Data.Odbc;
 using System.Diagnostics.Eventing.Reader;
 using System.Windows.Markup;
+using System.Xml.Linq;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -26,8 +27,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
     {
 
 
-        public int iType = 0;   /* 1 da pulsante con log in console
-                                   2 da task workflow con log in file */
+        public int iType = 0;   /* 1 da pulsante con log in console -> non scrive nè file di log n+ record sul DB
+                                   2 da task workflow con log in file e sul DB 
+                                   3 da task con log in file: non implementato ancora */
 
         public string ExpParam1;
         public string ExpParam2;
@@ -195,7 +197,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void OpenLog(string sFileName)
         {
 
-            if (iType == 2)
+            if (iType == 2 || iType == 3)
             {
                 cLogFileName = "log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
 
@@ -209,8 +211,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         public void WriteLog(string content, TraceEventType eventType)
         {
-            if (iType == 2)
-              outputFile.WriteLine(content);
+            if (iType == 2 || iType == 3)
+                outputFile.WriteLine(content);
 
             if (iType == 1)
             {
@@ -222,7 +224,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         public void WriteLog(string content)
         {
-            if (iType == 2)
+            if (iType == 2 || iType == 3)
                 outputFile.WriteLine(content);
 
             if (iType == 1)
@@ -266,9 +268,116 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
+        public void CreaRecordLogDb(SqlConnection cnn, string vaultName, int iDocument, string sFileName)
+        {
+            SqlTransaction transaction;
+
+            if (this.iType == 2)
+            {
+
+                WriteLog("Creazione Record di Log sul DB");
+
+                transaction = cnn.BeginTransaction();
+
+                SqlCommand commandLog = new SqlCommand("dbo.ICM_LogStartSp", cnn);
+
+                commandLog.CommandType = CommandType.StoredProcedure;
+                commandLog.Transaction = transaction;
+
+                //MessageBox.Show(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
+
+                SqlParameter sqlParam = commandLog.Parameters.Add("@Vault", SqlDbType.VarChar, 500);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = vaultName;
+
+
+                sqlParam = commandLog.Parameters.Add("@DocumentID", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iDocument;
+
+
+                sqlParam = commandLog.Parameters.Add("@FileName", SqlDbType.VarChar, 500);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sFileName;
+
+
+                sqlParam = new SqlParameter("@Id", SqlDbType.BigInt);
+                sqlParam.Direction = ParameterDirection.Output;
+                commandLog.Parameters.Add(sqlParam);
+
+                commandLog.ExecuteNonQuery();
+
+                @LogId = commandLog.Parameters["@Id"].Value.ToString();
+
+                transaction.Commit();
+
+            }
+
+
+
+        }
+
+
+        public void CommitLog(bool bSuccess)
+        {
+
+            string connectionString;
+            SqlTransaction logTransaction;
+
+            WriteLog("Scrive esito in record di Log");
+
+            connectionString = connectionStringSWICMDATA;
+
+            using (cnn = new SqlConnection(connectionString))
+            {
+                cnn.Open();
+
+                using (cnn = new SqlConnection(connectionString))
+                {
+                    cnn.Open();
+
+
+                    logTransaction = cnn.BeginTransaction();
+
+                    SqlCommand commandLog = new SqlCommand("dbo.ICM_LogEndSp", cnn);
+
+                    commandLog.CommandType = CommandType.StoredProcedure;
+                    commandLog.Transaction = logTransaction;
+
+                    SqlParameter sqlParam = commandLog.Parameters.Add("@Id", SqlDbType.BigInt);
+                    sqlParam.Direction = ParameterDirection.Input;
+
+                    if (!int.TryParse(@LogId, out intIdLogValue))
+                    {
+                        intIdLogValue = 0;
+                    }
+                    sqlParam.Value = intIdLogValue;
+
+
+                    sqlParam = commandLog.Parameters.Add("@Success", SqlDbType.Int);
+                    sqlParam.Direction = ParameterDirection.Input;
+                    if (bSuccess)
+                        sqlParam.Value = 1;
+                    else
+                        sqlParam.Value = 0;
+
+
+
+                    commandLog.ExecuteNonQuery();
+
+                    logTransaction.Commit();
+                }
+
+            }
+        }
+
+
 
         public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, int iType, string sEsplodiPar1, string sEsplodiPar2)
         {
+
+
+            
 
             this.ExpParam1 = sEsplodiPar1;
             this.ExpParam2 = sEsplodiPar2;
@@ -315,103 +424,108 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //Connessione al DB e inizio transazione
 
+
                         connectionString = connectionStringSWICMDATA;
 
-                        cnn = new SqlConnection(connectionString);
-
-                        cnn.Open();
-
-                        //Debugger.Launch();
-
-                        //connectionStringVault = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
-                        //cnnVault = new SqlConnection(connectionStringVault);
-                        //cnnVault.Open();
-
-                        //comincia transazione
-
-                        WriteLog("Esportazione Distinta per Configurazione " + sConf);
-
-                        transaction = cnn.BeginTransaction();
-
-                        WriteLog("Cancellazione tabelle temporanee");
-
-                        query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
-
-                        SqlCommand command = new SqlCommand(query, cnn);
-                        command.CommandTimeout = 0;
-                        command.Transaction = transaction;
-
-                        command.ExecuteNonQuery();
-
-
-                        query = "DELETE FROM [dbo].[SWANAG] WHERE SessionID = '" + currentSessionGuid + "'";
-
-                        SqlCommand command1 = new SqlCommand(query, cnn);
-
-                        command1.Transaction = transaction;
-
-                        command1.ExecuteNonQuery();
-
-
-                        WriteLog("Importazione distinta in tabelle temporanee");
-
-                        int iRetPromosso;
-
-                        lStop = false;
-
-                        cNonCodificati = "";
-
-                        bool bNonCodificato;
-
-                        insertSW_ANAG_BOM(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato, bOnlyTop);
-                   
-                        // Calcolo consumo
-                        
-                        WriteLog("Calcolo consumo");
-
-                        SqlCommand command2 = new SqlCommand("dbo.ICMCalcoloConsumoSp", cnn);
-                        command2.Transaction = transaction;
-                        command2.CommandType = CommandType.StoredProcedure;
-
-                        SqlParameter sqlParam = new SqlParameter("@SessionID", SqlDbType.UniqueIdentifier);
-                        sqlParam.Direction = ParameterDirection.Input;
-                        sqlParam.Value = currentSessionGuid;
-                        command2.Parameters.Add(sqlParam);
-
-                        sqlParam = new SqlParameter("@XErrore", SqlDbType.VarChar, 1000);
-                        //sqlParam.ParameterName = "@Result";
-                        //sqlParam.DbType = DbType.Boolean;
-                        sqlParam.Direction = ParameterDirection.Output;
-                        command2.Parameters.Add(sqlParam);
-
-                        //MessageBox.Show("prima");
-
-                        
-
-                        command2.ExecuteNonQuery();
-
-                        //MessageBox.Show("dopo");
-
-                        XErrore = command2.Parameters["@XErrore"].Value.ToString();
-
-                        if (!(XErrore.Trim() == "" || XErrore == null))
+                        using (cnn = new SqlConnection(connectionString))
                         {
 
-                            throw new ApplicationException("Errore in calcolo consumo per distinta: " + XErrore);
+                            cnn.Open();
 
-                        }
-                        
-                        
-                        transaction.Commit();
+                            //Debugger.Launch();
 
-                        //cnn.Close();
-                        //cnnVault.Close();
+                            //connectionStringVault = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                            //cnnVault = new SqlConnection(connectionStringVault);
+                            //cnnVault.Open();
 
-                        
+                            //comincia transazione
 
-                        transaction = null;
+                            WriteLog("Esportazione Distinta per Configurazione " + sConf);
+                            
 
-                                               
+                            CreaRecordLogDb(cnn, vault.Name, iDocument, sFileName);
+
+                            transaction = cnn.BeginTransaction();
+
+                            WriteLog("Cancellazione tabelle temporanee");
+
+                            query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
+
+                            SqlCommand command = new SqlCommand(query, cnn);
+                            command.CommandTimeout = 0;
+                            command.Transaction = transaction;
+
+                            command.ExecuteNonQuery();
+
+
+                            query = "DELETE FROM [dbo].[SWANAG] WHERE SessionID = '" + currentSessionGuid + "'";
+
+                            SqlCommand command1 = new SqlCommand(query, cnn);
+
+                            command1.Transaction = transaction;
+
+                            command1.ExecuteNonQuery();
+
+
+                            WriteLog("Importazione distinta in tabelle temporanee");
+
+                            int iRetPromosso;
+
+                            lStop = false;
+
+                            cNonCodificati = "";
+
+                            bool bNonCodificato;
+
+                            insertSW_ANAG_BOM(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato, bOnlyTop);
+
+                            // Calcolo consumo
+
+                            WriteLog("Calcolo consumo");
+
+                            SqlCommand command2 = new SqlCommand("dbo.ICMCalcoloConsumoSp", cnn);
+                            command2.Transaction = transaction;
+                            command2.CommandType = CommandType.StoredProcedure;
+
+                            SqlParameter sqlParam = new SqlParameter("@SessionID", SqlDbType.UniqueIdentifier);
+                            sqlParam.Direction = ParameterDirection.Input;
+                            sqlParam.Value = currentSessionGuid;
+                            command2.Parameters.Add(sqlParam);
+
+                            sqlParam = new SqlParameter("@XErrore", SqlDbType.VarChar, 1000);
+                            //sqlParam.ParameterName = "@Result";
+                            //sqlParam.DbType = DbType.Boolean;
+                            sqlParam.Direction = ParameterDirection.Output;
+                            command2.Parameters.Add(sqlParam);
+
+                            //MessageBox.Show("prima");
+
+
+
+                            command2.ExecuteNonQuery();
+
+                            //MessageBox.Show("dopo");
+
+                            XErrore = command2.Parameters["@XErrore"].Value.ToString();
+
+                            if (!(XErrore.Trim() == "" || XErrore == null))
+                            {
+
+                                throw new ApplicationException("Errore in calcolo consumo per distinta: " + XErrore);
+
+                            }
+
+
+                            transaction.Commit();
+
+                            //cnn.Close();
+                            //cnnVault.Close();
+
+
+
+                            transaction = null;
+
+                        }                   
 
                         //Importa in ARCA
                         //MessageBox.Show("Importa in ARCA");
@@ -420,75 +534,82 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         
                         connectionString = connectionStringARCA;
 
-                        cnnARCA = new SqlConnection(connectionString);
+                        using (cnnARCA = new SqlConnection(connectionString))
+                        {
 
-                        cnnARCA.Open();
+                            cnnARCA.Open();
 
-                        SqlCommand cmd2 = new SqlCommand("xICM_Importa_Distinta_In_ArcaSp", cnnARCA);
+                            SqlCommand cmd2 = new SqlCommand("xICM_Importa_Distinta_In_ArcaSp", cnnARCA);
 
-                        cmd2.CommandType = CommandType.StoredProcedure;
+                            cmd2.CommandType = CommandType.StoredProcedure;
 
-                        cmd2.CommandTimeout = 0;
+                            cmd2.CommandTimeout = 0;
 
-                        SqlParameter sqlParam20 = new SqlParameter("@SessionID", SqlDbType.UniqueIdentifier);
-                        sqlParam20.Direction = ParameterDirection.Input;
-                        sqlParam20.Value = currentSessionGuid;
-                        cmd2.Parameters.Add(sqlParam20);
+                            SqlParameter sqlParam20 = new SqlParameter("@SessionID", SqlDbType.UniqueIdentifier);
+                            sqlParam20.Direction = ParameterDirection.Input;
+                            sqlParam20.Value = currentSessionGuid;
+                            cmd2.Parameters.Add(sqlParam20);
 
-                        SqlParameter sqlParam21 = new SqlParameter("@POnlyTop", SqlDbType.Int);
-                        sqlParam21.Direction = ParameterDirection.Input;
-                        sqlParam21.Value = 0;
-                        cmd2.Parameters.Add(sqlParam21);
-
-                        
-                        SqlParameter sqlParam2 = new SqlParameter("@XWarning", SqlDbType.VarChar, -1);
-                        //sqlParam.ParameterName = "@Result";
-                        //sqlParam.DbType = DbType.Boolean;
-                        sqlParam2.Direction = ParameterDirection.Output;
+                            SqlParameter sqlParam21 = new SqlParameter("@POnlyTop", SqlDbType.Int);
+                            sqlParam21.Direction = ParameterDirection.Input;
+                            sqlParam21.Value = 0;
+                            cmd2.Parameters.Add(sqlParam21);
 
 
-
-                        //sqlParam2.Size = -1;
-
-                        cmd2.Parameters.Add(sqlParam2);
-
-                        
+                            SqlParameter sqlParam2 = new SqlParameter("@XWarning", SqlDbType.VarChar, -1);
+                            //sqlParam.ParameterName = "@Result";
+                            //sqlParam.DbType = DbType.Boolean;
+                            sqlParam2.Direction = ParameterDirection.Output;
 
 
-                        //sqlParam2.Size = -1;
 
-                        lWarn = false;
+                            //sqlParam2.Size = -1;
 
-                        cmd2.ExecuteNonQuery();
-
-                        XWarning = cmd2.Parameters["@XWarning"].Value.ToString();
-
-                        cnnARCA.Close();
-
-                        transaction = cnn.BeginTransaction();
-
-                        WriteLog("Cancellazione tabelle temporanee");
-
-                        query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
-
-                        command = new SqlCommand(query, cnn);
-                        command.CommandTimeout = 0;
-                        command.Transaction = transaction;
-
-                        command.ExecuteNonQuery();
+                            cmd2.Parameters.Add(sqlParam2);
 
 
-                        query = "DELETE FROM [dbo].[SWANAG] WHERE SessionID = '" + currentSessionGuid + "'";
+                            //sqlParam2.Size = -1;
 
-                        command1 = new SqlCommand(query, cnn);
+                            lWarn = false;
 
-                        command1.Transaction = transaction;
+                            cmd2.ExecuteNonQuery();
 
-                        command1.ExecuteNonQuery();
+                            XWarning = cmd2.Parameters["@XWarning"].Value.ToString();
 
-                        transaction.Commit();
+                            cnnARCA.Close();
+                        }
 
-                        cnn.Close();
+                        connectionString = connectionStringSWICMDATA;
+
+                        using (cnn = new SqlConnection(connectionString))
+                        {
+
+                            transaction = cnn.BeginTransaction();
+
+                            WriteLog("Cancellazione tabelle temporanee");
+
+                            query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
+
+                            SqlCommand command = new SqlCommand(query, cnn);
+                            command.CommandTimeout = 0;
+                            command.Transaction = transaction;
+
+                            command.ExecuteNonQuery();
+
+
+                            query = "DELETE FROM [dbo].[SWANAG] WHERE SessionID = '" + currentSessionGuid + "'";
+
+                            SqlCommand command1 = new SqlCommand(query, cnn);
+
+                            command1.Transaction = transaction;
+
+                            command1.ExecuteNonQuery();
+
+                            transaction.Commit();
+
+                            cnn.Close();
+
+                        }
 
                         if (!(XWarning.Trim() == "" || XWarning == null))
                         {                            
