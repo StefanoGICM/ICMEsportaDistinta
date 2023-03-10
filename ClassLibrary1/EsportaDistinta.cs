@@ -1,4 +1,5 @@
 ﻿using EPDM.Interop.epdm;
+using EPDM.Interop.EPDMResultCode;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -28,11 +29,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public int iType = 0;   /* 1 da pulsante con log in console
                                    2 da task workflow con log in file */
 
-        public string Param1; /* "LV" Latest Version
-                                 "ABLatest" As Built, Father Latest Version
-                                 "ABLocal" As Built, Father Local version
-                                 "LR" Latest Revision */
+        public string ExpParam1;
+        public string ExpParam2;
 
+        public string ExpP1;
+        public string ExpP2;
         public TraceSource TS = new TraceSource("ICMTrace");
         IEdmVault5 vault;
 
@@ -266,10 +267,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, int iType, string sPar1)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, int iType, string sEsplodiPar1, string sEsplodiPar2)
         {
 
-            this.Param1 = sPar1;
+            this.ExpParam1 = sEsplodiPar1;
+            this.ExpParam2 = sEsplodiPar2;
+
+            this.ExpP1 = ExpParam1.Split((char)1)[0];
+            this.ExpP2 = ExpParam1.Split((char)1)[1];
 
             this.iType = iType;
             
@@ -896,16 +901,55 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 iVersionBOM = -2;
 
-                if ((this.Param1 == "LV") || (first && this.Param1 == "ABLatest"))
-                    iVersionBOM = -1;
+                if (first)
+                {
+                    switch (this.ExpP1)
+                    {
 
-                if (!first && (this.Param1 == "ABLatest" || this.Param1 == "ABLocal"))
-                    iVersionBOM = iVersione;
+                        case "UV":
+                            iVersionBOM = -1;
+                            break;
+                        case "UR":
+                            /* recupera versione associata a ultima revisione */
+                            iVersionBOM = GetVersionLatestRevision(aFile);
+                            break;
+                        case "SV":
+                            /* recupera versione selezionata */
+                            bool bSuccess;
+                            bSuccess = int.TryParse(this.ExpParam2, out iVersionBOM);
 
-                if (first && this.Param1 == "ABLocal")
-                    iVersionBOM = iVersione;
+                            if (!bSuccess)
+                            {
+                                throw new ApplicationException("Errore recupero versione Root iniziale");
+                            }
 
-                bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConf, (int)EdmBomFlag.EdmBf_ShowSelected);
+                            break;
+                    }
+
+
+                }
+                else
+                {
+                    switch (this.ExpP2)
+                    {
+
+                        case "UV":
+                            iVersionBOM = -1;
+                            break;
+                        case "UR":
+                            /* recupera versione associata a ultima revisione */
+                            iVersionBOM = GetVersionLatestRevision(aFile);
+                            break;
+                        case "CC":
+                            
+                            iVersionBOM = iVersione;
+
+                            break;
+                    }
+
+                }
+
+                bomView = aFile.GetComputedBOM(cTipoDistinta, iVersionBOM, sConf, (int)EdmBomFlag.EdmBf_ShowSelected);
                     
 
                 /*}*/
@@ -2722,6 +2766,86 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             }
 
 
+        }
+
+        public int GetVersionLatestRevision(IEdmFile7 aFile)
+        { 
+        
+            int iVersion;
+            int iCurrentVersion;
+            string sCurrentRevision;
+
+            iVersion = 0;
+
+            sCurrentRevision = aFile.CurrentRevision;
+            iCurrentVersion = aFile.CurrentVersion;
+
+            if (sCurrentRevision == null || sCurrentRevision.Trim() == "")
+            {
+                iVersion = iCurrentVersion;
+                return iVersion;
+            }
+            else
+            {
+
+                IEdmEnumeratorVersion5 verEnum = default(IEdmEnumeratorVersion5);
+                verEnum = (IEdmEnumeratorVersion5)aFile;
+
+
+                for (int iCheckVersion = iCurrentVersion; iCheckVersion > 0; iCheckVersion--)
+                {
+
+                    //Get the version interface
+                    try
+                    {
+                        IEdmVersion5 ver = default(IEdmVersion5);
+                        ver = (IEdmVersion5)verEnum.GetVersion(iCheckVersion);
+
+                        if (ver != null)
+                        {
+                            IEdmPos5 pos = default(IEdmPos5);
+                            pos = ver.GetFirstRevisionPosition();
+
+                            if (!pos.IsNull)
+                            {
+                                IEdmRevision5 rev = default(IEdmRevision5);
+                                while (!pos.IsNull)
+                                {
+                                    rev = ver.GetNextRevision(pos);
+                                    if (rev.Name == sCurrentRevision)
+                                    {
+
+                                        return iCheckVersion;
+
+                                    }
+                                }
+                            }
+
+
+                        }
+
+                    }
+                    catch (System.Runtime.InteropServices.COMException comEx)
+                    {
+                        switch (comEx.ErrorCode)
+                        {
+                            case (int)EdmResultErrorCodes_e.E_EDM_INVALID_REVISION_NUMBER:
+                                continue;                                
+                            default:
+                                throw comEx;
+                        }
+
+                    }
+
+
+                }
+
+            }
+
+
+            iVersion = iCurrentVersion;
+
+            return iVersion;
         }
 
         //public const string LIC_KEY = "ICMSrl:swdocmgr_general-11785-02051-00064-33793-08629-34307-00007-21056-24258-41357-18249-06797-28051-02314-47107-52228-50244-12840-03222-47284-19773-22820-03364-19765-45513-14337-28772-52314-50378-25690-25696-1006,swdocmgr_previews-11785-02051-00064-33793-08629-34307-00007-31184-51130-14685-16798-60862-10393-19494-28674-50971-18073-37771-04381-09168-41361-24271-03364-19765-45513-14337-28772-52314-50378-25690-25696-1000,swdocmgr_dimxpert-11785-02051-00064-33793-08629-34307-00007-05336-27990-16960-35937-58127-19438-35807-26630-38432-63128-18458-01526-49106-45461-24086-03364-19765-45513-14337-28772-52314-50378-25690-25696-1000,swdocmgr_geometry-11785-02051-00064-33793-08629-34307-00007-57672-19923-32143-19233-37574-46535-36808-59394-38006-03797-02358-09615-15635-11338-24334-03364-19765-45513-14337-28772-52314-50378-25690-25696-1009,swdocmgr_xml-11785-02051-00064-33793-08629-34307-00007-57824-59519-37891-59911-49387-32794-32102-28672-44610-33796-16294-21731-07270-07352-23835-03364-19765-45513-14337-28772-52314-50378-25690-25696-1009,swdocmgr_tessellation-11785-02051-00064-33793-08629-34307-00007-28224-40350-42189-31440-29307-31095-63997-36870-42100-37430-42331-51585-17635-18238-24470-03364-19765-45513-14337-28772-52314-50378-25690-25696-1004";

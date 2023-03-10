@@ -102,8 +102,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;
 
-            string sPar1;
-            
+            string sEsplodiPar1;
+            string sEsplodiPar2;
+            bool bSet1;
+            bool bSet2;
+            int iSelectedRootVersion;
+
+
 
             if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
             {
@@ -112,6 +117,21 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 return;
             
             
+            }
+
+            if ((bool)RB2.IsChecked)
+            {
+
+                bool bSuccess;
+
+                bSuccess = int.TryParse(VerPadre.Text, out iSelectedRootVersion);
+                if (!bSuccess)
+                {
+
+                    System.Windows.Forms.MessageBox.Show("Versione Padre non valida");
+                    return;
+
+                }
             }
 
             DialogResult dialogResult = System.Windows.Forms.MessageBox.Show("Confermi esportazione distinta ?", "Domanda", MessageBoxButtons.YesNo);
@@ -123,27 +143,60 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     try
                     {
 
-                        sPar1 = "";
+                        sEsplodiPar1 = "";
+                        sEsplodiPar2 = "";
+                        bSet1 = false;
+                        bSet2 = false;
+                        
+
+                        
+                        iSelectedRootVersion = 0;
 
                         if ((bool)RB1.IsChecked)
                         {
-                            sPar1 = "LV";                        
+                            sEsplodiPar1 = "UV";
+                            bSet1 = true;
+
                         }
 
-                        else if ((bool)RB2.IsChecked)
+                        if ((bool)RB3.IsChecked)
                         {
-
-                            if ((bool)RB4.IsChecked)
-                                sPar1 = "ABLatest";
-                            else
-                                sPar1 = "ABLocal";
+                            sEsplodiPar1 = "UR";
+                            bSet1 = true;
                         }
-                        else if ((bool)RB3.IsChecked)
+
+                        if ((bool)RB2.IsChecked)
                         {
-                            sPar1 = "LR";
+                            sEsplodiPar1 = "SV";
+                            bSet1 = true;
+                           
+
                         }
 
-                        if (sPar1 == "")
+                        if ((bool)RB4.IsChecked)
+                        {
+                            sEsplodiPar1 += (char)1 + "UV";
+                            bSet2 = true;
+
+                        }
+
+                        if ((bool)RB5.IsChecked)
+                        {
+                            sEsplodiPar1 += (char)1 + "UR";
+                            bSet2 = true;
+
+                        }
+
+                        if ((bool)RB6.IsChecked)
+                        {
+                            sEsplodiPar1 += (char)1 + "CC";
+                            bSet2 = true;
+                        }
+
+                        sEsplodiPar2 = iSelectedRootVersion.ToString();
+
+
+                        if (!(bSet1 && bSet2))
                         {
 
                             throw new ApplicationException("Parametri non corretti");
@@ -153,7 +206,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         progBarAnalisi.Foreground = Brushes.Green;
 
 
-                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, 1, sPar1));
+                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, 1, sEsplodiPar1, sEsplodiPar2));
 
                         EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
                         EspDistinta.WriteLog("Esportazione terminata con successso", TraceEventType.Information);
@@ -261,33 +314,22 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         private void RB2_Click(object sender, RoutedEventArgs e)
         {
-            Rect1.Visibility = Visibility.Visible;
-            RB4.Visibility = Visibility.Visible;
-            RB5.Visibility = Visibility.Visible;
-            RB4.IsChecked = false;
-            RB5.IsChecked = true;
-
-
+            LabelVerPadre.Visibility = Visibility.Visible;
+            VerPadre.Visibility = Visibility.Visible;
         }
 
         private void RB1_Click(object sender, RoutedEventArgs e)
         {
-            Rect1.Visibility = Visibility.Hidden;
-            RB4.Visibility = Visibility.Hidden;
-            RB5.Visibility = Visibility.Hidden;
-            RB4.IsChecked = false;
-            RB5.IsChecked = false;
+            LabelVerPadre.Visibility = Visibility.Hidden;
+            VerPadre.Visibility = Visibility.Hidden;
 
         }
 
         private void RB3_Click(object sender, RoutedEventArgs e)
         {
-            Rect1.Visibility = Visibility.Hidden;
-            RB4.Visibility = Visibility.Hidden;
-            RB5.Visibility = Visibility.Hidden;
-            RB4.IsChecked = false;
-            RB5.IsChecked = true;
 
+            LabelVerPadre.Visibility = Visibility.Hidden;
+            VerPadre.Visibility = Visibility.Hidden;
 
         }
     }

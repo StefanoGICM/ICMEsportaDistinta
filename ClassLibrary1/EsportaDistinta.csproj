@@ -38,6 +38,10 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>C:\Program Files\SOLIDWORKS PDM\EPDM.Interop.epdm.dll</HintPath>
     </Reference>
+    <Reference Include="EPDM.Interop.EPDMResultCode">
+      <HintPath>C:\Program Files\SOLIDWORKS PDM\EPDM.Interop.EPDMResultCode.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="ICM.ConsoleControlWPF">
       <HintPath>..\..\..\ICM.ConsoleControlWPF\bin\Debug\ICM.ConsoleControlWPF.dll</HintPath>
     </Reference>
