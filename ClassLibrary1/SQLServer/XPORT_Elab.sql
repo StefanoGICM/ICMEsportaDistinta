@@ -1,6 +1,3 @@
-USE [EPDMSuite]
-GO
-
 /****** Object:  Table [dbo].[XPORT_Elab]    Script Date: 3/3/2023 10:09:20 AM ******/
 SET ANSI_NULLS ON
 GO

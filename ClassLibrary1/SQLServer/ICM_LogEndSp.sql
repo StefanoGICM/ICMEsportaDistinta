@@ -18,7 +18,7 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-ALTER PROCEDURE ICM_LogEndSp 
+CREATE PROCEDURE ICM_LogEndSp 
 	-- Add the parameters for the stored procedure here
 	@Id bigint
   , @Success int

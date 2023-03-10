@@ -27,7 +27,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
     {
 
 
-        EsportaDistinta EspDistinta = new EsportaDistinta();
+        EsportaDistinta EspDistinta = new EsportaDistinta(1);
 
 
         string sFileName;
@@ -206,7 +206,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         progBarAnalisi.Foreground = Brushes.Green;
 
 
-                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, 1, sEsplodiPar1, sEsplodiPar2));
+                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, sEsplodiPar1, sEsplodiPar2));
 
                         EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
                         EspDistinta.WriteLog("Esportazione terminata con successso", TraceEventType.Information);

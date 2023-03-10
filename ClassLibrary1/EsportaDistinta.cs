@@ -193,6 +193,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
+        public EsportaDistinta(int iType)
+        {
+
+            this.iType = iType;
+
+        }
 
         public void OpenLog(string sFileName, string vaultName)
         {
@@ -314,7 +320,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 commandLog.CommandType = CommandType.StoredProcedure;
                 commandLog.Transaction = transaction;
 
-                //MessageBox.Show(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
+                //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
 
                 SqlParameter sqlParam = commandLog.Parameters.Add("@Vault", SqlDbType.VarChar, 500);
                 sqlParam.Direction = ParameterDirection.Input;
@@ -403,7 +409,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, int iType, string sEsplodiPar1, string sEsplodiPar2)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2)
         {
 
 
@@ -529,13 +535,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             sqlParam.Direction = ParameterDirection.Output;
                             command2.Parameters.Add(sqlParam);
 
-                            //MessageBox.Show("prima");
+                            //WriteLog("prima");
 
 
 
                             command2.ExecuteNonQuery();
 
-                            //MessageBox.Show("dopo");
+                            //WriteLog("dopo");
 
                             XErrore = command2.Parameters["@XErrore"].Value.ToString();
 
@@ -559,7 +565,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         }                   
 
                         //Importa in ARCA
-                        //MessageBox.Show("Importa in ARCA");
+                        //WriteLog("Importa in ARCA");
 
                         WriteLog("Importazione distinta in ARCA");
                         
@@ -614,6 +620,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         using (cnn = new SqlConnection(connectionString))
                         {
+
+                            cnn.Open();
 
                             transaction = cnn.BeginTransaction();
 
@@ -670,7 +678,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         if (lWarn || (cNonCodificati != ""))
                         {
 
-                            MessageBox.Show("Attenzione: uno o più avvertimenti");
+                           WriteLog("Attenzione: uno o più avvertimenti");
                         
                         }
 
@@ -700,12 +708,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 catch (Exception ex2)
                 {
 
-                    MessageBox.Show("Errore in Rollback transazione");
+                    WriteLog("Errore in Rollback transazione");
 
                 }
                 finally
                 {
-                    //MessageBox.Show("HRESULT = 0x" + ex.ErrorCode.ToString("X") + " " + ex.Message);
+                    //WriteLog("HRESULT = 0x" + ex.ErrorCode.ToString("X") + " " + ex.Message);
                     throw ex;
 
                 }
@@ -722,12 +730,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 catch (Exception ex2)
                 {
 
-                    MessageBox.Show("Errore in Rollback transazione");
+                    WriteLog("Errore in Rollback transazione");
 
                 }
                 finally
                 {
-                    //MessageBox.Show(ex.Message);
+                    //WriteLog(ex.Message);
                     throw ex;
 
                 }
@@ -753,7 +761,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             bNonCodificatoPar = false;
 
-            //MessageBox.Show(cFileName + " - " + iDocument.ToString());
+            //WriteLog(cFileName + " - " + iDocument.ToString());
 
             if (cacheDictionary != null)
             {
@@ -848,7 +856,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 command2.CommandType = CommandType.StoredProcedure;
                 command2.Transaction = transaction;
 
-                //MessageBox.Show(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
+                //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
 
 
                 SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
@@ -946,7 +954,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             if (aFile != null)
             {
 
-                //MessageBox.Show(cFileName + " --- " + sConf);
+                //WriteLog(cFileName + " --- " + sConf);
 
 
                 IEdmEnumeratorVariable7 enumVar;
@@ -1014,7 +1022,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         sBomName = sBomName.Replace("\\", "_");
 
-                        //MessageBox.Show(derivedBOMs[iBom].mbsBomName + (char)10 + sBomName);
+                        //WriteLog(derivedBOMs[iBom].mbsBomName + (char)10 + sBomName);
 
                         if (derivedBOMs[iBom].mbsBomName == sBomName)
                         {
@@ -1199,7 +1207,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 while (j2 < arrSize2)
                 {
 
-                    //MessageBox.Show(ppoColumns[j2].mbsCaption);
+                    //WriteLog(ppoColumns[j2].mbsCaption);
 
                     if (ppoColumns[j2].mbsCaption == "Versione")
                     {
@@ -1433,7 +1441,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 bool bNonCodificato;
 
-                //MessageBox.Show(arrSize.ToString());
+                //WriteLog(arrSize.ToString());
               
                 while (i < arrSize)
                 {
@@ -1459,7 +1467,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     if (ppoRow.GetTreeLevel() == 0)
                     {
 
-                        //MessageBox.Show("Sbianca DEDLINEAR");
+                        //WriteLog("Sbianca DEDLINEAR");
                         
                         tmp_DEDLinear = "";
                         tmp_DEDMass = "";
@@ -1668,9 +1676,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (lFields.Contains(ppoColumns[j].mbsCaption))
                             {
 
-                                //MessageBox.Show("@" + ppoColumns[j].mbsCaption + " ----- " + cParValue);
+                                //WriteLog("@" + ppoColumns[j].mbsCaption + " ----- " + cParValue);
 
-                                //MessageBox.Show(ppoColumns[j].meType.ToString());
+                                //WriteLog(ppoColumns[j].meType.ToString());
 
 
                                 if (ppoColumns[j].mbsCaption == "DEDID")
@@ -1748,7 +1756,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                     //Debugger.Launch();
 
-                                    //MessageBox.Show("DEDLINEAR = " + cParValue + "sDedID = " +sDEDID);
+                                    //WriteLog("DEDLINEAR = " + cParValue + "sDedID = " +sDEDID);
 
                                     tmp_DEDLinear = cParValue;
 
@@ -1843,7 +1851,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         query = query.Replace("<@@@!!èà@@" + "DEDDESC" + ">", "'" + descTecnicaITA.Replace("'", "''") + " --- " + descTecnicaENG.Replace("'", "''") + "'");
 
-                        //MessageBox.Show(query);
+                        //WriteLog(query);
 
                         WriteLog("Esporta " + sDEDID + "//" + sDEDREV + " --- " + descTecnicaITA);
 
@@ -1885,7 +1893,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         }
 
-                        //MessageBox.Show(ppoRow.GetPathName());
+                        //WriteLog(ppoRow.GetPathName());
                         if (cTipoDistinta == "DistintaAssiemePerArca")
                         {
 
@@ -1981,7 +1989,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 sGuidConfCostr = poValue.ToString();
 
-                                //MessageBox.Show(sGuidDocCostr);
+                                //WriteLog(sGuidDocCostr);
 
                                 //recupera il nomefile dal GUID
 
@@ -2031,7 +2039,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                             command2.CommandType = CommandType.StoredProcedure;
                                             command2.Transaction = transaction;
 
-                                            //MessageBox.Show(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
+                                            //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
 
 
                                             SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
@@ -2155,7 +2163,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             }
 
-                            //MessageBox.Show(sFileNameDocCostr);
+                            //WriteLog(sFileNameDocCostr);
 
                             if (!bThis)
                             {
@@ -2163,7 +2171,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 iIDChild = newIdToTake;
                                 iVersioneChild = newVersionToTake;
 
-                               //MessageBox.Show("New version to take: " + newVersionToTake.ToString());
+                               //WriteLog("New version to take: " + newVersionToTake.ToString());
 
 
                             }
@@ -2550,7 +2558,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             {
 
 
-                                //MessageBox.Show(ppoColumns[j].mbsCaption + " --- " + ppoColumns[j].mlFlags.ToString());
+                                //WriteLog(ppoColumns[j].mbsCaption + " --- " + ppoColumns[j].mlFlags.ToString());
                                 ppoRow.GetVar(ppoColumns[j].mlVariableID
                                                 , ppoColumns[j].meType
                                                 , out poValue
@@ -2564,8 +2572,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 if (lFields.Contains(ppoColumns[j].mbsCaption))
                                 {
 
-                                    //MessageBox.Show("@" + ppoColumns[j].mbsCaption + " ----- " + cParValue);
-                                    //MessageBox.Show(ppoColumns[j].meType.ToString());
+                                    //WriteLog("@" + ppoColumns[j].mbsCaption + " ----- " + cParValue);
+                                    //WriteLog(ppoColumns[j].meType.ToString());
 
 
                                     if (ppoColumns[j].mbsCaption == "DEDID")
@@ -3029,7 +3037,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 catch (Exception ex)
                 {
 
-                    MessageBox.Show(ex.Message);
+                    WriteLog(ex.Message);
                     return;
 
                 }
@@ -3371,7 +3379,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         sVersion = poRetDat.mlLatestVersion.ToString();
 
 
-                        //MessageBox.Show(cFileName + " --- " + sConf);
+                        //WriteLog(cFileName + " --- " + sConf);
                         if (sParteAssieme == "Assieme")
                             cTipoDistinta = "DistintaAssiemePerArca";
                         else
@@ -3386,7 +3394,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         bomView.GetRows(out ppoRows);                        
                         int arrSize = ppoRows.Length;
 
-                        //MessageBox.Show(arrSize.ToString());
+                        //WriteLog(arrSize.ToString());
                         string sBomName;
 
                         sBomName = (configurationGUID + "_" + sConfig + "_" + sVersion);
@@ -3548,7 +3556,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         if (sPath == "")
                         {
-                            MessageBox.Show("ERROR: Path non trovato per component " + sPath);
+                            WriteLog("ERROR: Path non trovato per component " + sPath);
                             throw new ApplicationException("ERROR: Path non trovato per component " + sPath);
                         }
                         
@@ -3729,7 +3737,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             if (swDoc19 == null)
             {
-                MessageBox.Show("Errore apertura file " + sDocFileName + "Codice Errore: " + nRetVal.ToString());
+                WriteLog("Errore apertura file " + sDocFileName + "Codice Errore: " + nRetVal.ToString());
             }
 
         }

@@ -126,7 +126,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         
                         version = aFile.CurrentVersion;
 
-                        EsportaDistinta espDist = new EsportaDistinta();
+                        EsportaDistinta espDist = new EsportaDistinta(2);
                         espDist.OpenLog(System.IO.Path.GetFileName(sFileName), this.vault.Name);
 
                         EdmStrLst5 cfgList = default(EdmStrLst5);
@@ -154,7 +154,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                                 
-                                espDist.IniziaEsportazione(iDocument, sFileName, version, cfgName, this.vault, true, 2, "UR", "");
+                                espDist.IniziaEsportazione(iDocument, sFileName, version, cfgName, this.vault, true, "UR" + ((char) 1) + "UR", "");
 
                                 espDist.CommitLog(true);
                                 espDist.WriteLog("-----------------------------------------------------------------------");
