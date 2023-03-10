@@ -127,7 +127,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         version = aFile.CurrentVersion;
 
                         EsportaDistinta espDist = new EsportaDistinta();
-                        espDist.OpenLog(System.IO.Path.GetFileName(sFileName));
+                        espDist.OpenLog(System.IO.Path.GetFileName(sFileName), this.vault.Name);
 
                         EdmStrLst5 cfgList = default(EdmStrLst5);
                         cfgList = aFile.GetConfigurations();
@@ -273,6 +273,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string query;
             int version;
             int iDocument;
+
+            Debugger.Launch();
 
             try
             {

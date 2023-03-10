@@ -194,12 +194,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-        public void OpenLog(string sFileName)
+        public void OpenLog(string sFileName, string vaultName)
         {
 
-            string vaultName;
-
-            vaultName = vault.Name;
 
             if (iType == 2 || iType == 3)
             {
@@ -408,6 +405,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, int iType, string sEsplodiPar1, string sEsplodiPar2)
         {
+
 
 
             
