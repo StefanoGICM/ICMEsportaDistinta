@@ -146,7 +146,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (cfgName == "@")
                                 continue;
 
-
                             try
                             {
                                 espDist.WriteLog("-----------------------------------------------------------------------");

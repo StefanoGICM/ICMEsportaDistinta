@@ -197,9 +197,42 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void OpenLog(string sFileName)
         {
 
+            string vaultName;
+
+            vaultName = vault.Name;
+
             if (iType == 2 || iType == 3)
             {
                 cLogFileName = "log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
+
+                if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
+                {
+
+                    Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
+                
+                }
+
+                if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale"))
+                {
+
+                    Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale");
+
+                }
+
+                if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed"))
+                {
+
+                    Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed");
+
+                }
+
+                if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed"))
+                {
+
+                    Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed");
+
+                }
+
 
                 cLogFileNamePath = @"D:\LocalView\SandBox\Log\EsportaGestionale";
 
