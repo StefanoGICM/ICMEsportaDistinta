@@ -274,7 +274,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             int version;
             int iDocument;
 
-            Debugger.Launch();
+            //Debugger.Launch();
 
             try
             {
