@@ -234,7 +234,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 }
 
 
-                cLogFileNamePath = @"D:\LocalView\SandBox\Log\EsportaGestionale";
+                cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
 
                 outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
             }
