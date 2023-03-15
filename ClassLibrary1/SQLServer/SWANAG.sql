@@ -87,6 +87,12 @@ CREATE TABLE [dbo].[SWANAG](
 	[DEDMass] [nvarchar](200) NULL,
 	[DateIns] [datetime] NULL,
 	[DateUpd] [datetime] NULL,
+	[UMMaga] nvarchar(10) NULL,
+	[MagaFatConv] decimal(23,11) NULL,
+	[UMAcq] nvarchar(10) NULL,
+	[AcqFatConv] decimal(23,11) NULL,
+	[FattoreUMLinear] decimal(23,11) NULL,
+	[FattoreUMMass] decimal(23,11) NULL,
  CONSTRAINT [PK_SWANAG] PRIMARY KEY CLUSTERED 
 (
 	[SessionID] ASC,

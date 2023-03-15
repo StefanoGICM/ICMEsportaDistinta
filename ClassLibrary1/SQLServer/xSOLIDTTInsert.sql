@@ -67,45 +67,14 @@ BEGIN
 
 
 	  -- Assegnazione unità di misura di acquisto per famiglie merceologiche
-	  CREATE TABLE ICM_FamMerc (id INT, name varchar(50), PRIMARY KEY (id), UNIQUE NONCLUSTERED (name) )
-
-
-	  if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME= 'ICM_UMMaga')
-        DROP TABLE ICM_UMMaga
-	
-	  CREATE TABLE ICM_UMMaga (id INT, name varchar(50), entity varchar(100), PRIMARY KEY (id))
-
-	
-	   if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME= 'ICM_UMAcq')
-        DROP TABLE ICM_UMAcq
-	
-
-	  CREATE TABLE ICM_UMAcq (id INT, name varchar(50), entity varchar(100), PRIMARY KEY (id))
-
-	  /*if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME= 'tmp_ICM_Consumo')
-	    DROP TABLE tmp_ICM_Consumo
-
-	  CREATE TABLE tmp_ICM_Consumo
-	  (id INT,
-		DEDIDP nvarchar(50)
-	  , DEDREVP nvarchar(50)
-	  , DEDIDC nvarchar(50)
-	  , DEDREVC nvarchar(50)
-	  , QTA numeric(21,6)
-  	  , FAMIGLIA1_PREFIX nvarchar(200)
-	  , FAMIGLIA2_PREFIX nvarchar(200)
-	  , FAMIGLIA3_PREFIX nvarchar(200)
-	  , LG nvarchar(200)
-	  , SUP_GOMMATA nvarchar(200)
-	  , PESO nvarchar(200)
-	  , DEDLinear nvarchar(200)
-	  , DEDMass nvarchar(200)
-	   PRIMARY KEY (id)
-	  )
-	  */
-
-
-
+	  CREATE TABLE ICM_FamMerc (id INT, 
+	                            name varchar(50), 
+								ummaga varchar(50),
+								entitymaga varchar(100),
+								umacq varchar(50),
+								entityacq varchar(100),
+								PRIMARY KEY (id), UNIQUE NONCLUSTERED (name) )
+	  
 
     insert into ICM_UMLinear
 	  values
@@ -157,100 +126,36 @@ BEGIN
 
 	  insert into ICM_FamMerc 
 	  values
-	  (1, '513'),     --ATTUATORI
-	  (2, '500'),     --BULLONERIE
-	  (3, '600'),     --CARPENTERIE
-	  (4, '507'),     --COMPRESSORI
-	  (5, '512'),     --CUSCINETTI
-	  (6, '508'),     --FANCOIL
-      (7, '504'),     --FERRAMENTA
-	  (8, '515'),     --GRUPPI ELETTR.
-	  (9, '502'),     --GUARNIZIONI
-	  (10, '605'),    --LAVORATI A MACCHINA
-	  (11, '510'),    --MATERIALE ELETTRICO
-	  (12, '800'),    --MONTAGGI
-	  (13, '511'),    --MOTORI
-	  (14, '501'),    --PIPING
-	  (15, '505'),    --POMPE
-	  (16, '750'),    --PRODOTTI IN PLASTICA
-	  (17, '514'),    --RALLE
-	  (18, '503'),    --SENSORI
+	  (1, '513', 'NR', 'QTA', 'NR', 'QTA'),     --ATTUATORI
+	  (2, '500', 'NR', 'QTA', 'NR', 'QTA'),     --BULLONERIE
+	  (3, '600', 'NR', 'QTA', 'KG', 'PESO'),     --CARPENTERIE
+	  (4, '507', 'NR', 'QTA', 'NR', 'QTA'),     --COMPRESSORI
+	  (5, '512', 'NR', 'QTA', 'NR', 'QTA'),     --CUSCINETTI
+	  (6, '508', 'NR', 'QTA', 'NR', 'QTA'),     --FANCOIL
+      (7, '504', 'NR', 'QTA', 'NR', 'QTA'),     --FERRAMENTA
+	  (8, '515', 'NR', 'QTA', 'NR', 'QTA'),     --GRUPPI ELETTR.
+	  (9, '502', 'NR', 'QTA', 'NR', 'QTA'),     --GUARNIZIONI
+	  (10, '605', 'NR', 'QTA', 'NR', 'QTA'),    --LAVORATI A MACCHINA
+	  (11, '510', 'NR', 'QTA', 'NR', 'QTA'),    --MATERIALE ELETTRICO
+	  (12, '800', 'NR', 'QTA', 'NR', 'QTA'),    --MONTAGGI
+	  (13, '511', 'NR', 'QTA', 'NR', 'QTA'),    --MOTORI
+	  (14, '501', 'NR', 'QTA', 'NR', 'QTA'),    --PIPING
+	  (15, '505', 'NR', 'QTA', 'NR', 'QTA'),    --POMPE
+	  (16, '750', 'NR', 'QTA', 'NR', 'QTA'),    --PRODOTTI IN PLASTICA
+	  (17, '514', 'NR', 'QTA', 'NR', 'QTA'),    --RALLE
+	  (18, '503', 'NR', 'QTA', 'NR', 'QTA'),    --SENSORI
 	  --(19, 'LAG'),    -- ??LAMIERE GOMMATE
 	  --(20, 'TAP'),    -- ??TAPPETI
 	  --(21, 'GRI'),    -- ??GRIGLIATI
-	  (22, '509'),    -- APPARECCHIATURE ELTTRICHE CUSTOM
-	  (23, '506'),    --FILTRI
-	  (24, '700'),    --COMMERCIALI 
-	  (25, '540'),    --PIPING
-	  (26, '560'),    --GUARNIZIONI E TENUTE
+	  (22, '509', 'NR', 'QTA', 'NR', 'QTA'),    -- APPARECCHIATURE ELTTRICHE CUSTOM
+	  (23, '506', 'NR', 'QTA', 'NR', 'QTA'),    --FILTRI
+	  (24, '700', 'NR', 'QTA', 'NR', 'QTA'),    --COMMERCIALI 
+	  (25, '540', 'NR', 'QTA', 'NR', 'QTA'),    --PIPING
+	  (26, '560', 'NR', 'QTA', 'NR', 'QTA'),    --GUARNIZIONI E TENUTE
 	  --(27, 'BAV-000-000')     -- ??GREZZO BAVETTA
-	  (27, '517'),     -- RIVESTIMENTI
-	  (28, '516')      -- GUARNIZIONI CUSTOM
+	  (27, '517', 'NR', 'QTA', 'NR', 'QTA'),     -- RIVESTIMENTI
+	  (28, '516', 'NR', 'QTA', 'NR', 'QTA')      -- GUARNIZIONI CUSTOM
 	  
-
-	  insert into ICM_UMMaga 
-	  values
-	  (1, 'NR', 'QTA'),     --ATTUATORI
-	  (2, 'NR', 'QTA'),     --BULLONERIE
-	  (3, 'NR', 'QTA'),     --CARPENTERIE
-	  (4, 'NR', 'QTA'),     --COMPRESSORI
-	  (5, 'NR', 'QTA'),     --CUSCINETTI
-	  (6, 'NR', 'QTA'),     --FANCOIL
-      (7, 'NR', 'QTA'),     --FERRAMENTA
-	  (8, 'NR', 'QTA'),     --GRUPPI ELETTR.
-	  (9, 'NR', 'QTA'),     --GUARNIZIONI
-	  (10, 'NR', 'QTA'),    --LAVORATI A MACCHINA
-	  (11, 'NR', 'QTA'),    --MATERIALE ELETTRICO
-	  (12, 'NR', 'QTA'),    --MONTAGGI
-	  (13, 'NR', 'QTA'),    --MOTORI
-	  (14, 'NR', 'QTA'),    --PIPING
-	  (15, 'NR', 'QTA'),    --POMPE
-	  (16, 'NR', 'QTA'),    --PRODOTTI IN PLASTICA
-	  (17, 'NR', 'QTA'),    --RALLE
-	  (18, 'NR', 'QTA'),    --SENSORI
-	 -- (19, 'NR', 'QTA'),    -- ??LAMIERE GOMMATE
-	 -- (20, 'NR', 'QTA'),    -- ??TAPPETI
-	 -- (21, 'NR', 'QTA'),    -- ??GRIGLIATI
-	  (22, 'NR', 'QTA'),    -- APPARECCHIATURE ELTTRICHE CUSTOM
-	  (23, 'NR', 'QTA'),    --FILTRI
-	  (24, 'NR', 'QTA'),    --COMMERCIALI 
-	  (25, 'NR', 'QTA'),    --PIPING
-	  (26, 'NR', 'QTA'),    --GUARNIZIONI E TENUTE
-	  --(27, 'MT', 'LG')     -- ??GREZZO BAVETTA
-	  (27, 'NR', 'QTA'),     --RIVESTIMENTI
-	  (28, 'NR', 'QTA')      -- GUARNIZIONI CUSTOM
-
-	  insert into ICM_UMAcq 
-	  values
-	  (1, 'NR', 'QTA'),	   --ATTUATORI
-	  (2, 'NR', 'QTA'),    --BULLONERIE
-	  (3, 'KG', 'PESO'),   --CARPENTERIE
-	  (4, 'NR', 'QTA'),	   --COMPRESSORI
-	  (5, 'NR', 'QTA'),	   --CUSCINETTI
-	  (6, 'NR', 'QTA'),	   --FANCOIL
-      (7, 'NR', 'QTA'),	   --FERRAMENTA
-	  (8, 'NR', 'QTA'),	   --GRUPPI ELETTR.
-	  (9, 'NR', 'QTA'),	   --GUARNIZIONI
-	  (10, 'NR', 'QTA'),   --LAVORATI A MACCHINA
-	  (11, 'NR', 'QTA'),   --MATERIALE ELETTRICO
-	  (12, 'NR', 'QTA'),   --MONTAGGI
-	  (13, 'NR', 'QTA'),   --MOTORI
-	  (14, 'NR', 'QTA'),    --PIPING
-	  (15, 'NR', 'QTA'),   --POMPE
-	  (16, 'NR', 'QTA'),   --PRODOTTI IN PLASTICA
-	  (17, 'NR', 'QTA'),   --RALLE
-	  (18, 'NR', 'QTA'),   --SENSORI
-	  --(19, 'MQ', 'SUP_GOMMATA'),    -- ??LAMIERE GOMMATE
-	  --(20, 'MT', 'LG'),    -- ??TAPPETI
-	  --(21, 'MTGRI', 'PESO'), -- ??GRIGLIATI
-	  (22, 'NR', 'QTA'),   -- APPARECCHIATURE ELTTRICHE CUSTOM
-	  (23, 'NR', 'QTA'),   --FILTRI
-	  (24, 'NR', 'QTA'),   --COMMERCIALI 
-	  (25, 'NR', 'QTA'),   --PIPING
-	  (26, 'NR', 'QTA'),   --GUARNIZIONI E TENUTE
-	  --(27, 'MT', 'LG')    -- ??GREZZO BAVETTA
-	  (27, 'NR', 'QTA'),    --RIVESTIMENTI
-	  (28, 'NR', 'QTA')      -- GUARNIZIONI CUSTOM
 
 
 

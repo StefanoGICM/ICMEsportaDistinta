@@ -24,7 +24,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             this.vault = poVault;
 
             //Specify information to display in the add-in's Properties dialog box
-            poInfo.mbsAddInName = "ICM Add-in";
+            poInfo.mbsAddInName = "ICM Esporta Distinta";
             poInfo.mbsCompany = "ICM";
             poInfo.mbsDescription = "Esporta Distinta PDM";
             poInfo.mlAddInVersion = 1;
@@ -154,7 +154,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                                 
-                                espDist.IniziaEsportazione(iDocument, sFileName, version, cfgName, this.vault, true, "UR" + ((char) 1) + "UR", "");
+                                espDist.IniziaEsportazione(iDocument, sFileName, version, cfgName, this.vault, true, "UV" + ((char) 1) + "UV", "");
 
                                 espDist.CommitLog(true);
                                 espDist.WriteLog("-----------------------------------------------------------------------");

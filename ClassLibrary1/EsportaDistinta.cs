@@ -53,7 +53,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         string cLogFileNamePath;
 
         string connectionStringSWICMDATA = "Data Source='ws91';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
-        string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO_TEST; User ID = sa; Password = 'Logitech0'";
+        string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
 
 
         string connectionStringVault;
@@ -414,7 +414,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-            
+            //Debugger.Launch();
 
             this.ExpParam1 = sEsplodiPar1;
             this.ExpParam2 = sEsplodiPar2;
@@ -518,6 +518,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             // Calcolo consumo
 
+                            //transaction.Commit();
+
+                            //return;
+
                             WriteLog("Calcolo consumo");
 
                             SqlCommand command2 = new SqlCommand("dbo.ICMCalcoloConsumoSp", cnn);
@@ -589,7 +593,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             SqlParameter sqlParam21 = new SqlParameter("@POnlyTop", SqlDbType.Int);
                             sqlParam21.Direction = ParameterDirection.Input;
-                            sqlParam21.Value = 0;
+
+                            if (bOnlyTop)
+                                sqlParam21.Value = 1;
+                            else
+                                sqlParam21.Value = 0;
                             cmd2.Parameters.Add(sqlParam21);
 
 
@@ -934,8 +942,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 
                 cTipoDistinta = "DistintaPartePerArca";
 
-                if (first)
-                    throw new ApplicationException("Errore: l'assieme " + cFileName + " da esportare è una parte.");
+                //if (first)
+                  //  throw new ApplicationException("Errore: l'assieme " + cFileName + " da esportare è una parte.");
 
                 if (iPromosso == 2)
                     throw new ApplicationException("Errore: la parte " + cFileName + " da esportare è promossa.");
@@ -2301,9 +2309,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",[DEDIDC]" +
                             ",[DEDREVC]" +
                             ",[QTA]" +
-                            ",[FAMIGLIA1_PREFIX]" +
-                            ",[FAMIGLIA2_PREFIX]" +
-                            ",[FAMIGLIA3_PREFIX]" +
                             ",[DateIns]" +
                             ",[DateUpd])" +
                             "VALUES" +
@@ -2313,9 +2318,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",<@@@!!èà@@DEDIDC>" +
                             ",<@@@!!èà@@DEDREVC>" +
                             ",<@@@!!èà@@QTA>" +
-                            ",<@@@!!èà@@FAMIGLIA1_PREFIX>" +
-                            ",<@@@!!èà@@FAMIGLIA2_PREFIX>" +
-                            ",<@@@!!èà@@FAMIGLIA3_PREFIX>" +
                             ",GETDATE()" +
                             ",GETDATE()" +
                             ") ELSE UPDATE [dbo].[SWBOM] SET [QTA] = [QTA] + <@@@!!èà@@QTA>,DateUpd = GETDATE() WHERE " +
@@ -2332,9 +2334,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             query = query.Replace("<@@@!!èà@@DEDIDC>", "'" + tmp_DEDIDC.Replace("'", "''") + "'");
                             query = query.Replace("<@@@!!èà@@DEDREVC>", "'" + tmp_DEDREVC.Replace("'", "''") + "'");
                             query = query.Replace("<@@@!!èà@@QTA>", "'" + tmp_QTA.Replace("'", "''") + "'");
-                            query = query.Replace("<@@@!!èà@@FAMIGLIA1_PREFIX>", "'" + tmp_FAMIGLIA1_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@@@!!èà@@FAMIGLIA2_PREFIX>", "'" + tmp_FAMIGLIA2_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@@@!!èà@@FAMIGLIA3_PREFIX>", "'" + tmp_FAMIGLIA3_PREFIX.Replace("'", "''") + "'");
 
 
 
@@ -2847,9 +2846,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",[DEDIDC]" +
                             ",[DEDREVC]" +
                             ",[QTA]" +
-                            ",[FAMIGLIA1_PREFIX]" +
-                            ",[FAMIGLIA2_PREFIX]" +
-                            ",[FAMIGLIA3_PREFIX]" +
                             ",[DateIns]" +
                             ",[DateUpd]" +
                             ")" +
@@ -2860,9 +2856,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             ",<@@@!!èà@@DEDIDC>" +
                             ",<@@@!!èà@@DEDREVC>" +
                             ",<@@@!!èà@@QTA>" +
-                            ",<@@@!!èà@@FAMIGLIA1_PREFIX>" +
-                            ",<@@@!!èà@@FAMIGLIA2_PREFIX>" +
-                            ",<@@@!!èà@@FAMIGLIA3_PREFIX>" +
                             ",GETDATE()" +
                             ",GETDATE()" +
                             ") ELSE UPDATE [dbo].[SWBOM] SET [QTA] = [QTA] + <@@@!!èà@@QTA>, DateUpd = GETDATE() WHERE " +
@@ -2878,9 +2871,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             query = query.Replace("<@@@!!èà@@DEDIDC>", "'" + tmp_DEDIDC.Replace("'", "''") + "'");
                             query = query.Replace("<@@@!!èà@@DEDREVC>", "'" + tmp_DEDREVC.Replace("'", "''") + "'");
                             query = query.Replace("<@@@!!èà@@QTA>", "'" + tmp_QTA.Replace("'", "''") + "'");
-                            query = query.Replace("<@@@!!èà@@FAMIGLIA1_PREFIX>", "'" + tmp_FAMIGLIA1_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@@@!!èà@@FAMIGLIA2_PREFIX>", "'" + tmp_FAMIGLIA2_PREFIX.Replace("'", "''") + "'");
-                            query = query.Replace("<@@@!!èà@@FAMIGLIA3_PREFIX>", "'" + tmp_FAMIGLIA3_PREFIX.Replace("'", "''") + "'");
 
                             //TS.WriteLine(query);
 
