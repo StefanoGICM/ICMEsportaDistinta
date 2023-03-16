@@ -52,7 +52,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         string cLogFileNamePath;
 
-        string connectionStringSWICMDATA = "Data Source='ws91';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
+        string connectionStringSWICMDATA = "Data Source='ws22';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
         string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
 
 
