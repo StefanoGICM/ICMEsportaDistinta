@@ -33,13 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EPDM.Interop.epdm, Version=5.25.0.0, Culture=neutral, PublicKeyToken=0625a0c4bb5de148, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="EPDM.Interop.epdm">
+      <HintPath>C:\Program Files (x86)\SOLIDWORKS PDM\EPDM.Interop.epdm.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>C:\Program Files\SOLIDWORKS PDM\EPDM.Interop.epdm.dll</HintPath>
     </Reference>
     <Reference Include="EPDM.Interop.EPDMResultCode">
-      <HintPath>C:\Program Files\SOLIDWORKS PDM\EPDM.Interop.EPDMResultCode.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\SOLIDWORKS PDM\EPDM.Interop.EPDMResultCode.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="ICM.ConsoleControlWPF">
