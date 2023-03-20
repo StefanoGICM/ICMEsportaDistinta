@@ -32,6 +32,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         string cLogFileNamePath;
         StreamWriter outputFile;
 
+        
+
         public void insertDistinta(IEdmVault5 vault,
                                     int iDocument,
                                     string sFileName,
@@ -67,7 +69,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 cnn.Open();
 
 
-                OpenLog(sFileName, vault.Name);
+                OpenLog(System.IO.Path.GetFileName(sFileName), vault.Name);
 
                 WriteLog("Inizio inserimento record di elaborazione nella Queue");
 
@@ -188,6 +190,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void OpenLog(string sFileName, string vaultName)
         {
 
+            sFileName = sFileName.Substring(0, sFileName.Length - 7);
 
             cLogFileName = "prelog_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
 
@@ -221,7 +224,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             }
 
 
+
             cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
+
+            //MessageBox.Show(Path.Combine(cLogFileNamePath, cLogFileName));
 
             outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
 
@@ -233,6 +239,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void WriteLog(string content)
         {
             outputFile.WriteLine(content);
+            
 
         }
 

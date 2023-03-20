@@ -116,8 +116,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             bool bSet2;
             int iSelectedRootVersion;
 
-
-
             if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
             {
 
@@ -150,7 +148,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
                     try
                     {
-
+                       
                         sEsplodiPar1 = "";
                         sEsplodiPar2 = "";
                         bSet1 = false;
@@ -236,7 +234,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-
+                        System.Windows.Forms.MessageBox.Show("Record inserito nella queue di esportazione");
                         //await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, sEsplodiPar1, sEsplodiPar2));
 
                         //EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
@@ -247,7 +245,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     catch (Exception ex)
                     {
 
-                        //System.Windows.Forms.MessageBox.Show(ex.Message);
+                        System.Windows.Forms.MessageBox.Show(ex.Message);
+                        System.Windows.Forms.MessageBox.Show("Elaborazione non riuscita");
 
                         //EspDistinta.WriteLog(ex.Message, TraceEventType.Error);
 
