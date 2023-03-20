@@ -20,14 +20,260 @@ using System.Data.Odbc;
 using System.Diagnostics.Eventing.Reader;
 using System.Windows.Markup;
 using System.Xml.Linq;
+using System.Data.SqlTypes;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
+
+    public class PreEsportaDistinta
+    {
+
+        string cLogFileName;
+        string cLogFileNamePath;
+        StreamWriter outputFile;
+
+        public void insertDistinta(IEdmVault5 vault,
+                                    int iDocument,
+                                    string sFileName,
+                                    int iVersione,
+                                    string sConfigurazioni,
+                                    bool? bTopOnly,
+                                    string sEsplodiPar1,
+                                    string sEsplodiPar2,
+                                    string sDitta,
+                                    int iPriority,
+                                    Guid SessionID,
+                                    out long id)
+        {
+            string connectionStringSWICMDATA;
+
+            connectionStringSWICMDATA = "";
+
+            id = 0;
+
+            if (vault.Name == "SandBox2")
+                connectionStringSWICMDATA = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
+            if (vault.Name == "ICM")
+                connectionStringSWICMDATA = "Data Source='database';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
+
+            if (connectionStringSWICMDATA == "")
+                throw new ApplicationException("Vault non configurato per l'esportazione");
+
+            string connectionString;
+            connectionString = connectionStringSWICMDATA;
+
+            using (SqlConnection cnn = new SqlConnection(connectionString))
+            {
+                cnn.Open();
+
+
+                OpenLog(sFileName, vault.Name);
+
+                WriteLog("Inizio inserimento record di elaborazione nella Queue");
+
+                SqlTransaction commandTransaction = cnn.BeginTransaction();
+
+                SqlCommand command = new SqlCommand("dbo.ICM_XPORT_Elab_InsertQueueSp", cnn);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Transaction = commandTransaction;
+
+                SqlParameter sqlParam = command.Parameters.Add("@Vault", SqlDbType.NVarChar, 500);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = vault.Name;
+
+                WriteLog("Parametro VaultName: " + vault.Name);
+
+                sqlParam = command.Parameters.Add("@DocumentID", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iDocument;
+
+                WriteLog("Parametro Document ID: " + iDocument.ToString());
+
+
+                sqlParam = command.Parameters.Add("@FileName", SqlDbType.NVarChar, 500);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sFileName;
+
+                WriteLog("Parametro Nome File: " + sFileName);
+
+                sqlParam = command.Parameters.Add("@Versione", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iVersione;
+
+                WriteLog("Parametro Versione: " + iVersione.ToString());
+
+                sqlParam = command.Parameters.Add("@Configurazioni", SqlDbType.NVarChar, 4000);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sConfigurazioni;
+
+                WriteLog("Parametro Configurazioni: " + iVersione.ToString());
+
+                sqlParam = command.Parameters.Add("@OnlyTop", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+
+                if (bTopOnly == null)
+                    sqlParam.Value = 0;
+                else
+                {
+
+                    if (!(Boolean)bTopOnly)
+                        sqlParam.Value = 0;
+                    else
+                        sqlParam.Value = 1;
+
+                }
+
+                WriteLog("Parametro OnlyTop: " + sqlParam.Value.ToString());
+
+                sqlParam = command.Parameters.Add("@EspandiPar1", SqlDbType.NVarChar, 500);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sEsplodiPar1;
+
+                WriteLog("Parametro EsplodiPar1: " + sEsplodiPar1);
+
+                sqlParam = command.Parameters.Add("@EspandiPar2", SqlDbType.NVarChar, 500);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sEsplodiPar2;
+
+                WriteLog("Parametro EsplodiPar2: " + sEsplodiPar2);
+
+
+                sqlParam = command.Parameters.Add("@DittaARCA", SqlDbType.NVarChar, 1000);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sDitta;
+
+                WriteLog("Parametro Ditta ARCA: " + sDitta);
+
+                sqlParam = command.Parameters.Add("@Priority", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iPriority;
+
+                WriteLog("Parametro Priorità: " + iPriority.ToString());
+
+
+                sqlParam = command.Parameters.Add("@SessionID", SqlDbType.UniqueIdentifier);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = SessionID;
+
+                WriteLog("Parametro SessionID: " + SessionID.ToString());
+
+                sqlParam = command.Parameters.Add("@Id", SqlDbType.BigInt);
+                sqlParam.Direction = ParameterDirection.Output;
+                sqlParam.Value = 0;
+
+                WriteLog("Chiamata alla SP");
+
+                command.ExecuteNonQuery();
+
+                string sID;
+                sID = command.Parameters["@Id"].Value.ToString();
+
+                WriteLog("Parametro ID Ritornato: " + sID);
+
+                WriteLog("Chiamata alla SP");
+
+                WriteLog("Prima Commit della transazione");
+                commandTransaction.Commit();
+                WriteLog("Dopo Commit della transazione");
+
+                WriteLog("Fine inserimento record di elaborazione nella Queue");
+                CloseLog();
+
+            }
+
+        }
+
+        public void OpenLog(string sFileName, string vaultName)
+        {
+
+
+            cLogFileName = "prelog_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
+
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
+
+            }
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale");
+
+            }
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed");
+
+            }
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed");
+
+            }
+
+
+            cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
+
+            outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
+
+        }
+
+
+
+
+        public void WriteLog(string content)
+        {
+            outputFile.WriteLine(content);
+
+        }
+
+
+
+
+        public void CloseLog()
+        {
+            outputFile.Close();
+
+        }
+
+        public void MoveLog(bool bSuccess)
+        {
+
+            string newPath;
+            string cOld;
+            string cNew;
+
+
+            if (bSuccess)
+                newPath = cLogFileNamePath + @"\Completed";
+            else
+                newPath = cLogFileNamePath + @"\Failed";
+
+            cOld = Path.Combine(cLogFileNamePath, cLogFileName);
+            cNew = Path.Combine(newPath, cLogFileName);
+
+            File.Move(cOld, cNew);
+
+
+        }
+
+
+    }
+
     public partial class EsportaDistinta
     {
 
 
-        public int iType = 0;   /* 1 da pulsante con log in console -> non scrive nè file di log n+ record sul DB
+        public int iType = 0;   /* 1 da pulsante con log in console -> scrive file di log e file sul DB
                                    2 da task workflow con log in file e sul DB 
                                    3 da task con log in file: non implementato ancora */
 
@@ -206,8 +452,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             if (iType == 2 || iType == 3)
             {
+                
+                
                 cLogFileName = "log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
 
+                
                 if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
                 {
 
@@ -240,6 +489,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
 
                 outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
+
             }
 
         }
@@ -368,41 +618,36 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
                 cnn.Open();
 
-                using (cnn = new SqlConnection(connectionString))
+                logTransaction = cnn.BeginTransaction();
+
+                SqlCommand commandLog = new SqlCommand("dbo.ICM_LogEndSp", cnn);
+
+                commandLog.CommandType = CommandType.StoredProcedure;
+                commandLog.Transaction = logTransaction;
+
+                SqlParameter sqlParam = commandLog.Parameters.Add("@Id", SqlDbType.BigInt);
+                sqlParam.Direction = ParameterDirection.Input;
+
+                if (!int.TryParse(@LogId, out intIdLogValue))
                 {
-                    cnn.Open();
-
-
-                    logTransaction = cnn.BeginTransaction();
-
-                    SqlCommand commandLog = new SqlCommand("dbo.ICM_LogEndSp", cnn);
-
-                    commandLog.CommandType = CommandType.StoredProcedure;
-                    commandLog.Transaction = logTransaction;
-
-                    SqlParameter sqlParam = commandLog.Parameters.Add("@Id", SqlDbType.BigInt);
-                    sqlParam.Direction = ParameterDirection.Input;
-
-                    if (!int.TryParse(@LogId, out intIdLogValue))
-                    {
-                        intIdLogValue = 0;
-                    }
-                    sqlParam.Value = intIdLogValue;
-
-
-                    sqlParam = commandLog.Parameters.Add("@Success", SqlDbType.Int);
-                    sqlParam.Direction = ParameterDirection.Input;
-                    if (bSuccess)
-                        sqlParam.Value = 1;
-                    else
-                        sqlParam.Value = 0;
-
-
-
-                    commandLog.ExecuteNonQuery();
-
-                    logTransaction.Commit();
+                   intIdLogValue = 0;
                 }
+                sqlParam.Value = intIdLogValue;
+
+
+                sqlParam = commandLog.Parameters.Add("@Success", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                if (bSuccess)
+                    sqlParam.Value = 1;
+                else
+                    sqlParam.Value = 0;
+
+
+
+                commandLog.ExecuteNonQuery();
+
+                logTransaction.Commit();
+                
 
             }
         }

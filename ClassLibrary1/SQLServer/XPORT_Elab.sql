@@ -17,14 +17,11 @@ CREATE TABLE [dbo].[XPORT_Elab](
 	[InsertDate] [datetime] NULL,
 	[SessionID] [uniqueidentifier] NULL,
 	[Versione] [int] NULL,
-	[Configurazione] [nvarchar](1000) NULL,
+	[Configurazioni] [nvarchar](max) NULL,
 	[OnlyTop] [smallint] NULL,
 	[EsplodiPar1] [nvarchar](1000) NULL,
 	[EsplodiPar2] [nvarchar](1000) NULL,
-	[ICMSWDataServer] [nvarchar](1000) NULL,
-	[ICMSWDataDB] [nvarchar](1000) NULL,
-	[ARCAServer] [nvarchar](1000) NULL,
-	[ARCADB] [nvarchar](1000) NULL,
+	[DittaARCA] [nvarchar](1000) NULL,
 	[Priority] [int] NULL,
  CONSTRAINT [PK_XPORT_Elab] PRIMARY KEY CLUSTERED 
 (

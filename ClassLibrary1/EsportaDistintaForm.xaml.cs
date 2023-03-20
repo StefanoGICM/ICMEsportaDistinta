@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -95,12 +99,16 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
-
-
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;
+
+            bool? bTopOnly = this.checkFirstOnly.IsChecked;
+            string sDitta = this.dittaTextBox.ToString();
+
+            if (bTopOnly == null)
+                bTopOnly = false;
 
             string sEsplodiPar1;
             string sEsplodiPar2;
@@ -115,8 +123,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 System.Windows.Forms.MessageBox.Show("Nessuna configurazione impostata");
                 return;
-            
-            
+
+
             }
 
             if ((bool)RB2.IsChecked)
@@ -147,9 +155,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         sEsplodiPar2 = "";
                         bSet1 = false;
                         bSet2 = false;
-                        
 
-                        
+
                         iSelectedRootVersion = 0;
 
                         if ((bool)RB1.IsChecked)
@@ -169,7 +176,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         {
                             sEsplodiPar1 = "SV";
                             bSet1 = true;
-                           
 
                         }
 
@@ -205,26 +211,51 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         progBarAnalisi.Foreground = Brushes.Green;
 
+                        Guid newSessionId = Guid.NewGuid();
 
-                        await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, sEsplodiPar1, sEsplodiPar2));
+                        PreEsportaDistinta preEsportaDistinta = new PreEsportaDistinta();
 
-                        EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
-                        EspDistinta.WriteLog("Esportazione terminata con successso", TraceEventType.Information);
-                        EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
+                        long id;
+
+                        id = 0;
+
+                        /* aggiunge record nella tabella di esportazione */
+                        preEsportaDistinta.insertDistinta(this.vault
+                                                          , this.iDocument
+                                                          , this.sFileName
+                                                          , this.iVersione
+                                                          , sConfigurazioni
+                                                          , bTopOnly
+                                                          , sEsplodiPar1
+                                                          , sEsplodiPar1
+                                                          , sDitta
+                                                          , 0
+                                                          , newSessionId
+                                                          , out id
+                                                          );
+
+
+
+
+                        //await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, sEsplodiPar1, sEsplodiPar2));
+
+                        //EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
+                        //EspDistinta.WriteLog("Esportazione terminata con successso", TraceEventType.Information);
+                        //EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
 
                     }
                     catch (Exception ex)
-                    {                        
+                    {
 
                         //System.Windows.Forms.MessageBox.Show(ex.Message);
 
-                        EspDistinta.WriteLog(ex.Message, TraceEventType.Error);
+                        //EspDistinta.WriteLog(ex.Message, TraceEventType.Error);
 
-                        EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Error);
-                        EspDistinta.WriteLog("Esportazione interrotta per errori", TraceEventType.Error);
-                        EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Error);
+                        //EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Error);
+                        //EspDistinta.WriteLog("Esportazione interrotta per errori", TraceEventType.Error);
+                        //EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Error);
 
-                        progBarAnalisi.Foreground = Brushes.Red;
+                        //progBarAnalisi.Foreground = Brushes.Red;
 
 
                     }
@@ -243,18 +274,23 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 }
 
             }
+
         }
 
         private void ProgressBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 
         }
+    
+        
 
         private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
 
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;
+
+            
 
             DialogResult dialogResult = System.Windows.Forms.MessageBox.Show("Confermi aggiornamento distinta pregressa ?", "Domanda", MessageBoxButtons.YesNo);
             if (dialogResult == System.Windows.Forms.DialogResult.Yes)
@@ -331,6 +367,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             LabelVerPadre.Visibility = Visibility.Hidden;
             VerPadre.Visibility = Visibility.Hidden;
+
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
 
         }
     }
