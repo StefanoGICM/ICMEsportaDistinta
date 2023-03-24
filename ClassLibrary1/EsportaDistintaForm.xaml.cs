@@ -102,14 +102,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;
 
-            if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
+            /*if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
             {
 
                 System.Windows.Forms.MessageBox.Show("Nessuna configurazione impostata");
                 return;
             
             
-            }
+            }*/
 
             DialogResult dialogResult = System.Windows.Forms.MessageBox.Show("Confermi esportazione distinta ?", "Domanda", MessageBoxButtons.YesNo);
             if (dialogResult == System.Windows.Forms.DialogResult.Yes)
@@ -175,6 +175,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             DialogResult dialogResult = System.Windows.Forms.MessageBox.Show("Confermi aggiornamento distinta pregressa ?", "Domanda", MessageBoxButtons.YesNo);
             if (dialogResult == System.Windows.Forms.DialogResult.Yes)
             {
+                /*
                 if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
                 {
 
@@ -183,6 +184,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                 }
+                */
 
                 if (sFileName != null)
                     try

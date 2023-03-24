@@ -39,7 +39,7 @@
       <HintPath>C:\Program Files\SOLIDWORKS PDM\EPDM.Interop.epdm.dll</HintPath>
     </Reference>
     <Reference Include="ICM.ConsoleControlWPF">
-      <HintPath>..\..\..\ICM.ConsoleControlWPF\bin\Debug\ICM.ConsoleControlWPF.dll</HintPath>
+      <HintPath>..\..\ICM.ConsoleControlWPF\bin\Debug\ICM.ConsoleControlWPF.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

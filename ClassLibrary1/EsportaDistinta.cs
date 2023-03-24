@@ -18,6 +18,7 @@ using System.IO;
 using System.Data.Odbc;
 using System.Diagnostics.Eventing.Reader;
 using System.Windows.Markup;
+using System.Windows.Interop;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -183,6 +184,38 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             bool lWarn;
 
+            if (sConfigurazioni.Trim() == "")
+            {
+
+                sConfigurazioni = "";
+
+                IEdmFile5 File = default(IEdmFile5);
+                File = (IEdmFile5)vault.GetObject(EdmObjectType.EdmObject_File, iDocument);
+
+                EdmStrLst5 cfgList = default(EdmStrLst5);
+                cfgList = File.GetConfigurations();
+
+                IEdmPos5 pos = default(IEdmPos5);
+                pos = cfgList.GetHeadPosition();
+                string cfgName = null;
+                while (!pos.IsNull)
+                {
+                    cfgName = cfgList.GetNext(pos);
+
+                    if (cfgName == "@")
+                        continue;
+
+                    if (sConfigurazioni == "")
+                        sConfigurazioni = cfgName;
+                    else
+                        sConfigurazioni += ((char) 1) + cfgName;
+
+                }
+
+                MessageBox.Show(sConfigurazioni);
+
+
+            }
             DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Started;
 
             try
@@ -192,15 +225,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
                     TS.WriteLine("Inizio elaborazione");
 
-                    foreach (string sConf in sConfigurazioni.Split(','))
+                    foreach (string sConf in sConfigurazioni.Split((char) 1))
                     {
                         //inizializzo dizionario per la cache
                         cacheDictionary = new Dictionary<Tuple<string, string>, Tuple<string, string, int>>();
 
                         //Connessione al DB e inizio transazione
 
-                        //connectionString = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
-                        connectionString = "Data Source='ws91';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                        connectionString = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                        //connectionString = "Data Source='ws91';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
 
                         cnn = new SqlConnection(connectionString);
 
@@ -259,7 +292,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         insertXPORT(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato);
 
-                    
+
 
                         //if (lStop) 
                         /*if (lStop )
@@ -323,7 +356,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         // Attenzione: togliere
 
                         // Calcolo consumo
-
                         
                         TS.WriteLine("Calcolo consumo e creazione distinta");
 
@@ -373,7 +405,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         TS.WriteLine("Importazione distinta in ARCA");
 
                         //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO_TEST; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='gestionale';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
 
                         cnn = new SqlConnection(connectionString);
 
