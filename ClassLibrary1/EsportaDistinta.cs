@@ -243,7 +243,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         public void WriteLog(string content)
         {
-            outputFile.WriteLine(content);
+
+            if (outputFile != null)
+                outputFile.WriteLine(content);
             
         }
 
@@ -517,15 +519,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         public void WriteLog(string content, TraceEventType eventType)
         {
-
-            outputFile.WriteLine(content);
+            if (outputFile != null)
+                outputFile.WriteLine(content);
 
         }
 
         public void WriteLog(string content)
         {
-            
-            outputFile.WriteLine(content);
+            if (outputFile != null)
+                outputFile.WriteLine(content);
 
         }
 
@@ -666,24 +668,29 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             string sNumeroElementi;
 
-            string sID;
-            string sDocumentID;
             string sFilename;
-            string sStartDate;
-            string sEndDate;
-            string sCompleted;
-            string sFailed;
+            DateTime dStartDate;
+            DateTime dEndDate;
             string sVault;
-            string sInsertDate;
+            DateTime dInsertDate;
             string sSessionID;
-            string sVersione;
+            
             string sConfigurazioni;
-            string sOnlyTop;
+            
             string sEsplodiPar1;
             string sEsplodiPar2;
             string sDittaARCA;
-            string sPriority;
-            
+            int iPriority;
+
+            int iDocumentID;
+            int iVersione;
+            int iOnlyTop;
+            bool bOnlyTop;
+            int iFailed;
+            int iCompleted;
+            long iID;
+
+
 
             sNumeroElementi = iNumeroElementi.ToString();   
 
@@ -719,72 +726,37 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
                     while (reader.Read())
                     {
-
+                        
                         try
                         {
-                            sID = reader.GetString(0);
-                            sDocumentID = reader.GetString(1);
+
+                            
+
+                            iID = reader.GetInt64(0);
+                            iDocumentID = reader.GetInt32(1);
                             sFilename = reader.GetString(2);
-                            sStartDate = reader.GetString(3);
-                            sEndDate = reader.GetString(4);
-                            sCompleted = reader.GetString(5);
-                            sFailed = reader.GetString(6);
+                            dStartDate = reader.GetDateTime(3);
+                            dEndDate = reader.GetDateTime(4);
+                            iCompleted = reader.GetInt32(5);
+                            iFailed = reader.GetInt32(6);
                             sVault = reader.GetString(7);
-                            sInsertDate = reader.GetString(8);
-                            sSessionID = reader.GetString(9);
-                            sVersione = reader.GetString(10);
+                            dInsertDate = reader.GetDateTime(8);
+                            sSessionID = reader.GetGuid(9).ToString();
+                            iVersione = reader.GetInt32(10);
                             sConfigurazioni = reader.GetString(11);
-                            sOnlyTop = reader.GetString(12);
+                            iOnlyTop = reader.GetInt32(12);
                             sEsplodiPar1 = reader.GetString(13);
                             sEsplodiPar2 = reader.GetString(14);
                             sDittaARCA = reader.GetString(15);
-                            sPriority = reader.GetString(16);
-                           
-                            int iDocumentID;
-                            int iVersione;
-                            int iOnlyTop;
-                            bool bOnlyTop;
+                            iPriority = reader.GetInt32(16);
 
-                            bool bSuccess;
 
                             OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
 
-                            bSuccess = Int32.TryParse(sDocumentID, out iDocumentID);
+                            bOnlyTop = false;
 
-                            if (!bSuccess)
-                            {
-
-                                throw new ApplicationException("Errore nel convertire in numero il Document ID " + sDocumentID);
-
-                            }
-
-                            bSuccess = Int32.TryParse(sVersione, out iVersione);
-
-
-                            if (!bSuccess)
-                            {
-
-                                throw new ApplicationException("Errore nel convertire in numero la versione per Document ID " + sDocumentID);
-
-                            }
-
-                            bSuccess = Int32.TryParse(sOnlyTop, out iOnlyTop);
-
-                            if (!bSuccess)
-                            {
-
-                                throw new ApplicationException("Errore nel convertire in numero Only Top per  Document ID " + sDocumentID);
-
-                            }
-
-                            if (iOnlyTop == 0)
-                                bOnlyTop = false;
-                            else
+                            if (iOnlyTop == 1)
                                 bOnlyTop = true;
-
-                            
-
-                            
 
                             if (workerVault.Name == sVault)
                             {
