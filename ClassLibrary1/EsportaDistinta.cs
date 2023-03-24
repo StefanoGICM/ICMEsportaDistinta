@@ -25,6 +25,14 @@ using System.Data.SqlTypes;
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
 
+
+    public static class ConnectionsClass
+    {
+        public static string connectionStringSWICMDATA = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
+
+
+    }
+                
     public class PreEsportaDistinta
     {
 
@@ -32,7 +40,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         string cLogFileNamePath;
         StreamWriter outputFile;
 
-        
+        string connectionStringSWICMDATA = ConnectionsClass.connectionStringSWICMDATA;
 
         public void insertDistinta(IEdmVault5 vault,
                                     int iDocument,
@@ -49,17 +57,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
             string connectionStringSWICMDATA;
 
-            connectionStringSWICMDATA = "";
+            
 
             id = 0;
 
-            if (vault.Name == "SandBox2")
-                connectionStringSWICMDATA = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
-            if (vault.Name == "ICM")
-                connectionStringSWICMDATA = "Data Source='database';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
 
-            if (connectionStringSWICMDATA == "")
-                throw new ApplicationException("Vault non configurato per l'esportazione");
+            connectionStringSWICMDATA = this.connectionStringSWICMDATA;
+
+
 
             string connectionString;
             connectionString = connectionStringSWICMDATA;
@@ -240,7 +245,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
             outputFile.WriteLine(content);
             
-
         }
 
 
@@ -276,13 +280,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
     }
 
+    
+
     public partial class EsportaDistinta
     {
 
 
-        public int iType = 0;   /* 1 da pulsante con log in console -> scrive file di log e file sul DB
-                                   2 da task workflow con log in file e sul DB 
-                                   3 da task con log in file: non implementato ancora */
+        public int iType = 0;   /* */
+                                   
+                                   
 
         public string ExpParam1;
         public string ExpParam2;
@@ -324,6 +330,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         string sFAMIGLIA1_PREFIX;
         string sFAMIGLIA2_PREFIX;
+
         string sFAMIGLIA3_PREFIX;
 
         bool lStop;
@@ -453,87 +460,79 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void OpenLog(string sFileName, string vaultName)
+        public EsportaDistinta(IEdmVault5 vault, int iType)
         {
 
+            this.iType = iType;
+            this.vault = vault;
 
-            if (iType == 2 || iType == 3)
-            {
+        }
+
+
+
+        public void OpenLog(string sFileName, string vaultName)
+        {            
                 
-                
-                cLogFileName = "log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
+           cLogFileName = "log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
 
                 
-                if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
-                {
+           
+           if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
+           {
 
-                    Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
+             Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
                 
-                }
+           }
 
-                if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale"))
-                {
+           if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale"))
+           {
 
-                    Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale");
+               Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale");
 
-                }
+           }
 
-                if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed"))
-                {
+           if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed"))
+           {
 
-                    Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed");
+               Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed");
 
-                }
+           }
 
-                if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed"))
-                {
+           if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed"))
+           {
 
-                    Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed");
+               Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed");
 
-                }
+           }
 
 
-                cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
+           cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
 
-                outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
+           outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
 
-            }
+           
 
         }
 
 
         public void WriteLog(string content, TraceEventType eventType)
         {
-            if (iType == 2 || iType == 3)
-                outputFile.WriteLine(content);
 
-            if (iType == 1)
-            {
+            outputFile.WriteLine(content);
 
-                TS.WriteLine(content, eventType);
-            
-            }
         }
 
         public void WriteLog(string content)
         {
-            if (iType == 2 || iType == 3)
-                outputFile.WriteLine(content);
+            
+            outputFile.WriteLine(content);
 
-            if (iType == 1)
-            {
-
-                TS.WriteLine(content);
-
-            }
         }
 
 
         public void CloseLog()
-        {
-            if (iType == 2)
-                outputFile.Close();
-
+        {            
+            outputFile.Close();
         }
 
         public void MoveLog(bool bSuccess)
@@ -660,7 +659,180 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
+        public void ProcessaElementi(IEdmVault5 workerVault, int iNumeroElementi)
+        {
 
+            string query;
+
+            string sNumeroElementi;
+
+            string sID;
+            string sDocumentID;
+            string sFilename;
+            string sStartDate;
+            string sEndDate;
+            string sCompleted;
+            string sFailed;
+            string sVault;
+            string sInsertDate;
+            string sSessionID;
+            string sVersione;
+            string sConfigurazioni;
+            string sOnlyTop;
+            string sEsplodiPar1;
+            string sEsplodiPar2;
+            string sDittaARCA;
+            string sPriority;
+            
+
+            sNumeroElementi = iNumeroElementi.ToString();   
+
+            SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA);
+            conn.Open();
+
+            query = "SELECT TOP " + sNumeroElementi + " ID" +
+                    ",DocumentID" +
+                    ",Filename" +
+                    ",StartDate" +
+                    ",EndDate" +
+                    ",Completed" +
+                    ",Failed" +
+                    ",Vault" +
+                    ",InsertDate" +
+                    ",SessionID" +
+                    ",Versione" +
+                    ",Configurazioni" +
+                    ",OnlyTop" +
+                    ",EsplodiPar1" +
+                    ",EsplodiPar2" +
+                    ",DittaARCA" +
+                    ",Priority" +
+                    " FROM XPORT_Elab" +
+                    " WHERE StartDate IS NULL AND Vault = '" + workerVault.Name + "'" +
+                    " ORDER BY Priority DESC";
+
+
+            using (SqlCommand command = new SqlCommand(query, conn))
+            {
+                    
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+
+                        try
+                        {
+                            sID = reader.GetString(0);
+                            sDocumentID = reader.GetString(1);
+                            sFilename = reader.GetString(2);
+                            sStartDate = reader.GetString(3);
+                            sEndDate = reader.GetString(4);
+                            sCompleted = reader.GetString(5);
+                            sFailed = reader.GetString(6);
+                            sVault = reader.GetString(7);
+                            sInsertDate = reader.GetString(8);
+                            sSessionID = reader.GetString(9);
+                            sVersione = reader.GetString(10);
+                            sConfigurazioni = reader.GetString(11);
+                            sOnlyTop = reader.GetString(12);
+                            sEsplodiPar1 = reader.GetString(13);
+                            sEsplodiPar2 = reader.GetString(14);
+                            sDittaARCA = reader.GetString(15);
+                            sPriority = reader.GetString(16);
+                           
+                            int iDocumentID;
+                            int iVersione;
+                            int iOnlyTop;
+                            bool bOnlyTop;
+
+                            bool bSuccess;
+
+                            OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
+
+                            bSuccess = Int32.TryParse(sDocumentID, out iDocumentID);
+
+                            if (!bSuccess)
+                            {
+
+                                throw new ApplicationException("Errore nel convertire in numero il Document ID " + sDocumentID);
+
+                            }
+
+                            bSuccess = Int32.TryParse(sVersione, out iVersione);
+
+
+                            if (!bSuccess)
+                            {
+
+                                throw new ApplicationException("Errore nel convertire in numero la versione per Document ID " + sDocumentID);
+
+                            }
+
+                            bSuccess = Int32.TryParse(sOnlyTop, out iOnlyTop);
+
+                            if (!bSuccess)
+                            {
+
+                                throw new ApplicationException("Errore nel convertire in numero Only Top per  Document ID " + sDocumentID);
+
+                            }
+
+                            if (iOnlyTop == 0)
+                                bOnlyTop = false;
+                            else
+                                bOnlyTop = true;
+
+                            
+
+                            
+
+                            if (workerVault.Name == sVault)
+                            {
+
+                                WriteLog("-----------------------------------------------------------------------");
+                                WriteLog("Esportazione " + sFileName + " (configurazioni: " + sConfigurazioni + " )");
+                                WriteLog("-----------------------------------------------------------------------");
+
+
+
+                                IniziaEsportazione(iDocumentID, sFileName, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2);
+
+
+                                CommitLog(true);
+                                WriteLog("-----------------------------------------------------------------------");
+                                WriteLog("Esportazione terminata con successo");
+                                WriteLog("-----------------------------------------------------------------------");
+                                CloseLog();
+
+                            }
+
+
+
+
+                        }
+                        catch (Exception ex)
+                        {
+                            WriteLog(ex.Message);
+                            CommitLog(false);
+                            WriteLog("-----------------------------------------------------------------------");
+                            WriteLog("Esportazione interrotta per errori");
+                            WriteLog("-----------------------------------------------------------------------");
+                            CloseLog();
+
+                        }
+
+
+
+
+                    }
+
+
+                    
+                }
+             
+
+            }
+        }
         public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2)
         {
 

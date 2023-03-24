@@ -18,7 +18,7 @@ INSERT INTO [dbo].[xStatoDED]
            ,[Descrizione])
      VALUES
            ('600'
-           ,'Approved')
+           ,'Approvato')
 
 INSERT INTO [dbo].[xStatoDED]
            ([Cd_xStatoDED]

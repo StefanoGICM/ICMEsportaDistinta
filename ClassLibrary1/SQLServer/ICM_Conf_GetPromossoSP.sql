@@ -44,9 +44,10 @@ BEGIN
 
 	SET @CheckPromossoChanged = 0
 	
+	/*
 	SELECT TOP 1 
 	  @ConfigurationID = ConfigurationID
-	FROM SandBox.dbo.DocumentConfiguration
+	FROM ICM.dbo.DocumentConfiguration
 	WHERE ConfigurationName = @Conf
 
 	IF @@ROWCOUNT <> 1
@@ -56,14 +57,17 @@ BEGIN
 
 	END
 
+	*/
+
 	SELECT TOP 1
-	    @Promosso = ShowChildComponentsInBOM	  
+	    @Promosso = drc.ShowChildComponentsInBOM	  
 	FROM 
-	  SandBox.dbo.DocumentRevisionConfiguration
-	WHERE DocumentID = @DocumentID
-	  AND RevisionNo = @RevisionNo
-	  AND ConfigurationID = @ConfigurationID
-	ORDER BY RevisionNo DESC
+	  ICM.dbo.DocumentRevisionConfiguration drc
+	INNER JOIN ICM.dbo.DocumentConfiguration conf ON drc.ConfigurationID = conf.ConfigurationID
+	WHERE drc.DocumentID = @DocumentID
+	  AND drc.RevisionNo = @RevisionNo
+	  AND conf.ConfigurationName = @Conf
+	ORDER BY drc.RevisionNo DESC
 
 	IF @@ROWCOUNT <> 1
 	BEGIN;
