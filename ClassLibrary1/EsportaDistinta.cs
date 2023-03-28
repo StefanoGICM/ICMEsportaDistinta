@@ -187,6 +187,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLog("Fine inserimento record di elaborazione nella Queue");
                 CloseLog();
+                MoveLog();
 
             }
 
@@ -195,9 +196,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void OpenLog(string sFileName, string vaultName)
         {
 
-            sFileName = sFileName.Substring(0, sFileName.Length - 7);
+            //sFileName = sFileName.Substring(0, sFileName.Length - 7);
 
-            cLogFileName = "prelog_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
+            cLogFileName = ("prelog_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + ".txt";
 
 
             if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
@@ -228,6 +229,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             }
 
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Inserted"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Inserted");
+
+            }
 
 
             cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
@@ -245,7 +252,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
 
             if (outputFile != null)
-                outputFile.WriteLine(content);
+                outputFile.WriteLine(DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ": " + content);
             
         }
 
@@ -258,7 +265,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void MoveLog(bool bSuccess)
+        public void MoveLog()
         {
 
             string newPath;
@@ -266,11 +273,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string cNew;
 
 
-            if (bSuccess)
-                newPath = cLogFileNamePath + @"\Completed";
-            else
-                newPath = cLogFileNamePath + @"\Failed";
-
+            
+            newPath = cLogFileNamePath + @"\Inserted";
+            
             cOld = Path.Combine(cLogFileNamePath, cLogFileName);
             cNew = Path.Combine(newPath, cLogFileName);
 
@@ -475,7 +480,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void OpenLog(string sFileName, string vaultName)
         {            
                 
-           cLogFileName = "log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ".txt";
+           cLogFileName = ("log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + ".txt";
 
                 
            
@@ -513,21 +518,20 @@ namespace ICM.SWPDM.EsportaDistintaAddin
            outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
 
            
-
         }
 
 
         public void WriteLog(string content, TraceEventType eventType)
         {
             if (outputFile != null)
-                outputFile.WriteLine(content);
+                outputFile.WriteLine(DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ": " + content);
 
         }
 
         public void WriteLog(string content)
         {
             if (outputFile != null)
-                outputFile.WriteLine(content);
+                outputFile.WriteLine(DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ": " + content);
 
         }
 
@@ -540,125 +544,27 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void MoveLog(bool bSuccess)
         {
 
-            if (iType == 2)
-            {
-                string newPath;
-                string cOld;
-                string cNew;
+            string newPath;
+            string cOld;
+            string cNew;
 
 
-                if (bSuccess)
-                    newPath = cLogFileNamePath + @"\Completed";
-                else
-                    newPath = cLogFileNamePath + @"\Failed";
+            if (bSuccess)
+                newPath = cLogFileNamePath + @"\Completed";
+            else
+                newPath = cLogFileNamePath + @"\Failed";
 
-                cOld = Path.Combine(cLogFileNamePath, cLogFileName);
-                cNew = Path.Combine(newPath, cLogFileName);
+            cOld = Path.Combine(cLogFileNamePath, cLogFileName);
+            cNew = Path.Combine(newPath, cLogFileName);
 
-                File.Move(cOld, cNew);
-
-            }
+            File.Move(cOld, cNew);
 
 
         }
 
-        public void CreaRecordLogDb(SqlConnection cnn, string vaultName, int iDocument, string sFileName)
-        {
-            SqlTransaction transaction;
+        
 
-            if (this.iType == 2)
-            {
-
-                WriteLog("Creazione Record di Log sul DB");
-
-                transaction = cnn.BeginTransaction();
-
-                SqlCommand commandLog = new SqlCommand("dbo.ICM_LogStartSp", cnn);
-
-                commandLog.CommandType = CommandType.StoredProcedure;
-                commandLog.Transaction = transaction;
-
-                //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
-
-                SqlParameter sqlParam = commandLog.Parameters.Add("@Vault", SqlDbType.VarChar, 500);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = vaultName;
-
-
-                sqlParam = commandLog.Parameters.Add("@DocumentID", SqlDbType.Int);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = iDocument;
-
-
-                sqlParam = commandLog.Parameters.Add("@FileName", SqlDbType.VarChar, 500);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = sFileName;
-
-
-                sqlParam = new SqlParameter("@Id", SqlDbType.BigInt);
-                sqlParam.Direction = ParameterDirection.Output;
-                commandLog.Parameters.Add(sqlParam);
-
-                commandLog.ExecuteNonQuery();
-
-                @LogId = commandLog.Parameters["@Id"].Value.ToString();
-
-                transaction.Commit();
-
-            }
-
-
-
-        }
-
-
-        public void CommitLog(bool bSuccess)
-        {
-
-            string connectionString;
-            SqlTransaction logTransaction;
-
-            WriteLog("Scrive esito in record di Log");
-
-            connectionString = connectionStringSWICMDATA;
-
-            using (cnn = new SqlConnection(connectionString))
-            {
-                cnn.Open();
-
-                logTransaction = cnn.BeginTransaction();
-
-                SqlCommand commandLog = new SqlCommand("dbo.ICM_LogEndSp", cnn);
-
-                commandLog.CommandType = CommandType.StoredProcedure;
-                commandLog.Transaction = logTransaction;
-
-                SqlParameter sqlParam = commandLog.Parameters.Add("@Id", SqlDbType.BigInt);
-                sqlParam.Direction = ParameterDirection.Input;
-
-                if (!int.TryParse(@LogId, out intIdLogValue))
-                {
-                   intIdLogValue = 0;
-                }
-                sqlParam.Value = intIdLogValue;
-
-
-                sqlParam = commandLog.Parameters.Add("@Success", SqlDbType.Int);
-                sqlParam.Direction = ParameterDirection.Input;
-                if (bSuccess)
-                    sqlParam.Value = 1;
-                else
-                    sqlParam.Value = 0;
-
-
-
-                commandLog.ExecuteNonQuery();
-
-                logTransaction.Commit();
-                
-
-            }
-        }
+        
 
 
         public void ProcessaElementi(IEdmVault5 workerVault, int iNumeroElementi)
@@ -668,34 +574,37 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             string sNumeroElementi;
 
-            string sFilename;
-            DateTime dStartDate;
-            DateTime dEndDate;
-            string sVault;
-            DateTime dInsertDate;
-            string sSessionID;
+            string sFilename = default(string);
+            DateTime dStartDate = default(DateTime);
+            DateTime dEndDate = default(DateTime);
+            string sVault = default(string);
+            DateTime dInsertDate = default(DateTime);
+            string sSessionID = default(string);
             
-            string sConfigurazioni;
+            string sConfigurazioni = default(string);
             
-            string sEsplodiPar1;
-            string sEsplodiPar2;
-            string sDittaARCA;
-            int iPriority;
+            string sEsplodiPar1 = default(string);
+            string sEsplodiPar2 = default(string);
+            string sDittaARCA = default(string);
+            int iPriority = default(int);
 
-            int iDocumentID;
-            int iVersione;
-            int iOnlyTop;
-            bool bOnlyTop;
-            int iFailed;
-            int iCompleted;
-            long iID;
+            int iDocumentID = default(int);
+            int iVersione = default(int);
+            int iOnlyTop = default(int);
+            bool bOnlyTop = default(bool);
+            int iFailed = default(int);
+            int iCompleted = default(int);
+            long iID = default(long);
 
 
 
             sNumeroElementi = iNumeroElementi.ToString();   
 
             SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA);
+            SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA);
+
             conn.Open();
+            conn2.Open();
 
             query = "SELECT TOP " + sNumeroElementi + " ID" +
                     ",DocumentID" +
@@ -732,64 +641,129 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             
 
-                            iID = reader.GetInt64(0);
-                            iDocumentID = reader.GetInt32(1);
-                            sFilename = reader.GetString(2);
-                            dStartDate = reader.GetDateTime(3);
-                            dEndDate = reader.GetDateTime(4);
-                            iCompleted = reader.GetInt32(5);
-                            iFailed = reader.GetInt32(6);
-                            sVault = reader.GetString(7);
-                            dInsertDate = reader.GetDateTime(8);
-                            sSessionID = reader.GetGuid(9).ToString();
-                            iVersione = reader.GetInt32(10);
-                            sConfigurazioni = reader.GetString(11);
-                            iOnlyTop = reader.GetInt32(12);
-                            sEsplodiPar1 = reader.GetString(13);
-                            sEsplodiPar2 = reader.GetString(14);
-                            sDittaARCA = reader.GetString(15);
-                            iPriority = reader.GetInt32(16);
+                            if (!reader.IsDBNull(0))
+                                iID = reader.GetInt64(0);
+                            if (!reader.IsDBNull(1))
+                                iDocumentID = reader.GetInt32(1);
+                            if (!reader.IsDBNull(2))
+                                sFilename = reader.GetString(2);
+                            if (!reader.IsDBNull(3))
+                                dStartDate = reader.GetDateTime(3);
+                            if (!reader.IsDBNull(4))
+                                dEndDate = reader.GetDateTime(4);
+                            if (!reader.IsDBNull(5))
+                                iCompleted = reader.GetInt16(5);
+                            if (!reader.IsDBNull(6))
+                                iFailed = reader.GetInt16(6);
+                            if (!reader.IsDBNull(7))
+                                sVault = reader.GetString(7);
+                            if (!reader.IsDBNull(8))
+                                dInsertDate = reader.GetDateTime(8);
+                            if (!reader.IsDBNull(9))
+                                sSessionID = reader.GetGuid(9).ToString();
+                            if (!reader.IsDBNull(10))
+                                iVersione = reader.GetInt32(10);
+                            if (!reader.IsDBNull(11))
+                                sConfigurazioni = reader.GetString(11);
+                            if (!reader.IsDBNull(12))
+                                iOnlyTop = reader.GetInt16(12);
+                            if (!reader.IsDBNull(13))
+                                sEsplodiPar1 = reader.GetString(13);
+                            if (!reader.IsDBNull(14))
+                                sEsplodiPar2 = reader.GetString(14);
+                            if (!reader.IsDBNull(15))
+                                sDittaARCA = reader.GetString(15);
+                            if (!reader.IsDBNull(16))
+                                iPriority = reader.GetInt32(16);
 
 
                             OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
+
+                            /* Imposto la StartDate */
+                            string query1 = "UPDATE XPORT_Elab SET StartDate = GETDATE()" +
+                                           " WHERE id = " + iID.ToString();
+                            SqlCommand command1 = new SqlCommand(query1, conn2);
+
+                            SqlTransaction transaction1;
+
+                            transaction1 = conn2.BeginTransaction();
+
+                            command1.Transaction = transaction1;
+
+                            command1.ExecuteNonQuery();
+                            transaction1.Commit();
+
+                           
 
                             bOnlyTop = false;
 
                             if (iOnlyTop == 1)
                                 bOnlyTop = true;
 
+                            string sConfigurazioniWrite;
+
+                            sConfigurazioniWrite = sConfigurazioni.Replace((char)1, ',');
+
                             if (workerVault.Name == sVault)
                             {
 
                                 WriteLog("-----------------------------------------------------------------------");
-                                WriteLog("Esportazione " + sFileName + " (configurazioni: " + sConfigurazioni + " )");
+                                WriteLog("Esportazione " + sFilename + " (configurazioni: " + sConfigurazioniWrite + " )");
                                 WriteLog("-----------------------------------------------------------------------");
 
 
 
-                                IniziaEsportazione(iDocumentID, sFileName, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2);
+                                IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2);
 
 
-                                CommitLog(true);
+                                query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
+                                        ", Completed = 1" +
+                                        ", Failed = 0" +
+                                        " WHERE id = " + iID.ToString();
+                                command1 = new SqlCommand(query, conn2);
+
+                                transaction1 = conn2.BeginTransaction();
+
+                                command1.Transaction = transaction1;
+
+                                command1.ExecuteNonQuery();
+                                transaction1.Commit();
+
                                 WriteLog("-----------------------------------------------------------------------");
                                 WriteLog("Esportazione terminata con successo");
                                 WriteLog("-----------------------------------------------------------------------");
                                 CloseLog();
 
+                                MoveLog(true);
+
+
+
                             }
-
-
 
 
                         }
                         catch (Exception ex)
                         {
                             WriteLog(ex.Message);
-                            CommitLog(false);
+
+                            query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
+                                        ", Completed = 0" +
+                                        ", Failed = 1" +
+                                        " WHERE id = " + iID.ToString();
+                            SqlCommand command1 = new SqlCommand(query, conn2);
+
+                            SqlTransaction transaction1 = conn2.BeginTransaction();
+
+                            command1.Transaction = transaction1;
+
+                            command1.ExecuteNonQuery();
+                            transaction1.Commit();
+
                             WriteLog("-----------------------------------------------------------------------");
                             WriteLog("Esportazione interrotta per errori");
                             WriteLog("-----------------------------------------------------------------------");
                             CloseLog();
+                            MoveLog(false);
 
                         }
 
@@ -803,7 +777,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 }
              
 
+                       
             }
+
+            conn.Close();
+            conn2.Close();
         }
         public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2)
         {
@@ -876,7 +854,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             WriteLog("Esportazione Distinta per Configurazione " + sConf);
                             
 
-                            CreaRecordLogDb(cnn, vault.Name, iDocument, sFileName);
+                            //CreaRecordLogDb(cnn, vault.Name, iDocument, sFileName);
 
                             transaction = cnn.BeginTransaction();
 

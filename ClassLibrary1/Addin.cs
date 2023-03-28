@@ -156,7 +156,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 
                                 espDist.IniziaEsportazione(iDocument, sFileName, version, cfgName, this.vault, true, "UV" + ((char) 1) + "UV", "");
 
-                                espDist.CommitLog(true);
+                                
                                 espDist.WriteLog("-----------------------------------------------------------------------");
                                 espDist.WriteLog("Esportazione terminata con successo");
                                 espDist.WriteLog("-----------------------------------------------------------------------");
@@ -171,7 +171,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             catch (Exception ex)
                             {
                                 espDist.WriteLog(ex.Message);
-                                espDist.CommitLog(false);
+                                
                                 espDist.WriteLog("-----------------------------------------------------------------------");
                                 espDist.WriteLog("Esportazione interrotta per errori");
                                 espDist.WriteLog("-----------------------------------------------------------------------");
