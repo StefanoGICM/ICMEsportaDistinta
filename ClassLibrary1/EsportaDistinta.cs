@@ -21,6 +21,11 @@ using System.Diagnostics.Eventing.Reader;
 using System.Windows.Markup;
 using System.Xml.Linq;
 using System.Data.SqlTypes;
+using System.Windows.Media.TextFormatting;
+using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -42,6 +47,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         string connectionStringSWICMDATA = ConnectionsClass.connectionStringSWICMDATA;
 
+        EsportaDistinta espDistinta;
+
+
+        public PreEsportaDistinta(EsportaDistinta espDistinta)
+        {
+
+            this.espDistinta = espDistinta;
+        
+        }
         public void insertDistinta(IEdmVault5 vault,
                                     int iDocument,
                                     string sFileName,
@@ -57,13 +71,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
             string connectionStringSWICMDATA;
 
-            
-
+           
             id = 0;
 
-
             connectionStringSWICMDATA = this.connectionStringSWICMDATA;
-
 
 
             string connectionString;
@@ -170,6 +181,40 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 sqlParam.Direction = ParameterDirection.Output;
                 sqlParam.Value = 0;
 
+                IPHostEntry host = Dns.GetHostEntry("localhost");
+                IPAddress ipAddress = host.AddressList[0];
+
+                IPAddress[] addresses = Dns.GetHostAddresses("");
+
+                string sIpAddress = "";
+
+                foreach (IPAddress address in addresses)
+                {
+                    if (address.ToString().StartsWith("192."))
+                    {
+                        sIpAddress = address.ToString();
+
+                        break;
+
+                    }
+
+
+                }
+
+                sqlParam = command.Parameters.Add("@IPLog", SqlDbType.NVarChar, 100);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sIpAddress;
+
+                WriteLog("Parametro IPLog: " + SessionID.ToString());
+
+                sqlParam = command.Parameters.Add("@PortLog", SqlDbType.NVarChar, 100);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = "11201";
+
+                WriteLog("Parametro PortLog: " + "11201");
+
+
+
                 WriteLog("Chiamata alla SP");
 
                 command.ExecuteNonQuery();
@@ -253,7 +298,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             if (outputFile != null)
                 outputFile.WriteLine(DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ": " + content);
-            
+
+            this.espDistinta.TS.WriteLine(content);
+
+            System.Windows.Forms.Application.DoEvents();
+
         }
 
 
@@ -294,15 +343,17 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
         public int iType = 0;   /* */
-                                   
-                                   
+
+        public TraceSource TS = new TraceSource("ICMTrace");
+
+        IPAddress ipAddressLog;
 
         public string ExpParam1;
         public string ExpParam2;
 
         public string ExpP1;
         public string ExpP2;
-        public TraceSource TS = new TraceSource("ICMTrace");
+        
         IEdmVault5 vault;
 
         IEdmFile7 aFile;
@@ -351,6 +402,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         List<string> cacheFile;
 
         Guid currentSessionGuid;
+
+        IPEndPoint ipEndPoint;
+        Socket sender;
+
+
+
+        string sIPLog = "";
+        int iPortLog = 0;
 
 
         /*struct ReturnData
@@ -478,44 +537,51 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
         public void OpenLog(string sFileName, string vaultName)
-        {            
-                
-           cLogFileName = ("log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + ".txt";
+        {
 
-                
-           
-           if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
-           {
-
-             Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
-                
-           }
-
-           if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale"))
-           {
-
-               Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale");
-
-           }
-
-           if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed"))
-           {
-
-               Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed");
-
-           }
-
-           if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed"))
-           {
-
-               Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed");
-
-           }
+            cLogFileName = ("log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + ".txt";
 
 
-           cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
 
-           outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
+
+            }
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale");
+
+            }
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed");
+
+            }
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed");
+
+            }
+
+
+            cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
+
+            outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
+
+            if (this.sIPLog.Trim() != "" && this.iPortLog != 0)
+            {
+
+                OpenSocket(this.sIPLog, this.iPortLog);
+
+            }
 
            
         }
@@ -524,21 +590,144 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void WriteLog(string content, TraceEventType eventType)
         {
             if (outputFile != null)
+            {
                 outputFile.WriteLine(DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ": " + content);
+                
+            }
+
+            if (this.sender != null)
+            {
+
+                // Encode the data string into a byte array.
+                byte[] msg = Encoding.ASCII.GetBytes(content);
+
+                // Send the data through the socket.
+                int bytesSent = sender.Send(msg);
+
+                byte[] lfbyte = new byte[2];
+
+                lfbyte[0] = (byte)13;
+                lfbyte[1] = (byte)10;
+
+                int bytesSent2 = sender.Send(lfbyte);
+            }
 
         }
 
         public void WriteLog(string content)
         {
             if (outputFile != null)
+            {
                 outputFile.WriteLine(DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ": " + content);
+               
+            }
+
+            if (this.sender != null)
+            {
+
+                // Encode the data string into a byte array.
+                byte[] msg = Encoding.ASCII.GetBytes(content);
+
+                // Send the data through the socket.
+                int bytesSent = sender.Send(msg) ;
+
+                byte[] lfbyte = new byte [2];
+
+                lfbyte[0] = (byte) 13;
+                lfbyte[1] = (byte)10;
+
+                int bytesSent2 = sender.Send(lfbyte);
+            }
+
+        }
+
+        public void CloseLog()
+        {
+
+
+            outputFile.Close();
+
+            if (this.sender != null)
+            {
+                
+
+                byte[] lfbyte = new byte[4];
+
+                lfbyte[0] = (byte)1;
+                lfbyte[1] = (byte)1;
+                lfbyte[2] = (byte)1;
+                lfbyte[3] = (byte)1;
+
+                int bytesSent2 = sender.Send(lfbyte);                
+
+                this.sender.Shutdown(SocketShutdown.Both);
+                this.sender.Close();
+
+            }
 
         }
 
 
-        public void CloseLog()
-        {            
-            outputFile.Close();
+        public void OpenSocket(string sIP, int iPort)
+        {
+
+            string sAddress;
+            
+
+            sAddress = sIP + ":" + iPort.ToString();
+
+            this.ipEndPoint = CreateIPEndPoint(sAddress);
+
+            try
+            {
+
+                this.sender = new Socket(this.ipEndPoint.AddressFamily,
+                                         SocketType.Stream,
+                                         ProtocolType.Tcp);
+
+                this.sender.Connect(this.ipEndPoint);
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+                this.sender = null;
+            
+            
+            }
+        }
+
+        
+
+        // Handles IPv4 and IPv6 notation.
+        public static IPEndPoint CreateIPEndPoint(string endPoint)
+        {
+            string[] ep = endPoint.Split(':');
+            if (ep.Length < 2) throw new FormatException("Invalid endpoint format");
+            IPAddress ip;
+            if (ep.Length > 2)
+            {
+                if (!IPAddress.TryParse(string.Join(":", ep, 0, ep.Length - 1), out ip))
+                {
+                    throw new FormatException("Invalid ip-adress");
+                }
+            }
+            else
+            {
+                if (!IPAddress.TryParse(ep[0], out ip))
+                {
+                    throw new FormatException("Invalid ip-adress");
+                }
+            }
+            int port;
+            if (!int.TryParse(ep[ep.Length - 1], NumberStyles.None, NumberFormatInfo.CurrentInfo, out port))
+            {
+                throw new FormatException("Invalid port");
+            }
+            return new IPEndPoint(ip, port);
         }
 
         public void MoveLog(bool bSuccess)
@@ -562,13 +751,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        
-
-        
-
 
         public void ProcessaElementi(IEdmVault5 workerVault, int iNumeroElementi)
         {
+            
 
             string query;
 
@@ -596,8 +782,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             int iCompleted = default(int);
             long iID = default(long);
 
+            string sIPLog = default(string);
+            string sPortLog = default(string);
 
-
+            
             sNumeroElementi = iNumeroElementi.ToString();   
 
             SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA);
@@ -623,6 +811,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     ",EsplodiPar2" +
                     ",DittaARCA" +
                     ",Priority" +
+                    ",IPLog" +
+                    ",PortLog" +
                     " FROM XPORT_Elab" +
                     " WHERE StartDate IS NULL AND Vault = '" + workerVault.Name + "'" +
                     " ORDER BY Priority DESC";
@@ -675,10 +865,36 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 sDittaARCA = reader.GetString(15);
                             if (!reader.IsDBNull(16))
                                 iPriority = reader.GetInt32(16);
+                            if (!reader.IsDBNull(17))
+                                sIPLog = reader.GetString(17);
+                            if (!reader.IsDBNull(18))
+                                sPortLog = reader.GetString(18);
 
+                            this.sender = null;
+
+                            this.iPortLog = 0;
+                            this.sIPLog = "";
+
+
+                            if ((!(DBNull.Value.Equals(sPortLog))) && (sPortLog != null) && sPortLog.Trim() != "")
+                            {
+
+                                this.sIPLog = sIPLog;
+
+                                bool bSuccess = Int32.TryParse(sPortLog, out iPortLog);
+
+                                if (bSuccess)
+                                    this.iPortLog = iPortLog;
+                                else
+                                {
+                                    this.iPortLog = 0;
+                                    this.sIPLog = "";
+                                }
+
+                            }
 
                             OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
-
+                           
                             /* Imposto la StartDate */
                             string query1 = "UPDATE XPORT_Elab SET StartDate = GETDATE()" +
                                            " WHERE id = " + iID.ToString();
@@ -694,7 +910,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             transaction1.Commit();
 
                            
-
                             bOnlyTop = false;
 
                             if (iOnlyTop == 1)
@@ -704,13 +919,16 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             sConfigurazioniWrite = sConfigurazioni.Replace((char)1, ',');
 
+                            this.sIPLog = "";
+                            this.iPortLog = 0;
+
                             if (workerVault.Name == sVault)
                             {
+
 
                                 WriteLog("-----------------------------------------------------------------------");
                                 WriteLog("Esportazione " + sFilename + " (configurazioni: " + sConfigurazioniWrite + " )");
                                 WriteLog("-----------------------------------------------------------------------");
-
 
 
                                 IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2);
@@ -820,6 +1038,38 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             WriteLog("SessionID: " + currentSessionGuid.ToString());
 
             DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Started;
+
+            if(sConfigurazioni.Trim() == "")
+            {
+
+                sConfigurazioni = "";
+
+                IEdmFile5 File = default(IEdmFile5);
+                File = (IEdmFile5)vault.GetObject(EdmObjectType.EdmObject_File, iDocument);
+
+                EdmStrLst5 cfgList = default(EdmStrLst5);
+                cfgList = File.GetConfigurations();
+
+                IEdmPos5 pos = default(IEdmPos5);
+                pos = cfgList.GetHeadPosition();
+                string cfgName = null;
+                while (!pos.IsNull)
+                {
+                    cfgName = cfgList.GetNext(pos);
+
+                    if (cfgName == "@")
+                        continue;
+
+                    if (sConfigurazioni == "")
+                        sConfigurazioni = cfgName;
+                    else
+                        sConfigurazioni += ((char)1) + cfgName;
+
+                }
+
+                
+            }
+
 
             try
             {

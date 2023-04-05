@@ -23,6 +23,8 @@ CREATE TABLE [dbo].[XPORT_Elab](
 	[EsplodiPar2] [nvarchar](1000) NULL,
 	[DittaARCA] [nvarchar](1000) NULL,
 	[Priority] [int] NULL,
+	[IPLog] [nvarchar](100) NULL,
+	[PortLog] [nvarchar](100) NULL
  CONSTRAINT [PK_XPORT_Elab] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC

@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
+using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +25,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using EPDM.Interop.epdm;
 using ICM.ConsoleControlWPF;
+using System.Runtime.InteropServices;
+using System.Threading;
+
+
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -38,7 +46,23 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         int iVersione;
         int iDocument;
 
+        string returnedMessage;
+
+        bool bElabOK;
+
         IEdmVault5 vault;
+
+        TcpClient client;
+        NetworkStream stream;
+
+        // inizializza socket client
+
+        Socket listener;
+        IPEndPoint ipEndPoint;
+
+        Socket handler;
+
+
         //public EsportaDistintaForm()
         //{
         //InitializeComponent();
@@ -55,6 +79,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
+
+
             InitializeComponent();
 
             DistintaTextBox.Text = "Distinta: " + sFileName;
@@ -69,7 +95,151 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             EspDistinta.TS.WriteLine("Test Console");
 
+            Socket listener;
+            IPEndPoint ipEndPoint;
+
+           
         }
+
+
+        public void OpenSocket()
+        {
+
+            IPHostEntry host = Dns.GetHostEntry("localhost");
+            IPAddress ipAddress = host.AddressList[0];
+
+            IPAddress[] addresses = Dns.GetHostAddresses("");
+
+            string sIpAddress = "";
+
+            foreach (IPAddress address in addresses)
+            {
+                if (address.ToString().StartsWith("192."))
+                {
+                    sIpAddress = address.ToString();
+
+                    break;
+
+                }
+
+            }
+            
+
+            this.ipEndPoint = CreateIPEndPoint(sIpAddress + ":11201" );
+
+
+            this.listener = new Socket(
+                this.ipEndPoint.AddressFamily,
+                SocketType.Stream,
+                ProtocolType.Tcp);
+
+            this.listener.Bind(this.ipEndPoint);
+            this.listener.Listen(100);
+
+            this.handler = listener.Accept();
+            
+
+        }
+
+        public void ReadFromSocket()
+        {
+
+            string stopReceiving;
+            stopReceiving = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
+
+            bool bStop;
+
+            bStop = false;
+
+            while (true)
+            {
+                // Receive message.
+                
+                                              
+
+                var buffer = new byte[1_024];
+
+                
+                var received = this.handler.Receive(buffer);
+                var response = Encoding.UTF8.GetString(buffer, 0, received);
+
+                if (response != null && response.Trim() != "")
+                {
+
+
+                    if (response.Contains("Elaborazione interrotta per errori"))
+                        this.bElabOK = false;
+
+                    if (response.Contains(stopReceiving))
+                    {
+
+                        response = response.Replace(stopReceiving, "");
+                        bStop = true;
+                    
+                    }
+
+                    
+                    this.EspDistinta.TS.WriteLine(response);
+
+                    System.Windows.Forms.Application.DoEvents();
+                    
+
+                    if (bStop)
+                        break;
+
+
+
+                    //System.Windows.Forms.MessageBox.Show(response);
+
+                    //this.EspDistinta.TS.WriteLine(response);
+
+
+                    // Sample output:
+                    //    Socket server received message: "Hi friends 👋!"
+                    //    Socket server sent acknowledgment: "<|ACK|>"
+                }
+
+
+            }
+
+
+        }
+
+        public void CloseSocket()                
+        {
+
+            //this.listener.Shutdown(SocketShutdown.Both);
+            this.listener.Close();
+        }
+
+        // Handles IPv4 and IPv6 notation.
+        public static IPEndPoint CreateIPEndPoint(string endPoint)
+        {
+            string[] ep = endPoint.Split(':');
+            if (ep.Length < 2) throw new FormatException("Invalid endpoint format");
+            IPAddress ip;
+            if (ep.Length > 2)
+            {
+                if (!IPAddress.TryParse(string.Join(":", ep, 0, ep.Length - 1), out ip))
+                {
+                    throw new FormatException("Invalid ip-adress");
+                }
+            }
+            else
+            {
+                if (!IPAddress.TryParse(ep[0], out ip))
+                {
+                    throw new FormatException("Invalid ip-adress");
+                }
+            }
+            int port;
+            if (!int.TryParse(ep[ep.Length - 1], NumberStyles.None, NumberFormatInfo.CurrentInfo, out port))
+            {
+                throw new FormatException("Invalid port");
+            }
+            return new IPEndPoint(ip, port);
+        }
+
 
         private void EsportaDistinta_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -116,14 +286,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             bool bSet2;
             int iSelectedRootVersion;
 
-            if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
+            /*if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
             {
 
                 System.Windows.Forms.MessageBox.Show("Nessuna configurazione impostata");
                 return;
 
 
-            }
+            }*/
 
             if ((bool)RB2.IsChecked)
             {
@@ -138,6 +308,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     return;
 
                 }
+
             }
 
             DialogResult dialogResult = System.Windows.Forms.MessageBox.Show("Confermi esportazione distinta ?", "Domanda", MessageBoxButtons.YesNo);
@@ -148,7 +319,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
                     try
                     {
-                       
+
+                        progBarAnalisi.Foreground = Brushes.Green;
+                        this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Started;
+
+
                         sEsplodiPar1 = "";
                         sEsplodiPar2 = "";
                         bSet1 = false;
@@ -207,11 +382,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         }
 
-                        progBarAnalisi.Foreground = Brushes.Green;
 
                         Guid newSessionId = Guid.NewGuid();
 
-                        PreEsportaDistinta preEsportaDistinta = new PreEsportaDistinta();
+                        PreEsportaDistinta preEsportaDistinta = new PreEsportaDistinta(this.EspDistinta);
 
                         long id;
 
@@ -225,7 +399,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           , sConfigurazioni
                                                           , bTopOnly
                                                           , sEsplodiPar1
-                                                          , sEsplodiPar1
+                                                          , sEsplodiPar2
                                                           , sDitta
                                                           , 0
                                                           , newSessionId
@@ -233,8 +407,28 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           );
 
 
+                        EspDistinta.TS.WriteLine("Record inserito nella queue di esportazione");
 
-                        System.Windows.Forms.MessageBox.Show("Record inserito nella queue di esportazione");
+                        this.bElabOK = true;
+
+                        OpenSocket();
+
+                        ReadFromSocket();
+
+                        CloseSocket();
+
+                        if (this.bElabOK)
+                            this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+                        else
+                        {
+
+                            progBarAnalisi.Foreground = Brushes.Red;
+                            this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+
+
+                        }
+
+                        //System.Windows.Forms.MessageBox.Show("Record inserito nella queue di esportazione");
                         //await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, sEsplodiPar1, sEsplodiPar2));
 
                         //EspDistinta.WriteLog("-----------------------------------------------------------------------", TraceEventType.Information);
@@ -245,8 +439,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     catch (Exception ex)
                     {
 
+                        progBarAnalisi.Foreground = Brushes.Red;
+                        this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+
+
                         System.Windows.Forms.MessageBox.Show(ex.Message);
                         System.Windows.Forms.MessageBox.Show("Elaborazione non riuscita");
+
 
                         //EspDistinta.WriteLog(ex.Message, TraceEventType.Error);
 
@@ -294,14 +493,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             DialogResult dialogResult = System.Windows.Forms.MessageBox.Show("Confermi aggiornamento distinta pregressa ?", "Domanda", MessageBoxButtons.YesNo);
             if (dialogResult == System.Windows.Forms.DialogResult.Yes)
             {
-                if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
+                /*if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
                 {
 
                     System.Windows.Forms.MessageBox.Show("Nessuna configurazione impostata");
                     return;
 
 
-                }
+                }*/
 
                 if (sFileName != null)
                     try
