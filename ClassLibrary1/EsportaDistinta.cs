@@ -26,6 +26,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Net.Http;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -292,7 +293,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-
         public void WriteLog(string content)
         {
 
@@ -304,7 +304,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             System.Windows.Forms.Application.DoEvents();
 
         }
-
 
 
 
@@ -404,9 +403,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         Guid currentSessionGuid;
 
         IPEndPoint ipEndPoint;
-        Socket sender;
+        //Socket sender;
 
+        TcpClient sender;
 
+        NetworkStream networkStream;
+        
+
+        StreamReader reader;
+        StreamWriter writer;
 
         string sIPLog = "";
         int iPortLog = 0;
@@ -575,6 +580,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
 
             outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
+            
 
             if (this.sIPLog.Trim() != "" && this.iPortLog != 0)
             {
@@ -598,18 +604,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             if (this.sender != null)
             {
 
-                // Encode the data string into a byte array.
-                byte[] msg = Encoding.ASCII.GetBytes(content);
+                writer.WriteLine(content);
+                writer.Flush();
 
-                // Send the data through the socket.
-                int bytesSent = sender.Send(msg);
-
-                byte[] lfbyte = new byte[2];
-
-                lfbyte[0] = (byte)13;
-                lfbyte[1] = (byte)10;
-
-                int bytesSent2 = sender.Send(lfbyte);
             }
 
         }
@@ -626,17 +623,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
 
                 // Encode the data string into a byte array.
-                byte[] msg = Encoding.ASCII.GetBytes(content);
 
-                // Send the data through the socket.
-                int bytesSent = sender.Send(msg) ;
 
-                byte[] lfbyte = new byte [2];
-
-                lfbyte[0] = (byte) 13;
-                lfbyte[1] = (byte)10;
-
-                int bytesSent2 = sender.Send(lfbyte);
+                writer.WriteLine(content);
+                writer.Flush();
             }
 
         }
@@ -647,21 +637,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             outputFile.Close();
 
-            if (this.sender != null)
+            if (sender != null)
             {
-                
-
-                byte[] lfbyte = new byte[4];
-
-                lfbyte[0] = (byte)1;
-                lfbyte[1] = (byte)1;
-                lfbyte[2] = (byte)1;
-                lfbyte[3] = (byte)1;
-
-                int bytesSent2 = sender.Send(lfbyte);                
-
-                this.sender.Shutdown(SocketShutdown.Both);
-                this.sender.Close();
+                                                       
+                sender.Close();
 
             }
 
@@ -672,32 +651,26 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
 
             string sAddress;
-            
 
+                       
             sAddress = sIP + ":" + iPort.ToString();
 
             this.ipEndPoint = CreateIPEndPoint(sAddress);
 
-            try
-            {
-
-                this.sender = new Socket(this.ipEndPoint.AddressFamily,
-                                         SocketType.Stream,
-                                         ProtocolType.Tcp);
-
-                this.sender.Connect(this.ipEndPoint);
-
-
-
-
-            }
-            catch (Exception ex)
-            {
-
-                this.sender = null;
+          
+            sender = new System.Net.Sockets.TcpClient();
             
-            
-            }
+            sender.Connect(sIP, 11201);            
+
+            networkStream = sender.GetStream();
+
+
+            reader = new StreamReader(networkStream);
+
+            writer = new StreamWriter(networkStream) { AutoFlush = true };
+
+
+
         }
 
         
@@ -1037,18 +1010,23 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             WriteLog("SessionID: " + currentSessionGuid.ToString());
 
+            //Debugger.Launch();
+
             DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Started;
 
-            if(sConfigurazioni.Trim() == "")
+            if (sConfigurazioni.Trim() == "")
+                sConfigurazioni = "Default";
+
+            /*if(sConfigurazioni.Trim() == "")
             {
 
                 sConfigurazioni = "";
 
-                IEdmFile5 File = default(IEdmFile5);
-                File = (IEdmFile5)vault.GetObject(EdmObjectType.EdmObject_File, iDocument);
+                IEdmFile5 aFile = default(IEdmFile5);
+                aFile = (IEdmFile5)vault.GetObject(EdmObjectType.EdmObject_File, iDocument);
 
                 EdmStrLst5 cfgList = default(EdmStrLst5);
-                cfgList = File.GetConfigurations();
+                cfgList = aFile.GetConfigurations();
 
                 IEdmPos5 pos = default(IEdmPos5);
                 pos = cfgList.GetHeadPosition();
@@ -1068,7 +1046,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 }
 
                 
-            }
+            }*/
 
 
             try
@@ -1078,7 +1056,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
                     WriteLog("Inizio elaborazione");
 
-                    foreach (string sConf in sConfigurazioni.Split(','))
+                    foreach (string sConf in sConfigurazioni.Split((char) 1))
                     {
                         //inizializzo dizionario per la cache
                         cacheDictionary = new Dictionary<Tuple<string, string>, Tuple<string, string, int>>();
@@ -2495,7 +2473,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         WriteLog("Promosso ---> " + iPromosso.ToString());
 
-                        if (!((iPromosso == 2) && cTipoDistinta == "DistintaAssiemePerArca"))
+                        if (!((iPromosso == 2) && cTipoDistinta == "DistintaAssiemePerArca") && (!first))
                         {
 
 
@@ -2845,7 +2823,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             tmp_DEDREVC = sDEDREVC;
                             tmp_QTA = sQty;
 
-                            if (iPromosso == 2)
+                            if ((iPromosso == 2) && (!first))
                             {
                                 tmp_DEDIDP = sDEDIDPromosso;
                                 tmp_DEDREVP = sDEDREVPromosso;

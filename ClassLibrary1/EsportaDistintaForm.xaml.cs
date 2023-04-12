@@ -42,25 +42,37 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         EsportaDistinta EspDistinta = new EsportaDistinta(1);
 
 
+
+        byte[] bytesReceived = new byte[1_024];
+        
         string sFileName;
         int iVersione;
         int iDocument;
 
         string returnedMessage;
 
-        bool bElabOK;
+        static bool bElabOK;
+        static bool bStop;
+
+        static TraceSource TSStatic;
 
         IEdmVault5 vault;
 
-        TcpClient client;
-        NetworkStream stream;
+
 
         // inizializza socket client
 
-        Socket listener;
+        static TcpListener listener;
         IPEndPoint ipEndPoint;
 
         Socket handler;
+
+        private static ManualResetEvent connectDone =
+        new ManualResetEvent(false);
+        private static ManualResetEvent sendDone =
+            new ManualResetEvent(false);
+        private static ManualResetEvent receiveDone =
+            new ManualResetEvent(false);
 
 
         //public EsportaDistintaForm()
@@ -95,18 +107,17 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             EspDistinta.TS.WriteLine("Test Console");
 
-            Socket listener;
-            IPEndPoint ipEndPoint;
-
-           
+            TSStatic = EspDistinta.TS;
         }
 
 
-        public void OpenSocket()
-        {
-
+        public async void OpenSocket()
+        {            
+            
             IPHostEntry host = Dns.GetHostEntry("localhost");
             IPAddress ipAddress = host.AddressList[0];
+
+            IPAddress ipAddress2 = default(IPAddress);
 
             IPAddress[] addresses = Dns.GetHostAddresses("");
 
@@ -116,6 +127,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
                 if (address.ToString().StartsWith("192."))
                 {
+
+                    ipAddress2 = address;
                     sIpAddress = address.ToString();
 
                     break;
@@ -128,20 +141,209 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             this.ipEndPoint = CreateIPEndPoint(sIpAddress + ":11201" );
 
 
-            this.listener = new Socket(
+            /*this.listener = new Socket(
                 this.ipEndPoint.AddressFamily,
                 SocketType.Stream,
-                ProtocolType.Tcp);
+                ProtocolType.Tcp);*/
 
-            this.listener.Bind(this.ipEndPoint);
-            this.listener.Listen(100);
+            listener = new TcpListener(ipEndPoint);
 
-            this.handler = listener.Accept();
+            listener.Start();
+
+            //this.listener.Bind(this.ipEndPoint);
+            //this.listener.Listen(100);
+
+            //listener.AcceptAsync();
+            // Connect to the remote endpoint.
+
+            try
+            {
+                var tcpClient = await listener.AcceptTcpClientAsync();
+                HandleConnectionAsync(tcpClient);
+                WaitForClients();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
             
 
         }
+        private async void HandleConnectionAsync(TcpClient tcpClient)
+        {
+            //Write code here to process the incoming client connections
+        }
 
-        public void ReadFromSocket()
+        private static void WaitForClients()
+        {
+            listener.BeginAcceptTcpClient(new System.AsyncCallback(OnClientConnected), null);
+        }
+
+        private static void OnClientConnected(IAsyncResult asyncResult)
+        {
+            try
+            {
+                TcpClient clientSocket = listener.EndAcceptTcpClient(asyncResult);                
+                HandleClientRequest(clientSocket);
+            }
+            catch
+            {
+                throw;
+            }
+
+            WaitForClients();
+        }
+
+
+        private static async void HandleClientRequest(TcpClient clientSocket)
+        {
+            //Write your code here to process the data
+            //System.Windows.Forms.MessageBox.Show(clientSocket.ReceiveBufferSize.ToString());            
+
+            Debugger.Launch();
+
+            NetworkStream netStream;
+            netStream = clientSocket.GetStream();
+
+            var reader = new StreamReader(netStream);
+
+            byte[] receiveBuffer = new byte[4096];
+            //var datarec = netStream.Read(receiveBuffer, 0, 4096);
+
+            var datarec = await reader.ReadLineAsync();
+
+            
+
+            //string data = Encoding.UTF8.GetString(receiveBuffer, 0, bytesReceived);
+
+            TSStatic.WriteLine(datarec);
+
+        }
+        /*private static void Receive(Socket client)
+        {
+            try
+            {
+                // Create the state object.
+                StateObject state = new StateObject();
+                state.workSocket = client;
+
+                // Begin receiving the data from the remote device.
+                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                    new AsyncCallback(ReceiveCallback), state);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }*/
+
+        /*private static void ReceiveCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the state object and the client socket 
+                // from the asynchronous state object.
+                StateObject state = (StateObject)ar.AsyncState;
+                Socket client = state.workSocket;
+
+                string stopReceiving;
+                stopReceiving = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
+
+                string response;
+                
+
+                bStop = false;
+
+                // Read data from the remote device.
+                int bytesRead = client.EndReceive(ar);
+
+                if (bytesRead > 0)
+                {
+                    // There might be more data, so store the data received so far.
+                    response = Encoding.ASCII.GetString(state.buffer, 0, bytesRead);
+                    
+                    TSStatic.WriteLine(response);
+
+                    if (response.Contains("Elaborazione interrotta per errori"))
+                        bElabOK = false;
+
+                    if (response.Contains(stopReceiving))
+                    {
+
+                        response = response.Replace(stopReceiving, "");
+                        bStop = true;
+
+                    }
+
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }*/
+
+
+        /*private static void ConnectCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the socket from the state object.
+                Socket client = (Socket)ar.AsyncState;
+
+                // Complete the connection.
+                client.EndConnect(ar);
+
+
+                // Signal that the connection has been made.
+                connectDone.Set();
+            }
+
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }*/
+
+        /*public class StateObject
+        {
+            // Client socket.
+            public Socket workSocket = null;
+            // Size of receive buffer.
+            public const int BufferSize = 256;
+            // Receive buffer.
+            public byte[] buffer = new byte[BufferSize];
+            // Received data string.
+            public StringBuilder sb = new StringBuilder();
+        }*/
+
+
+
+        /*public  async Task ReadFromSocketAsync()
+        {
+            //Stuff Happens on the original UI thread
+
+            //await Task.Run(() => //This code runs on a new thread, control is returned to the caller on the UI thread.
+
+              //  ReadFromSocket());
+
+
+            await ReadFromSocket();
+            //Stuff Happens on the original UI thread after the loop exits.
+            //System.Windows.Forms.MessageBox.Show("pippo");
+        }
+        */
+
+
+
+
+
+
+
+
+        /*public void  ProcessReceive(SocketAsyncEventArgs readEventArgs)
         {
 
             string stopReceiving;
@@ -151,65 +353,64 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             bStop = false;
 
-            while (true)
+            
+
+                
+            //var received = this.handler.Receive(buffer);
+
+            var response = Encoding.UTF8.GetString(readEventArgs.Buffer, 0, readEventArgs.Buffer.Length);
+
+            if (response != null && response.Trim() != "")
             {
-                // Receive message.
-                
-                                              
 
-                var buffer = new byte[1_024];
 
-                
-                var received = this.handler.Receive(buffer);
-                var response = Encoding.UTF8.GetString(buffer, 0, received);
+                if (response.Contains("Elaborazione interrotta per errori"))
+                    this.bElabOK = false;
 
-                if (response != null && response.Trim() != "")
+                if (response.Contains(stopReceiving))
                 {
 
+                    response = response.Replace(stopReceiving, "");
+                    bStop = true;
 
-                    if (response.Contains("Elaborazione interrotta per errori"))
-                        this.bElabOK = false;
-
-                    if (response.Contains(stopReceiving))
-                    {
-
-                        response = response.Replace(stopReceiving, "");
-                        bStop = true;
-                    
-                    }
-
-                    
-                    this.EspDistinta.TS.WriteLine(response);
-
-                    System.Windows.Forms.Application.DoEvents();
-                    
-
-                    if (bStop)
-                        break;
-
-
-
-                    //System.Windows.Forms.MessageBox.Show(response);
-
-                    //this.EspDistinta.TS.WriteLine(response);
-
-
-                    // Sample output:
-                    //    Socket server received message: "Hi friends 👋!"
-                    //    Socket server sent acknowledgment: "<|ACK|>"
                 }
 
 
+                this.EspDistinta.TS.WriteLine(response);
+
+                System.Windows.Forms.Application.DoEvents();
+
+
+                if (bStop)
+                {
+                    this.listener.Close();
+
+                    if (this.bElabOK)
+                        this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+                    else
+                    {
+
+                        progBarAnalisi.Foreground = Brushes.Red;
+                        this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+
+
+                    }
+
+
+                }
+
             }
 
+        
 
         }
+        */
 
         public void CloseSocket()                
         {
 
             //this.listener.Shutdown(SocketShutdown.Both);
-            this.listener.Close();
+            //this.listener.Close();
         }
 
         // Handles IPv4 and IPv6 notation.
@@ -238,6 +439,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 throw new FormatException("Invalid port");
             }
             return new IPEndPoint(ip, port);
+
         }
 
 
@@ -269,7 +471,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;
@@ -409,24 +611,22 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         EspDistinta.TS.WriteLine("Record inserito nella queue di esportazione");
 
-                        this.bElabOK = true;
+                        bElabOK = true;
 
                         OpenSocket();
 
-                        ReadFromSocket();
 
-                        CloseSocket();
+                        //var t = new Thread(ReadFromSocket);
+                        //t.Name = "My Socket Thread";
+                        //t.Priority = ThreadPriority.AboveNormal;
+                        //t.Start("Thread");
 
-                        if (this.bElabOK)
-                            this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
-                        else
-                        {
+                                              
+                        //System.Windows.Forms.MessageBox.Show("pluto");
 
-                            progBarAnalisi.Foreground = Brushes.Red;
-                            this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+                        //CloseSocket();
 
 
-                        }
 
                         //System.Windows.Forms.MessageBox.Show("Record inserito nella queue di esportazione");
                         //await Task.Run(() => EspDistinta.IniziaEsportazione(iDocument, sFileName, iVersione, sConfigurazioni, vault, false, sEsplodiPar1, sEsplodiPar2));
@@ -443,8 +643,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
 
 
-                        System.Windows.Forms.MessageBox.Show(ex.Message);
-                        System.Windows.Forms.MessageBox.Show("Elaborazione non riuscita");
+                        EspDistinta.TS.WriteLine(ex.Message);
+                        EspDistinta.TS.WriteLine("Elaborazione non riuscita");
+
+
+                        //System.Windows.Forms.MessageBox.Show(ex.Message);
+                        //System.Windows.Forms.MessageBox.Show("Elaborazione non riuscita");
 
 
                         //EspDistinta.WriteLog(ex.Message, TraceEventType.Error);
