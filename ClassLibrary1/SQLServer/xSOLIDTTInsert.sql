@@ -185,8 +185,9 @@ BEGIN
 	  (26, '560'),    --GUARNIZIONI E TENUTE
 	  --(27, 'BAV-000-000')     -- ??GREZZO BAVETTA
 	  (27, '517'),     -- RIVESTIMENTI
-	  (28, '516')      -- GUARNIZIONI CUSTOM
-	  
+	  (28, '516'),      -- GUARNIZIONI CUSTOM
+	  (29, '518'),      -- RULLI
+	  (30, '400')   -- ASSIEMI DI MONTAGGIO
 
 	  insert into ICM_UMMaga 
 	  values
@@ -218,7 +219,9 @@ BEGIN
 	  (26, 'NR', 'QTA'),    --GUARNIZIONI E TENUTE
 	  --(27, 'MT', 'LG')     -- ??GREZZO BAVETTA
 	  (27, 'NR', 'QTA'),     --RIVESTIMENTI
-	  (28, 'NR', 'QTA')      -- GUARNIZIONI CUSTOM
+	  (28, 'NR', 'QTA'),      -- GUARNIZIONI CUSTOM
+	  (29, 'NR', 'QTA'),     --RULLI
+	  (30, 'NR', 'QTA')      --MONTAGGI
 
 	  insert into ICM_UMAcq 
 	  values
@@ -250,8 +253,9 @@ BEGIN
 	  (26, 'NR', 'QTA'),   --GUARNIZIONI E TENUTE
 	  --(27, 'MT', 'LG')    -- ??GREZZO BAVETTA
 	  (27, 'NR', 'QTA'),    --RIVESTIMENTI
-	  (28, 'NR', 'QTA')      -- GUARNIZIONI CUSTOM
-
+	  (28, 'NR', 'QTA'),      -- GUARNIZIONI CUSTOM
+	  (29, 'NR', 'QTA'),    -- RULLI
+	  (30, 'NR', 'QTA')      --MONTAGGI
 
 
 END

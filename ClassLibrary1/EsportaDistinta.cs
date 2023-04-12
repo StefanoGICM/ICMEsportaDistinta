@@ -290,6 +290,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         bool bNonCodificato;
 
+                        
+
                         insertXPORT(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato);
 
 
@@ -392,6 +394,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         transaction.Commit();
 
                         cnn.Close();
+
+                        
                         //cnnVault.Close();
 
 
@@ -539,7 +543,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
 
             //Debugger.Launch();
-            
 
             sDEDID = null;
             sDEDREV = null;
@@ -703,12 +706,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             iRetPromossoPar = iPromosso;
 
-            if (first && (iPromosso == 2))
-            {
+            //if (first && (iPromosso == 2))
+            //{
 
-                throw new ApplicationException("Errore: l'assieme/parte " + cFileName + " da esportare è promosso.");
+            //    throw new ApplicationException("Errore: l'assieme/parte " + cFileName + " da esportare è promosso.");
 
-            }
+            //}
 
 
             if (cFileName.ToUpper().EndsWith(".SLDASM"))
@@ -722,8 +725,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 
                 cTipoDistinta = "DistintaPartePerArca";
 
-                if (first)
-                    throw new ApplicationException("Errore: l'assieme " + cFileName + " da esportare è una parte.");
+                //if (first)
+                //    throw new ApplicationException("Errore: l'assieme " + cFileName + " da esportare è una parte.");
 
                 if (iPromosso == 2)
                     throw new ApplicationException("Errore: la parte " + cFileName + " da esportare è promossa.");
@@ -1596,7 +1599,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         TS.WriteLine("Promosso ---> " + iPromosso.ToString());
 
-                        if (!((iPromosso == 2) && cTipoDistinta == "DistintaAssiemePerArca"))
+                        if (!((iPromosso == 2) && cTipoDistinta == "DistintaAssiemePerArca" && (!first)))
                         {
 
                             SqlCommand command = new SqlCommand(query, cnn);
@@ -1953,7 +1956,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             tmp_DEDREVC = sDEDREVC;
                             tmp_QTA = sQty;
 
-                            if (iPromosso == 2)
+                            if ((iPromosso == 2) && (!first))
                             {
                                 tmp_DEDIDP = sDEDIDPromosso;
                                 tmp_DEDREVP = sDEDREVPromosso;
@@ -2697,7 +2700,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 if (first)
                 {
 
-
+                    
 
                     string query = "UPDATE [dbo].[XPORT_ANAG] " +
                                    "SET DEDStart = 'S' " +
