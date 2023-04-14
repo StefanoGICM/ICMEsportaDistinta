@@ -232,6 +232,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 WriteLog("Dopo Commit della transazione");
 
                 WriteLog("Fine inserimento record di elaborazione nella Queue");
+                
+
                 CloseLog();
                 MoveLog();
 
@@ -299,7 +301,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             if (outputFile != null)
                 outputFile.WriteLine(DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ": " + content);
 
-            this.espDistinta.TS.WriteLine(content);
+            this.espDistinta.TS.WriteLine(content + Environment.NewLine);
 
             System.Windows.Forms.Application.DoEvents();
 
@@ -343,7 +345,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         public int iType = 0;   /* */
 
-        public TraceSource TS = new TraceSource("ICMTrace");
+        public TraceSource TS = new TraceSource("EsportaDistintaTrace");
 
         IPAddress ipAddressLog;
 
@@ -415,6 +417,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         string sIPLog = "";
         int iPortLog = 0;
+
+        int iCounter = 0;
 
 
         /*struct ReturnData
@@ -543,8 +547,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         public void OpenLog(string sFileName, string vaultName)
         {
+            this.iCounter++;
 
-            cLogFileName = ("log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + ".txt";
+            if (this.iCounter > 99)
+                this.iCounter = 1;
+
+            cLogFileName = ("log_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + "Count" + this.iCounter.ToString() + ".txt";
 
 
 
@@ -601,14 +609,28 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 
             }
 
+            
+
             if (this.sender != null)
             {
 
-                writer.WriteLine(content);
-                writer.Flush();
+
+                writeTCPAsync(content);
+
+
 
             }
 
+        }
+
+        public async Task writeTCPAsync(string content)
+        {
+
+
+                byte[] outStream = System.Text.Encoding.ASCII.GetBytes(content + Environment.NewLine);
+                await this.networkStream.WriteAsync(outStream, 0, outStream.Length);
+        
+        
         }
 
         public void WriteLog(string content)
@@ -619,14 +641,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                
             }
 
+            
+
             if (this.sender != null)
             {
 
-                // Encode the data string into a byte array.
+                writeTCPAsync(content);
 
 
-                writer.WriteLine(content);
-                writer.Flush();
             }
 
         }
@@ -639,8 +661,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             if (sender != null)
             {
-                                                       
+                this.networkStream.Close();
+                this.networkStream.Dispose();
                 sender.Close();
+                sender.Dispose();
 
             }
 
@@ -658,16 +682,19 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             this.ipEndPoint = CreateIPEndPoint(sAddress);
 
           
-            sender = new System.Net.Sockets.TcpClient();
+            this.sender = new System.Net.Sockets.TcpClient();
+
+            //sender.Connect(sIP, 11201);            
+
+            this.sender.Connect("192.168.1.80", 11201);
             
-            sender.Connect(sIP, 11201);            
 
-            networkStream = sender.GetStream();
+            this.networkStream = sender.GetStream();
 
 
-            reader = new StreamReader(networkStream);
+            //reader = new StreamReader(networkStream);
 
-            writer = new StreamWriter(networkStream) { AutoFlush = true };
+            //writer = new StreamWriter(networkStream) { AutoFlush = true };
 
 
 
@@ -898,7 +925,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (workerVault.Name == sVault)
                             {
 
-
+                                WriteLog(Environment.NewLine);
                                 WriteLog("-----------------------------------------------------------------------");
                                 WriteLog("Esportazione " + sFilename + " (configurazioni: " + sConfigurazioniWrite + " )");
                                 WriteLog("-----------------------------------------------------------------------");
@@ -923,6 +950,23 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 WriteLog("-----------------------------------------------------------------------");
                                 WriteLog("Esportazione terminata con successo");
                                 WriteLog("-----------------------------------------------------------------------");
+
+                                // manda segnale di fine
+                                if (this.sender != null)
+                                {
+
+                                    this.networkStream.Flush();
+
+                                    string fine = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
+
+                                    Thread.Sleep(1000);
+
+                                    writeTCPAsync(fine);
+                                  
+
+
+                                }
+
                                 CloseLog();
 
                                 MoveLog(true);
@@ -953,6 +997,26 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             WriteLog("-----------------------------------------------------------------------");
                             WriteLog("Esportazione interrotta per errori");
                             WriteLog("-----------------------------------------------------------------------");
+
+                            // manda segnale di fine
+                            if (this.sender != null)
+                            {
+
+
+                                this.networkStream.Flush();
+
+                                string fine = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
+
+                                Thread.Sleep(1000);
+
+                                writeTCPAsync(fine);
+
+
+
+
+                            }
+
+
                             CloseLog();
                             MoveLog(false);
 

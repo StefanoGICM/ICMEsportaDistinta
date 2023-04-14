@@ -48,6 +48,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             traceSource.TraceEvent(TraceEventType.Verbose, 0, message);
         }
 
+
         public static void WriteLine(this TraceSource traceSource, string message, TraceEventType traceEventType)
         {
 
@@ -59,6 +60,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
             traceSource.TraceEvent(TraceEventType.Verbose, 0, format, args);
         }
+
+
+
 
         public static void TraceData
         (this TraceSource traceSource, TraceEventType eventType, int id, params object[] data)

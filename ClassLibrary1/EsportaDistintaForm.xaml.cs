@@ -150,6 +150,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             listener.Start();
 
+            WaitForClients();
+
             //this.listener.Bind(this.ipEndPoint);
             //this.listener.Listen(100);
 
@@ -160,7 +162,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
                 var tcpClient = await listener.AcceptTcpClientAsync();
                 HandleConnectionAsync(tcpClient);
-                WaitForClients();
+                
             }
             catch (Exception ex)
             {
@@ -200,24 +202,69 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             //Write your code here to process the data
             //System.Windows.Forms.MessageBox.Show(clientSocket.ReceiveBufferSize.ToString());            
 
-            Debugger.Launch();
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
 
-            NetworkStream netStream;
-            netStream = clientSocket.GetStream();
+                int numberChars;
+                NetworkStream netStream;
+                netStream = clientSocket.GetStream();
+                var reader = new StreamReader(netStream);
+                //char[] receiveBuffer = new char[4096];
+                string toSend;
+                string fine;
+                bool bBreak = false;
 
-            var reader = new StreamReader(netStream);
+                while (true)
+                {
 
-            byte[] receiveBuffer = new byte[4096];
-            //var datarec = netStream.Read(receiveBuffer, 0, 4096);
+                    if (netStream.DataAvailable)
+                    {
 
-            var datarec = await reader.ReadLineAsync();
+                        //var datarec = netStream.Read(receiveBuffer, 0, 4096);
 
-            
+                        char[] receiveBuffer = new char[4096];
 
-            //string data = Encoding.UTF8.GetString(receiveBuffer, 0, bytesReceived);
+                        numberChars = reader.Read(receiveBuffer, 0, 4096);
 
-            TSStatic.WriteLine(datarec);
+                        toSend = new string(receiveBuffer);
 
+                        fine = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
+
+                        if (toSend.Contains(fine))
+                        {
+
+                            toSend = toSend.Replace(fine, "    ");
+
+                            bBreak = true;
+
+                        
+                        }
+
+                        toSend = toSend.Substring(0, numberChars);
+
+                        
+
+                        TSStatic.WriteLine(toSend);
+
+                        if (bBreak)
+                            break;
+
+                    }
+
+                    
+                    
+
+
+                }
+
+                listener.Stop();
+                netStream.Close();
+                netStream.Dispose();
+
+            }).Start();
+
+           
         }
         /*private static void Receive(Socket client)
         {
