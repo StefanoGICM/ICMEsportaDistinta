@@ -61,9 +61,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             traceSource.TraceEvent(TraceEventType.Verbose, 0, format, args);
         }
 
-
-
-
         public static void TraceData
         (this TraceSource traceSource, TraceEventType eventType, int id, params object[] data)
         {

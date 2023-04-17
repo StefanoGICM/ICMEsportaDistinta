@@ -1,32 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
+﻿using EPDM.Interop.epdm;
+using ICM.ConsoleControlWPF;
+using System;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using EPDM.Interop.epdm;
-using ICM.ConsoleControlWPF;
-using System.Runtime.InteropServices;
-using System.Threading;
 
 
 
@@ -111,7 +94,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
 
-        public async void OpenSocket()
+        /*public async void OpenSocket()
         {            
             
             IPHostEntry host = Dns.GetHostEntry("localhost");
@@ -141,10 +124,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             this.ipEndPoint = CreateIPEndPoint(sIpAddress + ":11201" );
 
 
-            /*this.listener = new Socket(
-                this.ipEndPoint.AddressFamily,
-                SocketType.Stream,
-                ProtocolType.Tcp);*/
+            //this.listener = new Socket(
+            //    this.ipEndPoint.AddressFamily,
+            //    SocketType.Stream,
+            //    ProtocolType.Tcp);
 
             listener = new TcpListener(ipEndPoint);
 
@@ -171,16 +154,21 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             
 
         }
+
+        */
+        /*
         private async void HandleConnectionAsync(TcpClient tcpClient)
         {
             //Write code here to process the incoming client connections
         }
-
+        */
+        /*
         private static void WaitForClients()
         {
             listener.BeginAcceptTcpClient(new System.AsyncCallback(OnClientConnected), null);
         }
-
+        */
+        /*
         private static void OnClientConnected(IAsyncResult asyncResult)
         {
             try
@@ -196,7 +184,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             WaitForClients();
         }
 
-
+        */
+        /*
         private static async void HandleClientRequest(TcpClient clientSocket)
         {
             //Write your code here to process the data
@@ -266,6 +255,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
            
         }
+        */
         /*private static void Receive(Socket client)
         {
             try
@@ -453,15 +443,16 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
         */
 
-        public void CloseSocket()                
+        /*public void CloseSocket()                
         {
 
             //this.listener.Shutdown(SocketShutdown.Both);
             //this.listener.Close();
         }
+        */
 
         // Handles IPv4 and IPv6 notation.
-        public static IPEndPoint CreateIPEndPoint(string endPoint)
+        /*public static IPEndPoint CreateIPEndPoint(string endPoint)
         {
             string[] ep = endPoint.Split(':');
             if (ep.Length < 2) throw new FormatException("Invalid endpoint format");
@@ -488,7 +479,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             return new IPEndPoint(ip, port);
 
         }
-
+        */
 
         private void EsportaDistinta_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -660,7 +651,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         bElabOK = true;
 
-                        OpenSocket();
+                        //OpenSocket();
 
 
                         //var t = new Thread(ReadFromSocket);
