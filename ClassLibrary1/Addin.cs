@@ -86,6 +86,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             this.vault = (IEdmVault5)poCmd.mpoVault;
 
+            Guid newSessionId;
+
+            long longTemp;
+
 
             try
             {
@@ -98,7 +102,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                     ProgresssMsg = "";
 
+                    EsportaDistinta espDist = new EsportaDistinta(1);
 
+                    PreEsportaDistinta preEspDist = new PreEsportaDistinta(espDist);
+                  
                     for (int i = 0; i < size; i++)
                     {
 
@@ -126,7 +133,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         
                         version = aFile.CurrentVersion;
 
-                        EsportaDistinta espDist = new EsportaDistinta(2);
                         espDist.OpenLog(System.IO.Path.GetFileName(sFileName), this.vault.Name);
 
                         EdmStrLst5 cfgList = default(EdmStrLst5);
@@ -149,16 +155,30 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             try
                             {
                                 espDist.WriteLog("-----------------------------------------------------------------------");
-                                espDist.WriteLog("Esportazione " + sFileName + " (configurazione " + cfgName + ")");
+                                espDist.WriteLog("Inserimento record per Esportazione " + sFileName + " (configurazione " + cfgName + ")");
                                 espDist.WriteLog("-----------------------------------------------------------------------");
 
 
-                                
-                                espDist.IniziaEsportazione(iDocument, sFileName, version, cfgName, this.vault, true, "UV" + ((char) 1) + "UV", "");
+                                newSessionId = Guid.NewGuid();
+                                //espDist.IniziaEsportazione(iDocument, sFileName, version, cfgName, this.vault, true, "UV" + ((char) 1) + "UV", "");
+                                preEspDist.insertDistinta(this.vault,
+                                                          iDocument,
+                                                          sFileName,
+                                                          version,
+                                                          cfgName,
+                                                          true,
+                                                          "UV" + ((char)1) + "UV",
+                                                          "",
+                                                          "FREDDO",
+                                                          0,
+                                                          newSessionId,
+                                                          out longTemp,
+                                                          "Workflow");
 
-                                
+
+
                                 espDist.WriteLog("-----------------------------------------------------------------------");
-                                espDist.WriteLog("Esportazione terminata con successo");
+                                espDist.WriteLog("Inserimento record per esportazione terminato con successo");
                                 espDist.WriteLog("-----------------------------------------------------------------------");
 
                                 bSuccess = true;
@@ -173,7 +193,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 espDist.WriteLog(ex.Message);
                                 
                                 espDist.WriteLog("-----------------------------------------------------------------------");
-                                espDist.WriteLog("Esportazione interrotta per errori");
+                                espDist.WriteLog("Inserimento record per esportazione interrotta per errori");
                                 espDist.WriteLog("-----------------------------------------------------------------------");
 
                                 ProgresssMsg = "Task Failed";

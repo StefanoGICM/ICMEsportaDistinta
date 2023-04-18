@@ -50,6 +50,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         EsportaDistinta espDistinta;
 
+        int iCounterPre = 0;
+
 
         public PreEsportaDistinta(EsportaDistinta espDistinta)
         {
@@ -68,7 +70,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     string sDitta,
                                     int iPriority,
                                     Guid SessionID,
-                                    out long id)
+                                    out long id,
+                                    string origine)
         {
             string connectionStringSWICMDATA;
 
@@ -214,6 +217,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLog("Parametro PortLog: " + "11201");
 
+                sqlParam = command.Parameters.Add("@Origine", SqlDbType.NVarChar, 2000);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = origine;
+
+                WriteLog("Parametro Origine: " + "Form");
 
 
                 WriteLog("Chiamata alla SP");
@@ -225,8 +233,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLog("Parametro ID Ritornato: " + sID);
 
-                WriteLog("Chiamata alla SP");
-
+               
                 WriteLog("Prima Commit della transazione");
                 commandTransaction.Commit();
                 WriteLog("Dopo Commit della transazione");
@@ -246,7 +253,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             //sFileName = sFileName.Substring(0, sFileName.Length - 7);
 
-            cLogFileName = ("prelog_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + ".txt";
+            this.iCounterPre++;
+
+            if (this.iCounterPre > 99)
+                this.iCounterPre = 1;
+            
+            cLogFileName = ("prelog_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_')+ "Count" + this.iCounterPre.ToString() + ".txt";
 
 
             if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
@@ -651,6 +663,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             }
 
+
         }
 
         public void CloseLog()
@@ -681,15 +694,30 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             this.ipEndPoint = CreateIPEndPoint(sAddress);
 
-          
-            this.sender = new System.Net.Sockets.TcpClient();
 
-            //sender.Connect(sIP, 11201);            
+            this.sender = null;
 
-            this.sender.Connect("192.168.1.80", 11201);
+            //sender.Connect(sIP, 11201);
+            try
+            {
+                this.sender = new System.Net.Sockets.TcpClient();
+                this.sender.Connect(sIP, iPort);
+
+            }
+            catch (Exception ex) 
+            {
+
+                this.sender = null;
             
+            
+            }
 
-            this.networkStream = sender.GetStream();
+
+
+            if (!(sender == null))
+            {
+                this.networkStream = sender.GetStream();
+            }
 
 
             //reader = new StreamReader(networkStream);
@@ -759,6 +787,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string query;
 
             string sNumeroElementi;
+            
 
             string sFilename = default(string);
             DateTime dStartDate = default(DateTime);
@@ -892,9 +921,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 }
 
                             }
-
-                            OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
-                           
+                                                       
                             /* Imposto la StartDate */
                             string query1 = "UPDATE XPORT_Elab SET StartDate = GETDATE()" +
                                            " WHERE id = " + iID.ToString();
@@ -909,7 +936,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             command1.ExecuteNonQuery();
                             transaction1.Commit();
 
-                           
+                            OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
+
+
                             bOnlyTop = false;
 
                             if (iOnlyTop == 1)
@@ -981,9 +1010,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         {
                             WriteLog(ex.Message);
 
-                            query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
+                            query = "UPDATE XPORT_Elab " +
+                                    "SET EndDate = GETDATE()" +
+                                    ", StartDate = ISNULL(StartDate, GETDATE())" +
                                         ", Completed = 0" +
                                         ", Failed = 1" +
+                                        ", MsgErr = '" + ex.Message + "'" +
                                         " WHERE id = " + iID.ToString();
                             SqlCommand command1 = new SqlCommand(query, conn2);
 

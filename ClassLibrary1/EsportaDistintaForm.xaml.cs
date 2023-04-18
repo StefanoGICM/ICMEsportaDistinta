@@ -631,6 +631,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         id = 0;
 
+                        
                         /* aggiunge record nella tabella di esportazione */
                         preEsportaDistinta.insertDistinta(this.vault
                                                           , this.iDocument
@@ -644,6 +645,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           , 0
                                                           , newSessionId
                                                           , out id
+                                                          , "Form"
                                                           );
 
 

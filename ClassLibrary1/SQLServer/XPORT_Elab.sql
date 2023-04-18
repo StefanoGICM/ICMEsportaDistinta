@@ -13,6 +13,7 @@ CREATE TABLE [dbo].[XPORT_Elab](
 	[EndDate] [datetime] NULL,
 	[Completed] [smallint] NULL,
 	[Failed] [smallint] NULL,
+	[MsgErr] [nvarchar](2000) NULL,
 	[Vault] [nvarchar](50) NULL,
 	[InsertDate] [datetime] NULL,
 	[SessionID] [uniqueidentifier] NULL,
@@ -24,7 +25,9 @@ CREATE TABLE [dbo].[XPORT_Elab](
 	[DittaARCA] [nvarchar](1000) NULL,
 	[Priority] [int] NULL,
 	[IPLog] [nvarchar](100) NULL,
-	[PortLog] [nvarchar](100) NULL
+	[PortLog] [nvarchar](100) NULL,
+	[Origine] [nvarchar](2000) NULL,
+	[Note] [nvarchar] (2000)
  CONSTRAINT [PK_XPORT_Elab] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
