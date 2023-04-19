@@ -515,7 +515,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sConfigurazioni = ConfigurazioniTextBox.Text;
 
             bool? bTopOnly = this.checkFirstOnly.IsChecked;
-            string sDitta = this.dittaTextBox.ToString();
+            string sDitta = this.dittaTextBox.Text;
 
             if (bTopOnly == null)
                 bTopOnly = false;
@@ -646,6 +646,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           , newSessionId
                                                           , out id
                                                           , "Form"
+                                                          , 0
                                                           );
 
 

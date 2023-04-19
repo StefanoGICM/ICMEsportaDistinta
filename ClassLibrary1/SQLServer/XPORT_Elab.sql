@@ -27,7 +27,8 @@ CREATE TABLE [dbo].[XPORT_Elab](
 	[IPLog] [nvarchar](100) NULL,
 	[PortLog] [nvarchar](100) NULL,
 	[Origine] [nvarchar](2000) NULL,
-	[Note] [nvarchar] (2000)
+	[Note] [nvarchar] (2000) NULL,
+	[CambioPromosso] [int] NULL
  CONSTRAINT [PK_XPORT_Elab] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC

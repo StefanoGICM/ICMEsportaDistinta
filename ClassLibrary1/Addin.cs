@@ -22,6 +22,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
 
             this.vault = poVault;
+            
 
             //Specify information to display in the add-in's Properties dialog box
             poInfo.mbsAddInName = "ICM Esporta Distinta";
@@ -173,7 +174,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           0,
                                                           newSessionId,
                                                           out longTemp,
-                                                          "Workflow");
+                                                          "Workflow",
+                                                          0);
 
 
 

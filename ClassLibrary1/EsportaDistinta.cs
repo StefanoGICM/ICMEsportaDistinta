@@ -71,7 +71,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     int iPriority,
                                     Guid SessionID,
                                     out long id,
-                                    string origine)
+                                    string origine,
+                                    int iCambioPromosso)
         {
             string connectionStringSWICMDATA;
 
@@ -223,6 +224,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLog("Parametro Origine: " + "Form");
 
+                sqlParam = command.Parameters.Add("@CambioPromosso", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iCambioPromosso;
+
+                WriteLog("Parametro CambioPromosso: " + iCambioPromosso.ToString());
 
                 WriteLog("Chiamata alla SP");
 
@@ -992,8 +998,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                     writeTCPAsync(fine);
                                   
-
-
                                 }
 
                                 CloseLog();
@@ -1017,6 +1021,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         ", Failed = 1" +
                                         ", MsgErr = '" + ex.Message + "'" +
                                         " WHERE id = " + iID.ToString();
+
                             SqlCommand command1 = new SqlCommand(query, conn2);
 
                             SqlTransaction transaction1 = conn2.BeginTransaction();
@@ -1110,10 +1115,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Started;
 
-            if (sConfigurazioni.Trim() == "")
-                sConfigurazioni = "Default";
+            //if (sConfigurazioni.Trim() == "")
+            //    sConfigurazioni = "Default";
 
-            /*if(sConfigurazioni.Trim() == "")
+            if(sConfigurazioni.Trim() == "")
             {
 
                 sConfigurazioni = "";
@@ -1140,9 +1145,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         sConfigurazioni += ((char)1) + cfgName;
 
                 }
-
                 
-            }*/
+            }
 
 
             try
@@ -1158,7 +1162,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         cacheDictionary = new Dictionary<Tuple<string, string>, Tuple<string, string, int>>();
 
                         //Connessione al DB e inizio transazione
-
 
                         connectionString = connectionStringSWICMDATA;
 
