@@ -27,6 +27,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Net.Http;
+using System.Windows.Controls;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -222,7 +223,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 sqlParam.Direction = ParameterDirection.Input;
                 sqlParam.Value = origine;
 
-                WriteLog("Parametro Origine: " + "Form");
+                WriteLog("Parametro Origine: " + origine);
 
                 sqlParam = command.Parameters.Add("@CambioPromosso", SqlDbType.Int);
                 sqlParam.Direction = ParameterDirection.Input;
@@ -820,8 +821,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sIPLog = default(string);
             string sPortLog = default(string);
 
-            
-            sNumeroElementi = iNumeroElementi.ToString();   
+            int iCambioPromosso = default(int);
+
+
+
+            sNumeroElementi = iNumeroElementi.ToString();
+
+            //Debugger.Launch();
 
             SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA);
             SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA);
@@ -848,6 +854,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     ",Priority" +
                     ",IPLog" +
                     ",PortLog" +
+                    ",CambioPromosso" +
                     " FROM XPORT_Elab" +
                     " WHERE StartDate IS NULL AND Vault = '" + workerVault.Name + "'" +
                     " ORDER BY Priority DESC";
@@ -864,7 +871,32 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         try
                         {
 
-                            
+                            sFilename = default(string);
+                            dStartDate = default(DateTime);
+                            dEndDate = default(DateTime);
+                            sVault = default(string);
+                            dInsertDate = default(DateTime);
+                            sSessionID = default(string);
+
+                            sConfigurazioni = default(string);
+
+                            sEsplodiPar1 = default(string);
+                            sEsplodiPar2 = default(string);
+                            sDittaARCA = default(string);
+                            iPriority = default(int);
+
+                            iDocumentID = default(int);
+                            iVersione = default(int);
+                            iOnlyTop = default(int);
+                            bOnlyTop = default(bool);
+                            iFailed = default(int);
+                            iCompleted = default(int);
+                            iID = default(long);
+
+                            sIPLog = default(string);
+                            sPortLog = default(string);
+
+                            iCambioPromosso = default(int);
 
                             if (!reader.IsDBNull(0))
                                 iID = reader.GetInt64(0);
@@ -904,6 +936,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 sIPLog = reader.GetString(17);
                             if (!reader.IsDBNull(18))
                                 sPortLog = reader.GetString(18);
+                            if (!reader.IsDBNull(19))
+                                iCambioPromosso = reader.GetInt32(19);
 
                             this.sender = null;
 
@@ -966,7 +1000,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 WriteLog("-----------------------------------------------------------------------");
 
 
-                                IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2);
+                                IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso);
 
 
                                 query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
@@ -1021,6 +1055,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         ", Failed = 1" +
                                         ", MsgErr = '" + ex.Message + "'" +
                                         " WHERE id = " + iID.ToString();
+                            
 
                             SqlCommand command1 = new SqlCommand(query, conn2);
 
@@ -1075,7 +1110,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             conn.Close();
             conn2.Close();
         }
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso)
         {
 
 
@@ -1085,8 +1120,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             this.ExpParam1 = sEsplodiPar1;
             this.ExpParam2 = sEsplodiPar2;
 
-            this.ExpP1 = ExpParam1.Split((char)1)[0];
-            this.ExpP2 = ExpParam1.Split((char)1)[1];
+            this.ExpP1 = this.ExpParam1.Split((char)1)[0];
+            this.ExpP2 = this.ExpParam1.Split((char)1)[1];
 
             this.iType = iType;
             
@@ -1353,9 +1388,171 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             command1.ExecuteNonQuery();
 
+
+                            /* esporta ricorsivamente i padri per cambio promosso */
+                            if (iCambioPromosso == 1 && bOnlyTop)
+                            {
+
+                                IEdmFile5 file = null;
+                                IEdmFolder5 parentFolder = null;
+
+                                string sFatherFileName;
+                                int iFatherDocumentID;
+                                string sFatherConfiguration;
+
+                                string sFatherEsplodiPar1;
+                                string sFatherEsplodiPar2;
+
+                                string sFatherDitta;
+
+                                Guid FatherSessionID;
+
+                                long lFatherID;
+
+                                int iFatherCambioPromosso;
+
+                                int iFatherVersione;
+
+                                string XPromosso;
+                                bool bConvPromosso;
+                                int iPromosso;
+
+                                EsportaDistinta EspDistinta = new EsportaDistinta();
+                                PreEsportaDistinta preEspDistinta = new PreEsportaDistinta(EspDistinta);
+
+
+                                file = this.vault.GetFileFromPath(sFileName, out parentFolder);
+
+                                //Get an interface to the reference tree
+                                IEdmReference7 @ref = default(IEdmReference7);
+                                @ref = (IEdmReference7)file.GetReferenceTree(parentFolder.ID);
+
+
+
+                                //Enumerate parent references
+                                string msg = null;
+                                msg = "Parent references of file '" + file.Name + "':" + "\n";
+                                IEdmPos5 pos = default(IEdmPos5);
+                                pos = @ref.GetFirstParentPosition2(0, false, (int)EdmRefFlags.EdmRef_File + (int)EdmRefFlags.EdmRef_Dynamic + (int)EdmRefFlags.EdmRef_Static);
+                                while (!pos.IsNull)
+                                {
+                                    IEdmReference7 parent = default(IEdmReference7);
+                                    parent = (IEdmReference7)@ref.GetNextParent(pos);
+
+
+                                    sFatherFileName = parent.FoundPath;
+                                    iFatherDocumentID = parent.FileID;
+
+                                    iFatherVersione = parent.VersionRef;
+
+                                    IEdmFile5 aFile = default(IEdmFile5);
+                                    aFile = (IEdmFile5)this.vault.GetObject(EdmObjectType.EdmObject_File, iFatherDocumentID);
+
+
+                                    EdmStrLst5 cfgList = default(EdmStrLst5);
+                                    cfgList = aFile.GetConfigurations();
+
+                                    IEdmPos5 posConf = default(IEdmPos5);
+                                    posConf = cfgList.GetHeadPosition();
+                                    string cfgName = null;
+                                    while (!posConf.IsNull)
+                                    {
+                                        cfgName = cfgList.GetNext(posConf);
+
+
+                                        sFatherConfiguration = cfgName;
+                                        sFatherEsplodiPar1 = "UV" + ((char)1) + "UV";
+                                        sFatherEsplodiPar2 = "";
+                                        sFatherDitta = "FREDDO";
+                                        FatherSessionID = Guid.NewGuid();
+
+                                        /* Se l'assieme è promosso allora devo esportare anche suo padre */
+                                        iFatherCambioPromosso = 0;
+
+
+
+                                        if (sFatherFileName.ToUpper().EndsWith(".SLDASM"))
+                                        {
+
+                                            SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetPromossoSP", cnn);
+
+                                            command2.CommandType = CommandType.StoredProcedure;
+                                            command2.Transaction = transaction;
+
+                                            //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
+
+
+                                            SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
+                                            sqlParam.Direction = ParameterDirection.Input;
+                                            sqlParam.Value = iFatherDocumentID;
+
+
+                                            sqlParam = command2.Parameters.Add("@Conf", SqlDbType.VarChar, 50);
+                                            sqlParam.Direction = ParameterDirection.Input;
+                                            sqlParam.Value = sFatherConfiguration;
+
+                                            sqlParam = command2.Parameters.Add("@RevisionNo", SqlDbType.Int);
+                                            sqlParam.Direction = ParameterDirection.Input;
+                                            sqlParam.Value = iFatherVersione;
+
+                                            //TS.WriteLine("Check Assieme promosso: " + iDocument.ToString() + " ----- " + sConf + " ------ " + iVersione.ToString());
+
+                                            sqlParam = new SqlParameter("@Promosso", SqlDbType.Int);
+                                            //sqlParam.ParameterName = "@Result";
+                                            //sqlParam.DbType = DbType.Boolean;
+                                            sqlParam.Direction = ParameterDirection.Output;
+                                            command2.Parameters.Add(sqlParam);
+
+
+                                            command2.ExecuteNonQuery();
+
+                                            XPromosso = command2.Parameters["@Promosso"].Value.ToString();
+
+                                            if (XPromosso.Trim() == "" || XPromosso == null)
+                                            {
+
+                                                throw new ApplicationException("Errore nel verificare assieme/parte promosso: flag prmosso nullo per " + sFatherFileName);
+                                            }
+
+
+
+                                            bConvPromosso = Int32.TryParse(XPromosso, out iPromosso);
+
+                                            if (!bConvPromosso)
+                                            {
+
+                                                throw new ApplicationException("Flag promosso non accessibile in: " + sFatherFileName);
+
+                                            }
+
+                                            iFatherCambioPromosso = iPromosso;
+                                        }
+
+                                        preEspDistinta.insertDistinta(this.vault,
+                                                                      iFatherDocumentID,
+                                                                      sFatherFileName,
+                                                                      0,  // ultima versione
+                                                                      sFatherConfiguration,
+                                                                      bOnlyTop,
+                                                                      sFatherEsplodiPar1,
+                                                                      sFatherEsplodiPar2,
+                                                                      sFatherDitta,
+                                                                      0, //iPriority
+                                                                      FatherSessionID,
+                                                                      out lFatherID,
+                                                                      "CambioPromosso",
+                                                                      iFatherCambioPromosso);
+
+                                    }
+                                }
+
+                            }
+                                
                             transaction.Commit();
 
                             cnn.Close();
+
+                            
 
                         }
 
@@ -1402,52 +1599,24 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                 }
+
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
                 DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
-                try
-                {
-                    if (transaction != null)
-                        transaction.Rollback();
+                
+                throw ex;
 
-
-
-                }
-                catch (Exception ex2)
-                {
-
-                    WriteLog("Errore in Rollback transazione");
-
-                }
-                finally
-                {
-                    //WriteLog("HRESULT = 0x" + ex.ErrorCode.ToString("X") + " " + ex.Message);
-                    throw ex;
-
-                }
+                
             }
             catch (Exception ex)
             {
                 DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
-                try
-                {
-                    if (transaction != null)
-                        transaction.Rollback();
+                
+                //WriteLog(ex.Message);
+                throw ex;
 
-                }
-                catch (Exception ex2)
-                {
-
-                    WriteLog("Errore in Rollback transazione");
-
-                }
-                finally
-                {
-                    //WriteLog(ex.Message);
-                    throw ex;
-
-                }
+                
             }
 
 
@@ -1624,12 +1793,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             iRetPromossoPar = iPromosso;
 
-            if (first && (iPromosso == 2))
-            {
+            //if (first && (iPromosso == 2))
+            //{
 
-                throw new ApplicationException("Errore: l'assieme/parte " + cFileName + " da esportare è promosso.");
+            //    throw new ApplicationException("Errore: assieme/parte " + cFileName + " da esportare è promosso.");
 
-            }
+            //}
 
 
             if (cFileName.ToUpper().EndsWith(".SLDASM"))
@@ -1646,8 +1815,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 //if (first)
                   //  throw new ApplicationException("Errore: l'assieme " + cFileName + " da esportare è una parte.");
 
-                if (iPromosso == 2)
-                    throw new ApplicationException("Errore: la parte " + cFileName + " da esportare è promossa.");
+                //if (iPromosso == 2)
+                //    throw new ApplicationException("Errore: la parte " + cFileName + " da esportare è promossa.");
             }
             else
             {

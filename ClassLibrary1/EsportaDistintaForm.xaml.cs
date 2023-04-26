@@ -535,6 +535,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             }*/
 
+            iSelectedRootVersion = 0;
+
             if ((bool)RB2.IsChecked)
             {
 
@@ -570,7 +572,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         bSet2 = false;
 
 
-                        iSelectedRootVersion = 0;
+                        
 
                         if ((bool)RB1.IsChecked)
                         {
@@ -636,7 +638,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         preEsportaDistinta.insertDistinta(this.vault
                                                           , this.iDocument
                                                           , this.sFileName
-                                                          , this.iVersione
+                                                          , iSelectedRootVersion
                                                           , sConfigurazioni
                                                           , bTopOnly
                                                           , sEsplodiPar1

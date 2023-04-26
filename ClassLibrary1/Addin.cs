@@ -169,7 +169,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           cfgName,
                                                           true,
                                                           "UV" + ((char)1) + "UV",
-                                                          "",
+                                                          version.ToString(),
                                                           "FREDDO",
                                                           0,
                                                           newSessionId,
