@@ -42,6 +42,8 @@ BEGIN
 	  
 	DECLARE @IsLastRevision smallint
 
+	DECLARE @Message nvarchar(100)
+
 	SET @CheckPromossoChanged = 0
 	
 	/*
@@ -62,17 +64,19 @@ BEGIN
 	SELECT TOP 1
 	    @Promosso = drc.ShowChildComponentsInBOM	  
 	FROM 
-	  ICM.dbo.DocumentRevisionConfiguration drc
-	INNER JOIN ICM.dbo.DocumentConfiguration conf ON drc.ConfigurationID = conf.ConfigurationID
+	  SandBox2.dbo.DocumentRevisionConfiguration drc
+	INNER JOIN SandBox2.dbo.DocumentConfiguration conf ON drc.ConfigurationID = conf.ConfigurationID
 	WHERE drc.DocumentID = @DocumentID
-	  AND drc.RevisionNo = @RevisionNo
+	  AND drc.RevisionNo >= @RevisionNo
 	  AND conf.ConfigurationName = @Conf
-	ORDER BY drc.RevisionNo DESC
+	ORDER BY drc.RevisionNo 
 
 	IF @@ROWCOUNT <> 1
-	BEGIN;
+	BEGIN
 
-	  THROW 51000, 'Errore nel verificare assieme promosso: il record non esiste.', 16
+
+	  SET @Message = 'Errore nel verificare assieme promosso: il record non esiste. (' + CAST(@DocumentID AS nvarchar(10)) + '-' + CAST(@RevisionNo AS nvarchar(10)) + '-' + @Conf + ')';
+	  THROW 51000, @Message, 16
 
 	END
 

@@ -1402,6 +1402,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (iCambioPromosso == 1 && bOnlyTop)
                             {
 
+                                Debugger.Launch();
+
                                 IEdmFile5 file = null;
                                 IEdmFolder5 parentFolder = null;
 
@@ -1426,15 +1428,23 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 bool bConvPromosso;
                                 int iPromosso;
 
+                                IEdmFolder5 aFolder = default(IEdmFolder5);
+                                IEdmPos5 aPos = default(IEdmPos5);
+
+
                                 EsportaDistinta EspDistinta = new EsportaDistinta();
                                 PreEsportaDistinta preEspDistinta = new PreEsportaDistinta(EspDistinta);
 
 
-                                file = this.vault.GetFileFromPath(sFileName, out parentFolder);
+                                file = (IEdmFile5)this.vault.GetObject(EdmObjectType.EdmObject_File, iDocument);
+                                //file = this.vault.GetFileFromPath(sFileName, out parentFolder);
+
+                                aPos = file.GetFirstFolderPosition();
+                                aFolder = file.GetNextFolder(aPos);
 
                                 //Get an interface to the reference tree
                                 IEdmReference7 @ref = default(IEdmReference7);
-                                @ref = (IEdmReference7)file.GetReferenceTree(parentFolder.ID);
+                                @ref = (IEdmReference7)file.GetReferenceTree(aFolder.ID);
 
 
 
@@ -1470,6 +1480,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     {
                                         cfgName = cfgList.GetNext(posConf);
 
+                                        if (cfgName == "@")
+                                            continue;
 
                                         sFatherConfiguration = cfgName;
                                         sFatherEsplodiPar1 = "UV" + ((char)1) + "UV";
@@ -1536,7 +1548,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                             }
 
-                                            iFatherCambioPromosso = iPromosso;
+                                            if (iPromosso == 2)
+                                                iFatherCambioPromosso = 1;
                                         }
 
                                         preEspDistinta.insertDistinta(this.vault,
@@ -1692,7 +1705,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string tmp_DEDMass = "";
 
             IEdmFile7 aFile;
-            IEdmFolder5 ppoRetParentFolder;
+            //IEdmFolder5 ppoRetParentFolder;
 
             string sDEDIDP = "";
             string sDEDREVP = "";
@@ -1743,9 +1756,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             iVersionBOM = -2;
 
+            string cLocalPath;
 
 
-            aFile = (IEdmFile7)this.vault.GetFileFromPath(cFileName, out ppoRetParentFolder);
+            aFile = (IEdmFile7)this.vault.GetObject(EdmObjectType.EdmObject_File, iDocument);
+
+            
+
+            //aFile = (IEdmFile7)this.vault.GetFileFromPath(cFileName, out ppoRetParentFolder);
 
             if (aFile != null)
             {
@@ -1906,16 +1924,16 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 //WriteLog(cFileName + " --- " + sConf);
 
 
-                IEdmEnumeratorVariable7 enumVar;
+                //IEdmEnumeratorVariable7 enumVar;
 
-                object[] ppoRetVars = null;
-                string[] ppoRetConfs = null;
-                EdmGetVarData poRetDat = new EdmGetVarData();
+                //object[] ppoRetVars = null;
+                //string[] ppoRetConfs = null;
+                //EdmGetVarData poRetDat = new EdmGetVarData();
                 //string sVersion;
                 //string BomName;
 
-                enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
-                enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
+                //enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
+                //enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
 
                 //sVersion = poRetDat.mlLatestVersion.ToString();
 
