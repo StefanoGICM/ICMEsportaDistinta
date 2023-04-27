@@ -801,7 +801,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             DateTime dEndDate = default(DateTime);
             string sVault = default(string);
             DateTime dInsertDate = default(DateTime);
-            string sSessionID = default(string);
+            Guid sessionID = default(Guid);
             
             string sConfigurazioni = default(string);
             
@@ -876,7 +876,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             dEndDate = default(DateTime);
                             sVault = default(string);
                             dInsertDate = default(DateTime);
-                            sSessionID = default(string);
+                            sessionID = default(Guid);
 
                             sConfigurazioni = default(string);
 
@@ -917,7 +917,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (!reader.IsDBNull(8))
                                 dInsertDate = reader.GetDateTime(8);
                             if (!reader.IsDBNull(9))
-                                sSessionID = reader.GetGuid(9).ToString();
+                                sessionID = reader.GetGuid(9);
                             if (!reader.IsDBNull(10))
                                 iVersione = reader.GetInt32(10);
                             if (!reader.IsDBNull(11))
@@ -1000,7 +1000,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 WriteLog("-----------------------------------------------------------------------");
 
 
-                                IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso);
+                                IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID);
 
 
                                 query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
@@ -1119,7 +1119,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid)
         {
 
 
@@ -1151,7 +1151,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             bool lWarn;
 
-            currentSessionGuid = Guid.NewGuid();
+            currentSessionGuid = sessionGuid;
 
             WriteLog("SessionID: " + currentSessionGuid.ToString());
 
@@ -2779,7 +2779,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         WriteLog("Promosso ---> " + iPromosso.ToString());
 
-                        if (!((iPromosso == 2) && cTipoDistinta == "DistintaAssiemePerArca") && (!first))
+                        if (!(((iPromosso == 2) && cTipoDistinta == "DistintaAssiemePerArca") && (!first)))
                         {
 
 
