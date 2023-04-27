@@ -1402,7 +1402,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (iCambioPromosso == 1 && bOnlyTop)
                             {
 
-                                Debugger.Launch();
+                                
 
                                 IEdmFile5 file = null;
                                 IEdmFolder5 parentFolder = null;
