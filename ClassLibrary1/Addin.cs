@@ -132,7 +132,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         bSuccess = false;
 
                         
-                        version = aFile.CurrentVersion;
+                        version = GetFileLatestVersion(aFile);
 
                         espDist.OpenLog(System.IO.Path.GetFileName(sFileName), this.vault.Name);
 
@@ -286,6 +286,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             }
         }
 
+        public int GetFileLatestVersion(IEdmFile5 aFile)
+        {
+
+            return aFile.CurrentVersion;
+
+
+        }
+
 
         public void OnCmd(ref EdmCmd poCmd, ref EdmCmdData[] ppoData)
         {
@@ -327,7 +335,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 string cLocalPath = aFile.GetLocalPath(aFolder.ID);
 
                                 sFileName = cLocalPath;
-                                version = aFile.CurrentVersion;
+                                version = GetFileLatestVersion(aFile);
 
                                 try
                                 {

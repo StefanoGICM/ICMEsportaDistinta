@@ -91,6 +91,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             EspDistinta.TS.WriteLine("Test Console");
 
             TSStatic = EspDistinta.TS;
+
+
+           
+
         }
 
 

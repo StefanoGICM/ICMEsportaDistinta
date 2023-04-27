@@ -1110,6 +1110,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             conn.Close();
             conn2.Close();
         }
+
+        public int GetFileLatestVersion(IEdmFile5 aFile)
+        {
+
+            return aFile.CurrentVersion;
+
+
+        }
+
         public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso)
         {
 
@@ -1443,10 +1452,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     sFatherFileName = parent.FoundPath;
                                     iFatherDocumentID = parent.FileID;
 
-                                    iFatherVersione = parent.VersionRef;
+                                    
 
                                     IEdmFile5 aFile = default(IEdmFile5);
                                     aFile = (IEdmFile5)this.vault.GetObject(EdmObjectType.EdmObject_File, iFatherDocumentID);
+
+                                    iFatherVersione = GetFileLatestVersion((IEdmFile7) aFile);
 
 
                                     EdmStrLst5 cfgList = default(EdmStrLst5);
@@ -1462,7 +1473,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                         sFatherConfiguration = cfgName;
                                         sFatherEsplodiPar1 = "UV" + ((char)1) + "UV";
-                                        sFatherEsplodiPar2 = "";
+                                        sFatherEsplodiPar2 = iFatherVersione.ToString();
                                         sFatherDitta = "FREDDO";
                                         FatherSessionID = Guid.NewGuid();
 
@@ -1531,7 +1542,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         preEspDistinta.insertDistinta(this.vault,
                                                                       iFatherDocumentID,
                                                                       sFatherFileName,
-                                                                      0,  // ultima versione
+                                                                      iFatherVersione,  // ultima versione
                                                                       sFatherConfiguration,
                                                                       bOnlyTop,
                                                                       sFatherEsplodiPar1,
@@ -1726,111 +1737,171 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             int iRetPromosso;
 
-            // verifico se è un assieme promosso
-            if (cFileName.ToUpper().EndsWith(".SLDASM"))
-            {
-                SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetPromossoSP", cnn);
+            iRetPromossoPar = 0;
 
-                command2.CommandType = CommandType.StoredProcedure;
-                command2.Transaction = transaction;
+            int iVersionBOM;
 
-                //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
+            iVersionBOM = -2;
 
-
-                SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = iDocument;
-
-
-                sqlParam = command2.Parameters.Add("@Conf", SqlDbType.VarChar, 50);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = sConf;
-
-                sqlParam = command2.Parameters.Add("@RevisionNo", SqlDbType.Int);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = iVersione;
-
-                //TS.WriteLine("Check Assieme promosso: " + iDocument.ToString() + " ----- " + sConf + " ------ " + iVersione.ToString());
-
-                sqlParam = new SqlParameter("@Promosso", SqlDbType.Int);
-                //sqlParam.ParameterName = "@Result";
-                //sqlParam.DbType = DbType.Boolean;
-                sqlParam.Direction = ParameterDirection.Output;
-                command2.Parameters.Add(sqlParam);
-
-
-                command2.ExecuteNonQuery();
-
-                XPromosso = command2.Parameters["@Promosso"].Value.ToString();
-
-                if (XPromosso.Trim() == "" || XPromosso == null)
-                {
-
-                    throw new ApplicationException("Errore nel verificare assieme/parte promosso: flag prmosso nullo per " + cFileName);
-                }
-
-
-
-                bConvPromosso = Int32.TryParse(XPromosso, out iPromosso);
-
-                if (!bConvPromosso)
-                {
-
-                    throw new ApplicationException("Flag promosso non accessibile in: " + cFileName);
-
-                }
-            }
-            else if (cFileName.ToUpper().EndsWith(".SLDPRT"))
-            {
-                iPromosso = 0;
-
-            }
-            else 
-            {
-
-                throw new ApplicationException("Distinta BOM non associata per file: " + cFileName);
-            }
-
-            iRetPromossoPar = iPromosso;
-
-            //if (first && (iPromosso == 2))
-            //{
-
-            //    throw new ApplicationException("Errore: assieme/parte " + cFileName + " da esportare è promosso.");
-
-            //}
-
-
-            if (cFileName.ToUpper().EndsWith(".SLDASM"))
-            {
-                cTipoDistinta = "DistintaAssiemePerArca";
-
-
-            }
-            else if (cFileName.ToUpper().EndsWith(".SLDPRT"))
-            {                               
-                
-                cTipoDistinta = "DistintaPartePerArca";
-
-                //if (first)
-                  //  throw new ApplicationException("Errore: l'assieme " + cFileName + " da esportare è una parte.");
-
-                //if (iPromosso == 2)
-                //    throw new ApplicationException("Errore: la parte " + cFileName + " da esportare è promossa.");
-            }
-            else
-            {
-
-                throw new ApplicationException("Distinta BOM non associata per file: " + cFileName);
-
-
-            }
 
 
             aFile = (IEdmFile7)this.vault.GetFileFromPath(cFileName, out ppoRetParentFolder);
 
             if (aFile != null)
             {
+
+                if (first)
+                {
+                    switch (this.ExpP1)
+                    {
+
+                        case "UV":
+                            iVersionBOM = -1;
+                            break;
+                        case "UR":
+                            /* recupera versione associata a ultima revisione */
+                            iVersionBOM = GetVersionLatestRevision(aFile);
+                            break;
+                        case "SV":
+                            /* recupera versione selezionata */
+                            bool bSuccess;
+                            bSuccess = int.TryParse(this.ExpParam2, out iVersionBOM);
+
+                            if (!bSuccess)
+                            {
+                                throw new ApplicationException("Errore recupero versione Root iniziale");
+                            }
+
+                            break;
+                    }
+
+                }
+                else
+                {
+                    switch (this.ExpP2)
+                    {
+
+                        case "UV":
+                            iVersionBOM = -1;
+                            break;
+                        case "UR":
+                            /* recupera versione associata a ultima revisione */
+                            iVersionBOM = GetVersionLatestRevision(aFile);
+                            break;
+                        case "CC":
+
+                            iVersionBOM = iVersione;
+
+                            break;
+                    }
+
+                }
+
+                
+
+
+                // verifico se è un assieme promosso
+                if (cFileName.ToUpper().EndsWith(".SLDASM"))
+                {
+                    SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetPromossoSP", cnn);
+
+                    command2.CommandType = CommandType.StoredProcedure;
+                    command2.Transaction = transaction;
+
+                    //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
+
+
+                    SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
+                    sqlParam.Direction = ParameterDirection.Input;
+                    sqlParam.Value = iDocument;
+
+
+                    sqlParam = command2.Parameters.Add("@Conf", SqlDbType.VarChar, 50);
+                    sqlParam.Direction = ParameterDirection.Input;
+                    sqlParam.Value = sConf;
+
+                    sqlParam = command2.Parameters.Add("@RevisionNo", SqlDbType.Int);
+                    sqlParam.Direction = ParameterDirection.Input;
+                    sqlParam.Value = iVersionBOM;
+
+                    //TS.WriteLine("Check Assieme promosso: " + iDocument.ToString() + " ----- " + sConf + " ------ " + iVersione.ToString());
+
+                    sqlParam = new SqlParameter("@Promosso", SqlDbType.Int);
+                    //sqlParam.ParameterName = "@Result";
+                    //sqlParam.DbType = DbType.Boolean;
+                    sqlParam.Direction = ParameterDirection.Output;
+                    command2.Parameters.Add(sqlParam);
+
+
+                    command2.ExecuteNonQuery();
+
+                    XPromosso = command2.Parameters["@Promosso"].Value.ToString();
+
+                    if (XPromosso.Trim() == "" || XPromosso == null)
+                    {
+
+                        throw new ApplicationException("Errore nel verificare assieme/parte promosso: flag prmosso nullo per " + cFileName);
+                    }
+
+
+
+                    bConvPromosso = Int32.TryParse(XPromosso, out iPromosso);
+
+                    if (!bConvPromosso)
+                    {
+
+                        throw new ApplicationException("Flag promosso non accessibile in: " + cFileName);
+
+                    }
+                }
+                else if (cFileName.ToUpper().EndsWith(".SLDPRT"))
+                {
+                    iPromosso = 0;
+
+                }
+                else 
+                {
+
+                    throw new ApplicationException("Distinta BOM non associata per file: " + cFileName);
+                }
+
+                iRetPromossoPar = iPromosso;
+
+                //if (first && (iPromosso == 2))
+                //{
+
+                //    throw new ApplicationException("Errore: assieme/parte " + cFileName + " da esportare è promosso.");
+
+                //}
+
+
+                if (cFileName.ToUpper().EndsWith(".SLDASM"))
+                {
+                    cTipoDistinta = "DistintaAssiemePerArca";
+
+
+                }
+                else if (cFileName.ToUpper().EndsWith(".SLDPRT"))
+                {                               
+                
+                    cTipoDistinta = "DistintaPartePerArca";
+
+                    //if (first)
+                    //  throw new ApplicationException("Errore: l'assieme " + cFileName + " da esportare è una parte.");
+
+                    //if (iPromosso == 2)
+                    //    throw new ApplicationException("Errore: la parte " + cFileName + " da esportare è promossa.");
+                }
+                else
+                {
+
+                    throw new ApplicationException("Distinta BOM non associata per file: " + cFileName);
+
+
+                }
+
+
+            
 
                 //WriteLog(cFileName + " --- " + sConf);
 
@@ -1840,21 +1911,21 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 object[] ppoRetVars = null;
                 string[] ppoRetConfs = null;
                 EdmGetVarData poRetDat = new EdmGetVarData();
-                string sVersion;
-                string BomName;
+                //string sVersion;
+                //string BomName;
 
                 enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
                 enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
 
-                sVersion = poRetDat.mlLatestVersion.ToString();
+                //sVersion = poRetDat.mlLatestVersion.ToString();
 
-                EdmBomInfo[] derivedBOMs = null;
-                aFile.GetDerivedBOMs(out derivedBOMs);
+                //EdmBomInfo[] derivedBOMs = null;
+                //aFile.GetDerivedBOMs(out derivedBOMs);
 
-                int arrSizeBom = 0;
+                //int arrSizeBom = 0;
                 
                 int iBom = 0;
-                arrSizeBom = derivedBOMs.Length;
+                //arrSizeBom = derivedBOMs.Length;
                 
                 bool lFoundBom;
                 string sNamedBom;
@@ -1890,7 +1961,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     sICMBOMGUID = (string)poRetValue;
 
 
-                    while (iBom < arrSizeBom)
+                    /*while (iBom < arrSizeBom)
                     {
 
                         // Cerco Named BOM
@@ -1914,7 +1985,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         iBom++;
 
-                    }
+                    }*/
                 }
                 
                 
@@ -1935,58 +2006,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLog("Uso Computed BOM ");
 
-                int iVersionBOM;
-
-                iVersionBOM = -2;
-
-                if (first)
-                {
-                    switch (this.ExpP1)
-                    {
-
-                        case "UV":
-                            iVersionBOM = -1;
-                            break;
-                        case "UR":
-                            /* recupera versione associata a ultima revisione */
-                            iVersionBOM = GetVersionLatestRevision(aFile);
-                            break;
-                        case "SV":
-                            /* recupera versione selezionata */
-                            bool bSuccess;
-                            bSuccess = int.TryParse(this.ExpParam2, out iVersionBOM);
-
-                            if (!bSuccess)
-                            {
-                                throw new ApplicationException("Errore recupero versione Root iniziale");
-                            }
-
-                            break;
-                    }
-
-
-                }
-                else
-                {
-                    switch (this.ExpP2)
-                    {
-
-                        case "UV":
-                            iVersionBOM = -1;
-                            break;
-                        case "UR":
-                            /* recupera versione associata a ultima revisione */
-                            iVersionBOM = GetVersionLatestRevision(aFile);
-                            break;
-                        case "CC":
-                            
-                            iVersionBOM = iVersione;
-
-                            break;
-                    }
-
-                }
-
+                
                 bomView = aFile.GetComputedBOM(cTipoDistinta, iVersionBOM, sConf, (int)EdmBomFlag.EdmBf_ShowSelected);
                     
 
@@ -3798,7 +3818,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             iVersion = 0;
 
             sCurrentRevision = aFile.CurrentRevision;
-            iCurrentVersion = aFile.CurrentVersion;
+            iCurrentVersion = GetFileLatestVersion(aFile);
 
             if (sCurrentRevision == null || sCurrentRevision.Trim() == "")
             {
