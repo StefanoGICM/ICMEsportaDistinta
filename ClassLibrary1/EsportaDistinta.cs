@@ -1403,7 +1403,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             {
 
                                 
-
                                 IEdmFile5 file = null;
                                 IEdmFolder5 parentFolder = null;
 
