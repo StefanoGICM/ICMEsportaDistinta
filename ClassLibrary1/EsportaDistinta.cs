@@ -439,6 +439,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         int iCounter = 0;
 
+        int iCountCheckConnection = 0;
+
 
         /*struct ReturnData
         {
@@ -628,7 +630,33 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 
             }
 
-            
+
+            this.iCountCheckConnection++;
+
+            if (this.iCountCheckConnection == 200)
+            {
+                this.iCountCheckConnection = 0;
+
+
+                if (this.sIPLog.Trim() != "" && this.iPortLog != 0)
+                {
+                    if (this.sender == null)
+                    {
+
+
+                        OpenSocket(this.sIPLog, this.iPortLog);
+
+                    }
+                    else if (!(this.sender.Connected))
+                    {
+
+                        OpenSocket(this.sIPLog, this.iPortLog);
+
+                    }
+
+                }
+
+            }
 
             if (this.sender != null)
             {
@@ -660,7 +688,32 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                
             }
 
-            
+            this.iCountCheckConnection++;
+
+            if (this.iCountCheckConnection == 200)
+            {
+                this.iCountCheckConnection = 0;
+
+
+                if (this.sIPLog.Trim() != "" && this.iPortLog != 0)
+                {
+                    if (this.sender == null)
+                    {
+
+
+                        OpenSocket(this.sIPLog, this.iPortLog);
+
+                    }
+                    else if (!(this.sender.Connected))
+                    {
+
+                        OpenSocket(this.sIPLog, this.iPortLog);
+
+                    }
+
+                }
+
+            }
 
             if (this.sender != null)
             {
@@ -694,6 +747,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public void OpenSocket(string sIP, int iPort)
         {
 
+
+            //Debugger.Launch();
+
             string sAddress;
 
                        
@@ -707,8 +763,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             //sender.Connect(sIP, 11201);
             try
             {
+                
                 this.sender = new System.Net.Sockets.TcpClient();
                 this.sender.Connect(sIP, iPort);
+                this.iCountCheckConnection = 0;
+
 
             }
             catch (Exception ex) 
@@ -721,7 +780,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-            if (!(sender == null))
+            if (!(this.sender == null))
             {
                 this.networkStream = sender.GetStream();
             }
@@ -976,6 +1035,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             command1.ExecuteNonQuery();
                             transaction1.Commit();
 
+                            this.iCountCheckConnection = 0;
+
                             OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
 
 
@@ -988,8 +1049,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             sConfigurazioniWrite = sConfigurazioni.Replace((char)1, ',');
 
-                            this.sIPLog = "";
-                            this.iPortLog = 0;
+                            
 
                             if (workerVault.Name == sVault)
                             {

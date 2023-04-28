@@ -660,6 +660,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         bElabOK = true;
 
+                        this.EspDistinta.DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+
                         //OpenSocket();
 
 
@@ -668,7 +670,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         //t.Priority = ThreadPriority.AboveNormal;
                         //t.Start("Thread");
 
-                                              
+
                         //System.Windows.Forms.MessageBox.Show("pluto");
 
                         //CloseSocket();
