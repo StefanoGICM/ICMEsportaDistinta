@@ -175,7 +175,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           newSessionId,
                                                           out longTemp,
                                                           "Workflow",
-                                                          0);
+                                                          0,
+                                                          1,
+                                                          "");
 
 
 

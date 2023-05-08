@@ -28,7 +28,9 @@ CREATE TABLE [dbo].[XPORT_Elab](
 	[PortLog] [nvarchar](100) NULL,
 	[Origine] [nvarchar](2000) NULL,
 	[Note] [nvarchar] (2000) NULL,
-	[CambioPromosso] [int] NULL
+	[CambioPromosso] [int] NULL,
+	[Output] [int] NULL,
+	[FileOutput] [nvarchar](1000) NULL
  CONSTRAINT [PK_XPORT_Elab] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
@@ -81,5 +83,7 @@ GO
 ALTER TABLE [dbo].[XPORT_Elab] ADD  CONSTRAINT [DF_XPORT_Elab_Priority_1]  DEFAULT ((0)) FOR [Priority]
 GO
 
+ALTER TABLE [dbo].[XPORT_Elab] ADD  CONSTRAINT [DF_XPORT_Elab_Output]  DEFAULT ((2)) FOR [Output]
+GO
 
 GO

@@ -73,7 +73,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     Guid SessionID,
                                     out long id,
                                     string origine,
-                                    int iCambioPromosso)
+                                    int iCambioPromosso,
+                                    int iOutput,
+                                    string cFileName)
         {
             string connectionStringSWICMDATA;
 
@@ -230,6 +232,21 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 sqlParam.Value = iCambioPromosso;
 
                 WriteLog("Parametro CambioPromosso: " + iCambioPromosso.ToString());
+
+
+                sqlParam = command.Parameters.Add("@Output", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iOutput;
+
+                WriteLog("Parametro Output: " + iOutput.ToString());
+
+                sqlParam = command.Parameters.Add("@FileOutput", SqlDbType.NVarChar, 1000);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = cFileName;
+
+                WriteLog("Parametro File Output: " + cFileName);
+
+
 
                 WriteLog("Chiamata alla SP");
 
@@ -881,6 +898,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sPortLog = default(string);
 
             int iCambioPromosso = default(int);
+            int iOutput = default(int);
+            string cFileOutput = default(string);
 
 
 
@@ -888,287 +907,303 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             //Debugger.Launch();
 
-            SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA);
-            SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA);
-
-            conn.Open();
-            conn2.Open();
-
-            query = "SELECT TOP " + sNumeroElementi + " ID" +
-                    ",DocumentID" +
-                    ",Filename" +
-                    ",StartDate" +
-                    ",EndDate" +
-                    ",Completed" +
-                    ",Failed" +
-                    ",Vault" +
-                    ",InsertDate" +
-                    ",SessionID" +
-                    ",Versione" +
-                    ",Configurazioni" +
-                    ",OnlyTop" +
-                    ",EsplodiPar1" +
-                    ",EsplodiPar2" +
-                    ",DittaARCA" +
-                    ",Priority" +
-                    ",IPLog" +
-                    ",PortLog" +
-                    ",CambioPromosso" +
-                    " FROM XPORT_Elab" +
-                    " WHERE StartDate IS NULL AND Vault = '" + workerVault.Name + "'" +
-                    " ORDER BY Priority DESC";
-
-
-            using (SqlCommand command = new SqlCommand(query, conn))
+            using (SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA))
             {
-                    
-                using (SqlDataReader reader = command.ExecuteReader())
+                conn.Open();
+
+                using (SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA))
                 {
-                    while (reader.Read())
+
+                    conn2.Open();
+
+                    query = "SELECT TOP " + sNumeroElementi + " ID" +
+                       ",DocumentID" +
+                       ",Filename" +
+                       ",StartDate" +
+                       ",EndDate" +
+                       ",Completed" +
+                       ",Failed" +
+                       ",Vault" +
+                       ",InsertDate" +
+                       ",SessionID" +
+                       ",Versione" +
+                       ",Configurazioni" +
+                       ",OnlyTop" +
+                       ",EsplodiPar1" +
+                       ",EsplodiPar2" +
+                       ",DittaARCA" +
+                       ",Priority" +
+                       ",IPLog" +
+                       ",PortLog" +
+                       ",CambioPromosso" +
+                       ",Output" +
+                       ",FileOutput" +
+                       " FROM XPORT_Elab" +
+                       " WHERE StartDate IS NULL AND Vault = '" + workerVault.Name + "'" +
+                       " ORDER BY Priority DESC";
+
+
+                    using (SqlCommand command = new SqlCommand(query, conn))
                     {
-                        
-                        try
+
+                        using (SqlDataReader reader = command.ExecuteReader())
                         {
-
-                            sFilename = default(string);
-                            dStartDate = default(DateTime);
-                            dEndDate = default(DateTime);
-                            sVault = default(string);
-                            dInsertDate = default(DateTime);
-                            sessionID = default(Guid);
-
-                            sConfigurazioni = default(string);
-
-                            sEsplodiPar1 = default(string);
-                            sEsplodiPar2 = default(string);
-                            sDittaARCA = default(string);
-                            iPriority = default(int);
-
-                            iDocumentID = default(int);
-                            iVersione = default(int);
-                            iOnlyTop = default(int);
-                            bOnlyTop = default(bool);
-                            iFailed = default(int);
-                            iCompleted = default(int);
-                            iID = default(long);
-
-                            sIPLog = default(string);
-                            sPortLog = default(string);
-
-                            iCambioPromosso = default(int);
-
-                            if (!reader.IsDBNull(0))
-                                iID = reader.GetInt64(0);
-                            if (!reader.IsDBNull(1))
-                                iDocumentID = reader.GetInt32(1);
-                            if (!reader.IsDBNull(2))
-                                sFilename = reader.GetString(2);
-                            if (!reader.IsDBNull(3))
-                                dStartDate = reader.GetDateTime(3);
-                            if (!reader.IsDBNull(4))
-                                dEndDate = reader.GetDateTime(4);
-                            if (!reader.IsDBNull(5))
-                                iCompleted = reader.GetInt16(5);
-                            if (!reader.IsDBNull(6))
-                                iFailed = reader.GetInt16(6);
-                            if (!reader.IsDBNull(7))
-                                sVault = reader.GetString(7);
-                            if (!reader.IsDBNull(8))
-                                dInsertDate = reader.GetDateTime(8);
-                            if (!reader.IsDBNull(9))
-                                sessionID = reader.GetGuid(9);
-                            if (!reader.IsDBNull(10))
-                                iVersione = reader.GetInt32(10);
-                            if (!reader.IsDBNull(11))
-                                sConfigurazioni = reader.GetString(11);
-                            if (!reader.IsDBNull(12))
-                                iOnlyTop = reader.GetInt16(12);
-                            if (!reader.IsDBNull(13))
-                                sEsplodiPar1 = reader.GetString(13);
-                            if (!reader.IsDBNull(14))
-                                sEsplodiPar2 = reader.GetString(14);
-                            if (!reader.IsDBNull(15))
-                                sDittaARCA = reader.GetString(15);
-                            if (!reader.IsDBNull(16))
-                                iPriority = reader.GetInt32(16);
-                            if (!reader.IsDBNull(17))
-                                sIPLog = reader.GetString(17);
-                            if (!reader.IsDBNull(18))
-                                sPortLog = reader.GetString(18);
-                            if (!reader.IsDBNull(19))
-                                iCambioPromosso = reader.GetInt32(19);
-
-                            this.sender = null;
-
-                            this.iPortLog = 0;
-                            this.sIPLog = "";
-
-
-                            if ((!(DBNull.Value.Equals(sPortLog))) && (sPortLog != null) && sPortLog.Trim() != "")
+                            while (reader.Read())
                             {
 
-                                this.sIPLog = sIPLog;
-
-                                bool bSuccess = Int32.TryParse(sPortLog, out iPortLog);
-
-                                if (bSuccess)
-                                    this.iPortLog = iPortLog;
-                                else
+                                try
                                 {
+
+                                    sFilename = default(string);
+                                    dStartDate = default(DateTime);
+                                    dEndDate = default(DateTime);
+                                    sVault = default(string);
+                                    dInsertDate = default(DateTime);
+                                    sessionID = default(Guid);
+
+                                    sConfigurazioni = default(string);
+
+                                    sEsplodiPar1 = default(string);
+                                    sEsplodiPar2 = default(string);
+                                    sDittaARCA = default(string);
+                                    iPriority = default(int);
+
+                                    iDocumentID = default(int);
+                                    iVersione = default(int);
+                                    iOnlyTop = default(int);
+                                    bOnlyTop = default(bool);
+                                    iFailed = default(int);
+                                    iCompleted = default(int);
+                                    iID = default(long);
+
+                                    sIPLog = default(string);
+                                    sPortLog = default(string);
+
+                                    iCambioPromosso = default(int);
+
+                                    iOutput = default(int);
+                                    cFileOutput = default(string);
+
+
+                                    if (!reader.IsDBNull(0))
+                                        iID = reader.GetInt64(0);
+                                    if (!reader.IsDBNull(1))
+                                        iDocumentID = reader.GetInt32(1);
+                                    if (!reader.IsDBNull(2))
+                                        sFilename = reader.GetString(2);
+                                    if (!reader.IsDBNull(3))
+                                        dStartDate = reader.GetDateTime(3);
+                                    if (!reader.IsDBNull(4))
+                                        dEndDate = reader.GetDateTime(4);
+                                    if (!reader.IsDBNull(5))
+                                        iCompleted = reader.GetInt16(5);
+                                    if (!reader.IsDBNull(6))
+                                        iFailed = reader.GetInt16(6);
+                                    if (!reader.IsDBNull(7))
+                                        sVault = reader.GetString(7);
+                                    if (!reader.IsDBNull(8))
+                                        dInsertDate = reader.GetDateTime(8);
+                                    if (!reader.IsDBNull(9))
+                                        sessionID = reader.GetGuid(9);
+                                    if (!reader.IsDBNull(10))
+                                        iVersione = reader.GetInt32(10);
+                                    if (!reader.IsDBNull(11))
+                                        sConfigurazioni = reader.GetString(11);
+                                    if (!reader.IsDBNull(12))
+                                        iOnlyTop = reader.GetInt16(12);
+                                    if (!reader.IsDBNull(13))
+                                        sEsplodiPar1 = reader.GetString(13);
+                                    if (!reader.IsDBNull(14))
+                                        sEsplodiPar2 = reader.GetString(14);
+                                    if (!reader.IsDBNull(15))
+                                        sDittaARCA = reader.GetString(15);
+                                    if (!reader.IsDBNull(16))
+                                        iPriority = reader.GetInt32(16);
+                                    if (!reader.IsDBNull(17))
+                                        sIPLog = reader.GetString(17);
+                                    if (!reader.IsDBNull(18))
+                                        sPortLog = reader.GetString(18);
+                                    if (!reader.IsDBNull(19))
+                                        iCambioPromosso = reader.GetInt32(19);
+                                    if (!reader.IsDBNull(20))
+                                        iOutput = reader.GetInt32(20);
+                                    if (!reader.IsDBNull(21))
+                                        cFileOutput = reader.GetString(21);
+
+
+
+                                    this.sender = null;
+
                                     this.iPortLog = 0;
                                     this.sIPLog = "";
+
+
+                                    if ((!(DBNull.Value.Equals(sPortLog))) && (sPortLog != null) && sPortLog.Trim() != "")
+                                    {
+
+                                        this.sIPLog = sIPLog;
+
+                                        bool bSuccess = Int32.TryParse(sPortLog, out iPortLog);
+
+                                        if (bSuccess)
+                                            this.iPortLog = iPortLog;
+                                        else
+                                        {
+                                            this.iPortLog = 0;
+                                            this.sIPLog = "";
+                                        }
+
+                                    }
+
+                                    /* Imposto la StartDate */
+                                    string query1 = "UPDATE XPORT_Elab SET StartDate = GETDATE()" +
+                                                    " WHERE id = " + iID.ToString();
+                                    SqlCommand command1 = new SqlCommand(query1, conn2);
+
+                                    SqlTransaction transaction1;
+
+                                    transaction1 = conn2.BeginTransaction();
+
+                                    command1.Transaction = transaction1;
+
+                                    command1.ExecuteNonQuery();
+                                    transaction1.Commit();
+
+                                    this.iCountCheckConnection = 0;
+
+                                    OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
+
+
+                                    bOnlyTop = false;
+
+                                    if (iOnlyTop == 1)
+                                        bOnlyTop = true;
+
+                                    string sConfigurazioniWrite;
+
+                                    sConfigurazioniWrite = sConfigurazioni.Replace((char)1, ',');
+
+
+
+                                    if (workerVault.Name == sVault)
+                                    {
+
+                                        WriteLog(Environment.NewLine);
+                                        WriteLog("-----------------------------------------------------------------------");
+                                        WriteLog("Esportazione " + sFilename + " (configurazioni: " + sConfigurazioniWrite + " )");
+                                        WriteLog("-----------------------------------------------------------------------");
+
+
+                                        IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID, iOutput, cFileOutput);
+
+
+                                        query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
+                                                ", Completed = 1" +
+                                                ", Failed = 0" +
+                                                " WHERE id = " + iID.ToString();
+
+                                        command1 = new SqlCommand(query, conn2);
+
+                                        transaction1 = conn2.BeginTransaction();
+
+                                        command1.Transaction = transaction1;
+
+                                        command1.ExecuteNonQuery();
+                                        transaction1.Commit();
+
+                                        WriteLog("-----------------------------------------------------------------------");
+                                        WriteLog("Esportazione terminata con successo");
+                                        WriteLog("-----------------------------------------------------------------------");
+
+                                        // manda segnale di fine
+                                        if (this.sender != null)
+                                        {
+
+                                            this.networkStream.Flush();
+
+                                            string fine = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
+
+                                            Thread.Sleep(1000);
+
+                                            writeTCPAsync(fine);
+
+                                        }
+
+                                        CloseLog();
+
+                                        MoveLog(true);
+
+
+
+                                    }
+
+
                                 }
-
-                            }
-                                                       
-                            /* Imposto la StartDate */
-                            string query1 = "UPDATE XPORT_Elab SET StartDate = GETDATE()" +
-                                           " WHERE id = " + iID.ToString();
-                            SqlCommand command1 = new SqlCommand(query1, conn2);
-
-                            SqlTransaction transaction1;
-
-                            transaction1 = conn2.BeginTransaction();
-
-                            command1.Transaction = transaction1;
-
-                            command1.ExecuteNonQuery();
-                            transaction1.Commit();
-
-                            this.iCountCheckConnection = 0;
-
-                            OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
-
-
-                            bOnlyTop = false;
-
-                            if (iOnlyTop == 1)
-                                bOnlyTop = true;
-
-                            string sConfigurazioniWrite;
-
-                            sConfigurazioniWrite = sConfigurazioni.Replace((char)1, ',');
-
-                            
-
-                            if (workerVault.Name == sVault)
-                            {
-
-                                WriteLog(Environment.NewLine);
-                                WriteLog("-----------------------------------------------------------------------");
-                                WriteLog("Esportazione " + sFilename + " (configurazioni: " + sConfigurazioniWrite + " )");
-                                WriteLog("-----------------------------------------------------------------------");
-
-
-                                IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID);
-
-
-                                query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
-                                        ", Completed = 1" +
-                                        ", Failed = 0" +
-                                        " WHERE id = " + iID.ToString();
-                                command1 = new SqlCommand(query, conn2);
-
-                                transaction1 = conn2.BeginTransaction();
-
-                                command1.Transaction = transaction1;
-
-                                command1.ExecuteNonQuery();
-                                transaction1.Commit();
-
-                                WriteLog("-----------------------------------------------------------------------");
-                                WriteLog("Esportazione terminata con successo");
-                                WriteLog("-----------------------------------------------------------------------");
-
-                                // manda segnale di fine
-                                if (this.sender != null)
+                                catch (Exception ex)
                                 {
+                                    WriteLog(ex.Message);
 
-                                    this.networkStream.Flush();
+                                    query = "UPDATE XPORT_Elab " +
+                                          "SET EndDate = GETDATE()" +
+                                          ", StartDate = ISNULL(StartDate, GETDATE())" +
+                                              ", Completed = 0" +
+                                              ", Failed = 1" +
+                                              ", MsgErr = '" + ex.Message + "'" +
+                                              " WHERE id = " + iID.ToString();
 
-                                    string fine = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
 
-                                    Thread.Sleep(1000);
+                                    SqlCommand command1 = new SqlCommand(query, conn2);
 
-                                    writeTCPAsync(fine);
-                                  
+                                    SqlTransaction transaction1 = conn2.BeginTransaction();
+
+                                    command1.Transaction = transaction1;
+
+                                    command1.ExecuteNonQuery();
+                                    transaction1.Commit();
+
+                                    WriteLog("-----------------------------------------------------------------------");
+                                    WriteLog("Esportazione interrotta per errori");
+                                    WriteLog("-----------------------------------------------------------------------");
+
+                                    // manda segnale di fine
+                                    if (this.sender != null)
+                                    {
+
+
+                                        this.networkStream.Flush();
+
+                                        string fine = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
+
+                                        Thread.Sleep(1000);
+
+                                        writeTCPAsync(fine);
+
+
+
+
+                                    }
+
+
+                                    CloseLog();
+                                    MoveLog(false);
+
                                 }
 
-                                CloseLog();
-
-                                MoveLog(true);
 
 
 
                             }
 
 
-                        }
-                        catch (Exception ex)
-                        {
-                            WriteLog(ex.Message);
-
-                            query = "UPDATE XPORT_Elab " +
-                                    "SET EndDate = GETDATE()" +
-                                    ", StartDate = ISNULL(StartDate, GETDATE())" +
-                                        ", Completed = 0" +
-                                        ", Failed = 1" +
-                                        ", MsgErr = '" + ex.Message + "'" +
-                                        " WHERE id = " + iID.ToString();
-                            
-
-                            SqlCommand command1 = new SqlCommand(query, conn2);
-
-                            SqlTransaction transaction1 = conn2.BeginTransaction();
-
-                            command1.Transaction = transaction1;
-
-                            command1.ExecuteNonQuery();
-                            transaction1.Commit();
-
-                            WriteLog("-----------------------------------------------------------------------");
-                            WriteLog("Esportazione interrotta per errori");
-                            WriteLog("-----------------------------------------------------------------------");
-
-                            // manda segnale di fine
-                            if (this.sender != null)
-                            {
-
-
-                                this.networkStream.Flush();
-
-                                string fine = ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString() + ((char)1).ToString();
-
-                                Thread.Sleep(1000);
-
-                                writeTCPAsync(fine);
-
-
-
-
-                            }
-
-
-                            CloseLog();
-                            MoveLog(false);
 
                         }
-
-
 
 
                     }
 
-
-                    
                 }
-             
-
-                       
             }
 
-            conn.Close();
-            conn2.Close();
         }
 
         public int GetFileLatestVersion(IEdmFile5 aFile)
@@ -1179,7 +1214,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid, int iOutput, string cFileOutput)
         {
 
 
@@ -1207,9 +1242,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string XErrore;
             object XErroreObj;
 
-            string XWarning;
+            string XWarning = "";
 
-            bool lWarn;
+            bool lWarn = false;
 
             currentSessionGuid = sessionGuid;
 
@@ -1323,9 +1358,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             // Calcolo consumo
 
-                            //transaction.Commit();
+                            transaction.Commit();
 
-                            //return;
+                            cnn.BeginTransaction();
 
                             WriteLog("Calcolo consumo");
 
@@ -1371,62 +1406,87 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             transaction = null;
 
-                        }                   
+                        }
 
                         //Importa in ARCA
                         //WriteLog("Importa in ARCA");
 
-                        WriteLog("Importazione distinta in ARCA");
-                        
-                        connectionString = connectionStringARCA;
+                        if (iOutput == 3)
+                            return;
 
-                        using (cnnARCA = new SqlConnection(connectionString))
+                        switch (iOutput)
                         {
 
-                            cnnARCA.Open();
+                            case 1:
 
-                            SqlCommand cmd2 = new SqlCommand("xICM_Importa_Distinta_In_ArcaSp", cnnARCA);
+                                WriteLog("Importazione distinta in ARCA");
 
-                            cmd2.CommandType = CommandType.StoredProcedure;
+                                connectionString = connectionStringARCA;
 
-                            cmd2.CommandTimeout = 0;
+                                using (cnnARCA = new SqlConnection(connectionString))
+                                {
 
-                            SqlParameter sqlParam20 = new SqlParameter("@SessionID", SqlDbType.UniqueIdentifier);
-                            sqlParam20.Direction = ParameterDirection.Input;
-                            sqlParam20.Value = currentSessionGuid;
-                            cmd2.Parameters.Add(sqlParam20);
+                                    cnnARCA.Open();
 
-                            SqlParameter sqlParam21 = new SqlParameter("@POnlyTop", SqlDbType.Int);
-                            sqlParam21.Direction = ParameterDirection.Input;
+                                    SqlCommand cmd2 = new SqlCommand("xICM_Importa_Distinta_In_ArcaSp", cnnARCA);
 
-                            if (bOnlyTop)
-                                sqlParam21.Value = 1;
-                            else
-                                sqlParam21.Value = 0;
-                            cmd2.Parameters.Add(sqlParam21);
+                                    cmd2.CommandType = CommandType.StoredProcedure;
 
+                                    cmd2.CommandTimeout = 0;
 
-                            SqlParameter sqlParam2 = new SqlParameter("@XWarning", SqlDbType.VarChar, -1);
-                            //sqlParam.ParameterName = "@Result";
-                            //sqlParam.DbType = DbType.Boolean;
-                            sqlParam2.Direction = ParameterDirection.Output;
+                                    SqlParameter sqlParam20 = new SqlParameter("@SessionID", SqlDbType.UniqueIdentifier);
+                                    sqlParam20.Direction = ParameterDirection.Input;
+                                    sqlParam20.Value = currentSessionGuid;
+                                    cmd2.Parameters.Add(sqlParam20);
 
+                                    SqlParameter sqlParam21 = new SqlParameter("@POnlyTop", SqlDbType.Int);
+                                    sqlParam21.Direction = ParameterDirection.Input;
 
-
-                            //sqlParam2.Size = -1;
-
-                            cmd2.Parameters.Add(sqlParam2);
+                                    if (bOnlyTop)
+                                        sqlParam21.Value = 1;
+                                    else
+                                        sqlParam21.Value = 0;
+                                    cmd2.Parameters.Add(sqlParam21);
 
 
-                            //sqlParam2.Size = -1;
+                                    SqlParameter sqlParam2 = new SqlParameter("@XWarning", SqlDbType.VarChar, -1);
+                                    //sqlParam.ParameterName = "@Result";
+                                    //sqlParam.DbType = DbType.Boolean;
+                                    sqlParam2.Direction = ParameterDirection.Output;
 
-                            lWarn = false;
+                                    //sqlParam2.Size = -1;
 
-                            cmd2.ExecuteNonQuery();
+                                    cmd2.Parameters.Add(sqlParam2);
 
-                            XWarning = cmd2.Parameters["@XWarning"].Value.ToString();
 
-                            cnnARCA.Close();
+                                    //sqlParam2.Size = -1;
+
+                                    lWarn = false;
+
+                                    cmd2.ExecuteNonQuery();
+
+                                    XWarning = cmd2.Parameters["@XWarning"].Value.ToString();
+
+                                    cnnARCA.Close();
+                                }
+                                break;
+
+                            case 2:
+
+                                connectionString = connectionStringSWICMDATA;
+
+                                using (cnn = new SqlConnection(connectionString))
+                                {
+
+                                    cnn.Open();
+
+
+
+
+                                    break;
+
+
+                                }
                         }
 
                         connectionString = connectionStringSWICMDATA;
@@ -1462,7 +1522,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (iCambioPromosso == 1 && bOnlyTop)
                             {
 
-                                
+
                                 IEdmFile5 file = null;
                                 IEdmFolder5 parentFolder = null;
 
@@ -1521,12 +1581,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     sFatherFileName = parent.FoundPath;
                                     iFatherDocumentID = parent.FileID;
 
-                                    
+
 
                                     IEdmFile5 aFile = default(IEdmFile5);
                                     aFile = (IEdmFile5)this.vault.GetObject(EdmObjectType.EdmObject_File, iFatherDocumentID);
 
-                                    iFatherVersione = GetFileLatestVersion((IEdmFile7) aFile);
+                                    iFatherVersione = GetFileLatestVersion((IEdmFile7)aFile);
 
 
                                     EdmStrLst5 cfgList = default(EdmStrLst5);
@@ -1609,75 +1669,78 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                             if (iPromosso == 2)
                                                 iFatherCambioPromosso = 1;
+
+
+                                            preEspDistinta.insertDistinta(this.vault,
+                                                                          iFatherDocumentID,
+                                                                          sFatherFileName,
+                                                                          iFatherVersione,  // ultima versione
+                                                                          sFatherConfiguration,
+                                                                          bOnlyTop,
+                                                                          sFatherEsplodiPar1,
+                                                                          sFatherEsplodiPar2,
+                                                                          sFatherDitta,
+                                                                          0, //iPriority
+                                                                          FatherSessionID,
+                                                                          out lFatherID,
+                                                                          "CambioPromosso",
+                                                                          iFatherCambioPromosso,
+                                                                          iOutput,
+                                                                          cFileOutput);
+
+
                                         }
 
-                                        preEspDistinta.insertDistinta(this.vault,
-                                                                      iFatherDocumentID,
-                                                                      sFatherFileName,
-                                                                      iFatherVersione,  // ultima versione
-                                                                      sFatherConfiguration,
-                                                                      bOnlyTop,
-                                                                      sFatherEsplodiPar1,
-                                                                      sFatherEsplodiPar2,
-                                                                      sFatherDitta,
-                                                                      0, //iPriority
-                                                                      FatherSessionID,
-                                                                      out lFatherID,
-                                                                      "CambioPromosso",
-                                                                      iFatherCambioPromosso);
-
                                     }
+
+                                    transaction.Commit();
+
+                                    cnn.Close();
+
+
+
                                 }
 
+                                if (!(XWarning.Trim() == "" || XWarning == null))
+                                {
+
+                                    string[] warnArray = XWarning.Split((char)1);
+
+                                    foreach (string warnMessage in warnArray)
+                                    {
+
+                                        lWarn = true;
+                                        WriteLog(warnMessage, TraceEventType.Warning);
+
+                                    }
+
+
+                                }
+
+                                if (cNonCodificati != "")
+                                {
+
+                                    WriteLog("Attenzione: i seguenti articoli non sono stati codificati e quindi non sono stati importati: ", TraceEventType.Warning);
+                                    WriteLog(cNonCodificati, TraceEventType.Warning);
+
+                                }
+
+
+                                if (lWarn || (cNonCodificati != ""))
+                                {
+
+                                    WriteLog("Attenzione: uno o più avvertimenti");
+
+                                }
+
+
+                                cnn.Close();
+
+                                DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+
                             }
-                                
-                            transaction.Commit();
-
-                            cnn.Close();
-
-                            
 
                         }
-
-                        if (!(XWarning.Trim() == "" || XWarning == null))
-                        {                            
-
-                            string[] warnArray = XWarning.Split((char)1);
-
-                            foreach (string warnMessage in warnArray)
-                            {
-
-                                lWarn = true;
-                                WriteLog(warnMessage, TraceEventType.Warning);
-
-                            }
-
-
-                        }
-
-                        if (cNonCodificati != "")
-                        {
-
-                            WriteLog("Attenzione: i seguenti articoli non sono stati codificati e quindi non sono stati importati: ", TraceEventType.Warning);
-                            WriteLog(cNonCodificati, TraceEventType.Warning);
-
-                        }
-
-
-                        if (lWarn || (cNonCodificati != ""))
-                        {
-
-                           WriteLog("Attenzione: uno o più avvertimenti");
-                        
-                        }
-
-
-                        cnn.Close();
-
-                        DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
-
-
-
                     }
 
 

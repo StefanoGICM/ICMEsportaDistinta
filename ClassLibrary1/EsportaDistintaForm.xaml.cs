@@ -530,6 +530,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             bool bSet2;
             int iSelectedRootVersion;
 
+            int iOutput = 0;
+            string cFileName;
+
             /*if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
             {
 
@@ -575,8 +578,16 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         bSet1 = false;
                         bSet2 = false;
 
+                        if ((bool)RB7.IsChecked)
+                            iOutput = 1;
+                        else if ((bool)RB7.IsChecked)
+                            iOutput = 2;
+                        else
+                            iOutput = 3;
 
-                        
+
+                        cFileName = this.FileName.Text;
+
 
                         if ((bool)RB1.IsChecked)
                         {
@@ -653,7 +664,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           , out id
                                                           , "Form"
                                                           , 0
-                                                          );
+                                                          , iOutput
+                                                          , cFileName);
 
 
                         EspDistinta.TS.WriteLine("Record inserito nella queue di esportazione");
