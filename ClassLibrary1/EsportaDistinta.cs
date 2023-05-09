@@ -1382,7 +1382,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             //WriteLog("prima");
 
 
-
                             command2.ExecuteNonQuery();
 
                             //WriteLog("dopo");
@@ -1645,6 +1644,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                             sqlParam.Direction = ParameterDirection.Output;
                                             command2.Parameters.Add(sqlParam);
 
+                                            sqlParam = new SqlParameter("@ConfigId", SqlDbType.Int);
+                                            //sqlParam.ParameterName = "@Result";
+                                            //sqlParam.DbType = DbType.Boolean;
+                                            sqlParam.Direction = ParameterDirection.Output;
+                                            command2.Parameters.Add(sqlParam);
+
 
                                             command2.ExecuteNonQuery();
 
@@ -1852,6 +1857,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sFamiglia3_Prefix = "";
 
             string XPromosso;
+
+            string XConfigId;
+
             int iPromosso;
 
             bool bThis;
@@ -1941,49 +1949,65 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                 // verifico se è un assieme promosso
-                if (cFileName.ToUpper().EndsWith(".SLDASM"))
-                {
-                    SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetPromossoSP", cnn);
+                
+                SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetPromossoSP", cnn);
 
-                    command2.CommandType = CommandType.StoredProcedure;
-                    command2.Transaction = transaction;
+                command2.CommandType = CommandType.StoredProcedure;
+                command2.Transaction = transaction;
 
                     //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
 
 
-                    SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
-                    sqlParam.Direction = ParameterDirection.Input;
-                    sqlParam.Value = iDocument;
+                SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iDocument;
 
 
-                    sqlParam = command2.Parameters.Add("@Conf", SqlDbType.VarChar, 50);
-                    sqlParam.Direction = ParameterDirection.Input;
-                    sqlParam.Value = sConf;
+                sqlParam = command2.Parameters.Add("@Conf", SqlDbType.VarChar, 50);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sConf;
 
-                    sqlParam = command2.Parameters.Add("@RevisionNo", SqlDbType.Int);
-                    sqlParam.Direction = ParameterDirection.Input;
-                    sqlParam.Value = iVersionBOM;
+                sqlParam = command2.Parameters.Add("@RevisionNo", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iVersionBOM;
 
-                    //TS.WriteLine("Check Assieme promosso: " + iDocument.ToString() + " ----- " + sConf + " ------ " + iVersione.ToString());
+                //TS.WriteLine("Check Assieme promosso: " + iDocument.ToString() + " ----- " + sConf + " ------ " + iVersione.ToString());
 
-                    sqlParam = new SqlParameter("@Promosso", SqlDbType.Int);
-                    //sqlParam.ParameterName = "@Result";
-                    //sqlParam.DbType = DbType.Boolean;
-                    sqlParam.Direction = ParameterDirection.Output;
-                    command2.Parameters.Add(sqlParam);
+                sqlParam = new SqlParameter("@Promosso", SqlDbType.Int);
+                //sqlParam.ParameterName = "@Result";
+                //sqlParam.DbType = DbType.Boolean;
+                sqlParam.Direction = ParameterDirection.Output;
+                command2.Parameters.Add(sqlParam);
 
-
-                    command2.ExecuteNonQuery();
-
-                    XPromosso = command2.Parameters["@Promosso"].Value.ToString();
-
-                    if (XPromosso.Trim() == "" || XPromosso == null)
-                    {
-
-                        throw new ApplicationException("Errore nel verificare assieme/parte promosso: flag prmosso nullo per " + cFileName);
-                    }
+                sqlParam = new SqlParameter("@ConfigId", SqlDbType.Int);
+                //sqlParam.ParameterName = "@Result";
+                //sqlParam.DbType = DbType.Boolean;
+                sqlParam.Direction = ParameterDirection.Output;
+                command2.Parameters.Add(sqlParam);
 
 
+
+                command2.ExecuteNonQuery();
+
+                XPromosso = command2.Parameters["@Promosso"].Value.ToString();
+
+                if (XPromosso.Trim() == "" || XPromosso == null)
+                {
+
+                   throw new ApplicationException("Errore nel verificare assieme/parte promosso: flag prmosso nullo per " + cFileName);
+                }
+
+                XConfigId = command2.Parameters["@ConfigId"].Value.ToString();
+
+                if (XConfigId.Trim() == "" || XConfigId == null)
+                {
+
+                    throw new ApplicationException("Errore nel verificare assieme/parte promosso: id configurazione nullo per " + cFileName);
+                }
+
+
+                if (cFileName.ToUpper().EndsWith(".SLDASM"))
+                {
 
                     bConvPromosso = Int32.TryParse(XPromosso, out iPromosso);
 
@@ -2598,6 +2622,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                        ",[TrattSuperficiale]" +
                                        ",[Configurazione]" +
                                        ",[Configuration]" +
+                                       ",[ConfigId]" +
+                                       ",[DocumentId]" +
                                        ",[DEDLinear]" +
                                        ",[DEDMass]" +
                                        ",[DateIns]" +
@@ -2678,12 +2704,17 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                        ",<@@@!!èà@@TrattSuperficiale>" +
                                        ",<@@@!!èà@@Configurazione>" +
                                        ",<@@@!!èà@@Configuration>" +
+                                       ",<@@@!!èà@@ConfigId>" +
+                                       ",<@@@!!èà@@DocumentId>" +
                                        ",<@@@!!èà@@DEDLinear>" +
                                        ",<@@@!!èà@@DEDMass>" +
                                        ",GETDATE()" +
                                        ",GETDATE())";
 
+                        query.Replace("<@@@!!èà@@ConfigId>", "'" + XConfigId.Replace("'", "''") + "'");
+                        query.Replace("<@@@!!èà@@DocumentId>", "'" + (iDocument.ToString()).Replace("'", "''") + "'");
 
+                        
 
                         int j = 0;
                         str = "";

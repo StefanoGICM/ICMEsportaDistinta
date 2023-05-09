@@ -24,6 +24,7 @@ ALTER PROCEDURE ICM_Conf_GetPromossoSP (
   , @Conf nvarchar(200)
   , @RevisionNo int
   , @Promosso int OUTPUT  
+  , @ConfigId int OUTPUT
   )
 AS
 BEGIN
@@ -62,7 +63,8 @@ BEGIN
 	*/
 
 	SELECT TOP 1
-	    @Promosso = drc.ShowChildComponentsInBOM	  
+	    @Promosso = drc.ShowChildComponentsInBOM
+	  , @ConfigId = conf.ConfigurationID
 	FROM 
 	  SandBox2.dbo.DocumentRevisionConfiguration drc
 	INNER JOIN SandBox2.dbo.DocumentConfiguration conf ON drc.ConfigurationID = conf.ConfigurationID
