@@ -1360,7 +1360,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             transaction.Commit();
 
-                            cnn.BeginTransaction();
+                            transaction = cnn.BeginTransaction();
 
                             WriteLog("Calcolo consumo");
 
