@@ -984,9 +984,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     iOutput = default(int);
                                     cFileOutput = default(string);
 
-
+                                    
                                     if (!reader.IsDBNull(0))
-                                        iID = reader.GetInt64(0);
+                                        iID = reader.GetInt64(0);                                    
                                     if (!reader.IsDBNull(1))
                                         iDocumentID = reader.GetInt32(1);
                                     if (!reader.IsDBNull(2))
@@ -2597,6 +2597,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                        ",[TrattProtezione]" +
                                        ",[TrattSuperficiale]" +
                                        ",[Configurazione]" +
+                                       ",[Configuration]" +
                                        ",[DEDLinear]" +
                                        ",[DEDMass]" +
                                        ",[DateIns]" +
@@ -2676,6 +2677,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                        ",<@@@!!èà@@TrattProtezione>" +
                                        ",<@@@!!èà@@TrattSuperficiale>" +
                                        ",<@@@!!èà@@Configurazione>" +
+                                       ",<@@@!!èà@@Configuration>" +
                                        ",<@@@!!èà@@DEDLinear>" +
                                        ",<@@@!!èà@@DEDMass>" +
                                        ",GETDATE()" +

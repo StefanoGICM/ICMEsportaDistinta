@@ -93,6 +93,7 @@ CREATE TABLE [dbo].[SWANAG](
 	[AcqFatConv] decimal(23,11) NULL,
 	[FattoreUMLinear] decimal(23,11) NULL,
 	[FattoreUMMass] decimal(23,11) NULL,
+	[Configuration] [nvarchar](200) NULL,
  CONSTRAINT [PK_SWANAG] PRIMARY KEY CLUSTERED 
 (
 	[SessionID] ASC,
