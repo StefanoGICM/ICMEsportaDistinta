@@ -1461,6 +1461,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             case 1:
 
                                 WriteLog("Importazione distinta in ARCA");
+                                WriteLog("Distinta importata nella Ditta: " + sDittaARCA);
 
                                 connectionString = ConnectionsClass.connectionStringARCA;
 
