@@ -7,10 +7,11 @@
         xmlns:ICM.ConsoleControlWPF="clr-namespace:ICM.ConsoleControlWPF;assembly=ICM.ConsoleControlWPF" 
         mc:Ignorable="d"
         Title="EsportaDistintaForm" Height="891" Width="1108">
-    <Grid Margin="0,0,10,8" HorizontalAlignment="Right" Width="1077">
+    <Grid Margin="0,-1,10,9" HorizontalAlignment="Right" Width="1077">
         <Grid.RowDefinitions>
-            <RowDefinition Height="234*"/>
-            <RowDefinition Height="266*"/>
+            <RowDefinition Height="183*"/>
+            <RowDefinition Height="75*"/>
+            <RowDefinition Height="242*"/>
             <RowDefinition Height="367*"/>
             <RowDefinition Height="0*"/>
         </Grid.RowDefinitions>
@@ -23,37 +24,36 @@
             <ColumnDefinition Width="15*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <ProgressBar x:Name="progBarAnalisi" Height="30" Margin="298,194,76,0" VerticalAlignment="Top" ValueChanged="ProgressBar_ValueChanged" Grid.Column="4" HorizontalContentAlignment="Stretch"/>
-        <ICM.ConsoleControlWPF:ConsoleControl x:Name="consoleControl" Margin="0,10,0,10" Grid.ColumnSpan="7" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Width="1077"/>
-        <Button Content="Esporta Distinta" HorizontalAlignment="Left" Margin="145,199,0,0" VerticalAlignment="Top" Width="148" Click="Button_Click" Height="20" Grid.Column="4"/>
+        <ProgressBar x:Name="progBarAnalisi" Height="30" Margin="338,41,8,0" VerticalAlignment="Top" ValueChanged="ProgressBar_ValueChanged" Grid.Column="4" HorizontalContentAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="2" RenderTransformOrigin="0.522,-0.64"/>
+        <ICM.ConsoleControlWPF:ConsoleControl x:Name="consoleControl" Margin="0,10,0,10" Grid.ColumnSpan="7" Grid.Row="2" Grid.RowSpan="2" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Width="1077"/>
+        <Button Content="Esporta Distinta" HorizontalAlignment="Left" Margin="185,49,0,0" VerticalAlignment="Top" Width="148" Click="Button_Click" Height="20" Grid.Column="4" Grid.Row="1"/>
         <TextBox HorizontalAlignment="Left" Margin="30,12,0,0" x:Name ="DistintaTextBox" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="824" Height="22" Grid.ColumnSpan="5"/>
         <TextBox x:Name="ConfigurazioniTextBox" HorizontalAlignment="Left" Margin="22,49,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="841" Grid.Column="1" Height="22" Grid.ColumnSpan="4"/>
         <Label Content="Configurazioni da esportare:" HorizontalAlignment="Left" Margin="14,46,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.145,-0.268" Grid.ColumnSpan="2" Width="178" Height="26"/>
         <Button Content="Aggiorna Distinta Pregressa" HorizontalAlignment="Left" Margin="408,12,0,0" VerticalAlignment="Top" Width="170" Click="Button_Click_1" Height="20" Grid.Column="4"/>
-        <RadioButton x:Name="RB1" Content="Ultima Versione" Margin="28,0,0,0" VerticalAlignment="Center" Checked="RadioButton_Checked" RenderTransformOrigin="1.866,-1.214" GroupName="GRB1" Click="RB1_Click" HorizontalAlignment="Left" IsChecked="True" Width="118" Height="15"/>
-        <RadioButton x:Name="RB2" Content="Seleziona Versione" HorizontalAlignment="Left" Margin="28,146,0,0" VerticalAlignment="Top" GroupName="GRB1" Click="RB2_Click" Height="15" Width="118"/>
+        <RadioButton x:Name="RB1" Content="Ultima Versione" Margin="28,110,0,0" VerticalAlignment="Top" Checked="RadioButton_Checked" RenderTransformOrigin="1.866,-1.214" GroupName="GRB1" Click="RB1_Click" HorizontalAlignment="Left" IsChecked="True" Width="118" Height="15"/>
+        <RadioButton x:Name="RB2" Content="Seleziona Versione" HorizontalAlignment="Left" Margin="28,145,0,0" VerticalAlignment="Top" GroupName="GRB1" Click="RB2_Click" Height="15" Width="118"/>
         <RadioButton x:Name="RB3" Content="Ultima Revisione" HorizontalAlignment="Center" Margin="0,126,0,0" VerticalAlignment="Top" GroupName="GRB1" IsChecked="False" Click="RB3_Click" Height="15" Width="107"/>
-        <RadioButton x:Name="RB4" Grid.Column="1" Content="Ultima Versione" HorizontalAlignment="Left" Margin="33,0,0,0" VerticalAlignment="Center" GroupName="GRB2" Grid.ColumnSpan="2" RenderTransformOrigin="0.484,-0.385" IsChecked="True" Height="15" Width="102"/>
+        <RadioButton x:Name="RB4" Grid.Column="1" Content="Ultima Versione" HorizontalAlignment="Left" Margin="33,110,0,0" VerticalAlignment="Top" GroupName="GRB2" Grid.ColumnSpan="2" RenderTransformOrigin="0.484,-0.385" IsChecked="True" Height="15" Width="102"/>
         <RadioButton x:Name="RB5" Grid.Column="1" Content="Ultima Revisione" HorizontalAlignment="Left" Margin="33,129,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB2" Grid.ColumnSpan="2" Height="15"/>
         <GroupBox HorizontalAlignment="Left" Height="82" Header="Padre/Radice" Margin="13,86,0,0" VerticalAlignment="Top" Width="144"/>
-        <RadioButton x:Name="RB6" Grid.Column="1" Content="Come Costruiti" HorizontalAlignment="Left" Margin="33,146,0,0" VerticalAlignment="Top" Width="102" Grid.ColumnSpan="2" GroupName="GRB2" Height="15"/>
+        <RadioButton x:Name="RB6" Grid.Column="1" Content="Come Costruiti" HorizontalAlignment="Left" Margin="33,147,0,0" VerticalAlignment="Top" Width="102" Grid.ColumnSpan="2" GroupName="GRB2" Height="15"/>
         <GroupBox Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="84" Header="Figli" Margin="19,86,0,0" VerticalAlignment="Top" Width="134"/>
-        <Label x:Name="LabelVerPadre" Content="Versione Padre:" Margin="13,8,53,0" VerticalAlignment="Top" Visibility="Hidden" Grid.Row="1" Height="26"/>
-        <TextBox x:Name="VerPadre" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="189" Visibility="Hidden" Grid.Row="1" Height="18"/>
-        <CheckBox x:Name="checkFirstOnly" Grid.Column="2" Content="Solo primo livello" HorizontalAlignment="Left" Margin="107,0,0,0" VerticalAlignment="Center" Width="123" Checked="CheckBox_Checked" ScrollViewer.VerticalScrollBarVisibility="Hidden" Grid.ColumnSpan="2" Height="15"/>
-        <CheckBox x:Name="deleteFrontiera" Content="Cancella tabella di frontiera" HorizontalAlignment="Left" Width="177" Margin="107,128,0,91" Grid.Column="2" Grid.ColumnSpan="3" IsChecked="True"/>
-        <GroupBox Grid.Column="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="83" Header="Altro" Margin="99,87,0,0" VerticalAlignment="Top" Width="274">
-        </GroupBox>
-        <TextBox x:Name="dittaTextBox" Grid.Column="4" HorizontalAlignment="Left" Height="24" Margin="260,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="215"/>
-        <Label Grid.Column="4" Content="Ditta:" HorizontalAlignment="Left" Height="28" Margin="223,0,0,0" VerticalAlignment="Center" Width="72"/>
-        <RadioButton x:Name="RB7" Grid.Column="4" Content="ARCA" HorizontalAlignment="Left" Margin="170,0,0,0" VerticalAlignment="Center" GroupName="GRB4" RenderTransformOrigin="0.484,-0.385" IsChecked="True" Height="15" Width="102"/>
-        <RadioButton x:Name="RB8" Grid.Column="4" Content="XML" HorizontalAlignment="Left" Margin="170,140,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB4" Height="15"/>
-        <RadioButton x:Name="RB9" Grid.Column="4" Content="Tabella di frontiera" HorizontalAlignment="Left" Margin="170,168,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB4" Height="15"/>
-        <GroupBox Grid.Column="4" HorizontalAlignment="Left" Height="103" Header="Output" Margin="160,86,0,0" VerticalAlignment="Top" Width="328"/>
-        <TextBox x:Name="FileName" Grid.Column="4" HorizontalAlignment="Left" Height="24" Margin="260,134,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="215"/>
-        <Label Grid.Column="4" Content="Dir:" HorizontalAlignment="Left" Height="25" Margin="230,136,0,0" VerticalAlignment="Top" Width="30"/>
-        <TextBox x:Name="NoteTB" Grid.ColumnSpan="5" HorizontalAlignment="Left" Height="20" Margin="48,175,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="536"/>
-        <Label Content="Note:" HorizontalAlignment="Left" Margin="9,171,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="LabelVerPadre" Content="Versione Padre:" Margin="13,8,53,0" VerticalAlignment="Top" Visibility="Hidden" Grid.Row="2" Height="26"/>
+        <TextBox x:Name="VerPadre" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="189" Visibility="Hidden" Grid.Row="2" Height="18"/>
+        <CheckBox x:Name="checkFirstOnly" Grid.Column="2" Content="Solo primo livello" HorizontalAlignment="Left" Margin="107,110,0,0" VerticalAlignment="Top" Width="123" Checked="CheckBox_Checked" ScrollViewer.VerticalScrollBarVisibility="Hidden" Grid.ColumnSpan="2" Height="15"/>
+        <CheckBox x:Name="deleteFrontiera" Content="Cancella tabella di frontiera" HorizontalAlignment="Left" Width="177" Margin="107,128,0,3" Grid.Column="2" Grid.ColumnSpan="3" IsChecked="True"/>
+        <GroupBox Grid.Column="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="81" Header="Altro" Margin="99,87,0,0" VerticalAlignment="Top" Width="274"/>
+        <TextBox x:Name="dittaTextBox" Grid.Column="4" HorizontalAlignment="Left" Height="24" Margin="260,98,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="215" Text="FREDDO"/>
+        <Label Grid.Column="4" Content="Ditta:" HorizontalAlignment="Left" Height="28" Margin="223,96,0,0" VerticalAlignment="Top" Width="72"/>
+        <RadioButton x:Name="RB7" Grid.Column="4" Content="ARCA" HorizontalAlignment="Left" Margin="170,103,0,0" VerticalAlignment="Top" GroupName="GRB4" RenderTransformOrigin="0.484,-0.385" IsChecked="True" Height="15" Width="102"/>
+        <RadioButton x:Name="RB8" Grid.Column="4" Content="XML" HorizontalAlignment="Left" Margin="170,130,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB4" Height="15"/>
+        <RadioButton x:Name="RB9" Grid.Column="4" Content="Tabella di frontiera" HorizontalAlignment="Left" Margin="170,155,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB4" Height="15"/>
+        <GroupBox Grid.Column="4" HorizontalAlignment="Left" Height="105" Header="Output" Margin="159,75,0,0" VerticalAlignment="Top" Width="329"/>
+        <TextBox x:Name="FileName" Grid.Column="4" HorizontalAlignment="Left" Height="24" Margin="260,125,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="215" TextChanged="FileName_TextChanged"/>
+        <Label Grid.Column="4" Content="Dir:" HorizontalAlignment="Left" Height="25" Margin="230,124,0,0" VerticalAlignment="Top" Width="30"/>
+        <TextBox x:Name="NoteTB" Grid.ColumnSpan="5" HorizontalAlignment="Left" Height="20" Margin="82,46,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="536" Grid.Row="1"/>
+        <Label Content="Note:" HorizontalAlignment="Left" Margin="43,44,0,0" VerticalAlignment="Top" Grid.Row="1" Height="25" Width="39"/>
         <!--<WPF:ConsoleControl x:Name="embeddedConsole" HorizontalAlignment="Center" Margin="0,217,0,0" VerticalAlignment="Top" Height="207" Width="780"/>-->
     </Grid>
 </Window>

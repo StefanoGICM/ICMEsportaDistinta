@@ -2,6 +2,7 @@
 using ICM.ConsoleControlWPF;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -533,7 +534,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             int iDeleteFrontiera;
 
             int iOutput = 0;
-            string cFileName;
+            string cOutputDir;
             string cNote;
 
             /*if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
@@ -588,8 +589,51 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         else
                             iOutput = 3;
 
+                        if ((iOutput == 1) && (sDitta != "ICM") && (sDitta != "FREDDO"))
+                        {
 
-                        cFileName = this.FileName.Text;
+                            System.Windows.Forms.MessageBox.Show("Ditta deve essere ICM o FREDDO");
+                            return;
+                        
+                        }
+
+                        if ((iOutput == 1) && (sDitta != "ICM"))
+                        {
+
+                            string sMessage = "Attenzione: è stata scelta la ditta ICM. Sei sicuro di voler procedere ?";
+                            DialogResult dialogResult2 = System.Windows.Forms.MessageBox.Show(sMessage, "Domanda", MessageBoxButtons.YesNo);
+
+                            if (dialogResult != System.Windows.Forms.DialogResult.Yes)
+                                return;
+
+                        }
+                        
+
+
+                        cOutputDir = this.FileName.Text;
+
+                        if (iOutput == 2)
+                        {
+
+                            if (cOutputDir == null || cOutputDir.Trim() == "")
+                            {
+                                System.Windows.Forms.MessageBox.Show("Indicare la directory di esportazione del file XML");
+                                return;
+                            }
+
+                            if (!(Directory.Exists(cOutputDir)))
+                            {
+
+                                System.Windows.Forms.MessageBox.Show("La Directory " + cOutputDir + " non esiste");
+
+                            }
+
+                            // tolgo l'eventuale backslash finale
+
+                            if (cOutputDir.Substring(cOutputDir.Length - 1, 1) == @"\")
+                                cOutputDir = cOutputDir.Substring(0, cOutputDir.Length - 1);
+
+                        }
 
 
                         if ((bool)RB1.IsChecked)
@@ -674,7 +718,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           , "Form"
                                                           , 0
                                                           , iOutput
-                                                          , cFileName
+                                                          , cOutputDir
                                                           , iDeleteFrontiera
                                                           , cNote);
 
@@ -845,6 +889,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void FileName_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
 
         }

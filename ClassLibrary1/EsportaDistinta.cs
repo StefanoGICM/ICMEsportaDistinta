@@ -37,7 +37,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
     public static class ConnectionsClass
     {
         public static string connectionStringSWICMDATA = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True";        
-        public static string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True";
+        public static string connectionStringARCA = "";
+
+        
 
 
 
@@ -220,7 +222,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         break;
 
                     }
-
 
                 }
 
@@ -1122,7 +1123,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         WriteLog("-----------------------------------------------------------------------");
 
 
-                                        IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID, iOutput, cFileOutput, iCancellaFrontiera, sNote);
+                                        IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID, iOutput, cFileOutput, iCancellaFrontiera, sNote, sDittaARCA);
 
 
                                         query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
@@ -1242,11 +1243,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid, int iOutput, string cFileOutput, int iCancellaFrontiera, string sNote)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid, int iOutput, string cFileOutput, int iCancellaFrontiera, string sNote, string sDittaARCA)
         {
-
-
-
             //Debugger.Launch();
 
             this.ExpParam1 = sEsplodiPar1;
@@ -1322,6 +1320,22 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 if (sFileName != null)
                 {
                     WriteLog("Inizio elaborazione");
+
+                    ConnectionsClass.connectionStringARCA = "";
+                    switch (sDittaARCA.ToUpper())
+                    {
+                        case "FREDDO":
+                            ConnectionsClass.connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True"; ;
+                            break;
+
+                        case "ICM":
+                            throw new ApplicationException("Impossibile esportare su Ditta ICM");
+                            break;
+
+
+                    }
+
+
 
                     foreach (string sConf in sConfigurazioni.Split((char) 1))
                     {
@@ -1729,54 +1743,55 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                     }
 
-                                    transaction.Commit();
-
-                                    cnn.Close();
-
-
-
                                 }
-
-                                if (!(XWarning.Trim() == "" || XWarning == null))
-                                {
-
-                                    string[] warnArray = XWarning.Split((char)1);
-
-                                    foreach (string warnMessage in warnArray)
-                                    {
-
-                                        lWarn = true;
-                                        WriteLog(warnMessage, TraceEventType.Warning);
-
-                                    }
-
-
-                                }
-
-                                if (cNonCodificati != "")
-                                {
-
-                                    WriteLog("Attenzione: i seguenti articoli non sono stati codificati e quindi non sono stati importati: ", TraceEventType.Warning);
-                                    WriteLog(cNonCodificati, TraceEventType.Warning);
-
-                                }
-
-
-                                if (lWarn || (cNonCodificati != ""))
-                                {
-
-                                    WriteLog("Attenzione: uno o più avvertimenti");
-
-                                }
-
-
-                                cnn.Close();
-
-                                DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
 
                             }
 
+                            transaction.Commit();
+
+                            cnn.Close();
+
+
+
                         }
+
+                        if (!(XWarning.Trim() == "" || XWarning == null))
+                        {
+
+                            string[] warnArray = XWarning.Split((char)1);
+
+                            foreach (string warnMessage in warnArray)
+                            {
+
+                                lWarn = true;
+                                WriteLog(warnMessage, TraceEventType.Warning);
+
+                            }
+
+
+                        }
+
+                        if (cNonCodificati != "")
+                        {
+
+                            WriteLog("Attenzione: i seguenti articoli non sono stati codificati e quindi non sono stati importati: ", TraceEventType.Warning);
+                            WriteLog(cNonCodificati, TraceEventType.Warning);
+
+                        }
+
+
+                        if (lWarn || (cNonCodificati != ""))
+                        {
+
+                            WriteLog("Attenzione: uno o più avvertimenti");
+
+                        }
+
+
+                        cnn.Close();
+
+                        DocumentsAnalysisStatus = enumDocumentAnalysisStatus.Completed;
+
                     }
 
 
