@@ -204,8 +204,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLog("Parametro Note: " + sNote);
 
-
-
                 IPHostEntry host = Dns.GetHostEntry("localhost");
                 IPAddress ipAddress = host.AddressList[0];
 
@@ -919,6 +917,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             int iCambioPromosso = default(int);
             int iOutput = default(int);
             string cFileOutput = default(string);
+            int iCancellaFrontiera = default(int);
+            string sNote = default(string);
 
 
 
@@ -957,6 +957,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                        ",CambioPromosso" +
                        ",Output" +
                        ",FileOutput" +
+                       ",CancellaFrontiera" +
+                       ",Note" +
                        " FROM XPORT_Elab" +
                        " WHERE StartDate IS NULL AND Vault = '" + workerVault.Name + "'" +
                        " ORDER BY Priority DESC";
@@ -1003,7 +1005,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     iOutput = default(int);
                                     cFileOutput = default(string);
 
-                                    
+                                    iCancellaFrontiera = default(int);
+                                    sNote = default(string);
+
+
                                     if (!reader.IsDBNull(0))
                                         iID = reader.GetInt64(0);                                    
                                     if (!reader.IsDBNull(1))
@@ -1048,6 +1053,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         iOutput = reader.GetInt32(20);
                                     if (!reader.IsDBNull(21))
                                         cFileOutput = reader.GetString(21);
+                                    if (!reader.IsDBNull(22))
+                                        iCancellaFrontiera = reader.GetInt32(22);
+                                    if(!reader.IsDBNull(23))
+                                        sNote = reader.GetString(23);
 
 
 
@@ -1113,7 +1122,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         WriteLog("-----------------------------------------------------------------------");
 
 
-                                        IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID, iOutput, cFileOutput);
+                                        IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID, iOutput, cFileOutput, iCancellaFrontiera, sNote);
 
 
                                         query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
@@ -1233,7 +1242,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid, int iOutput, string cFileOutput)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid, int iOutput, string cFileOutput, int iCancellaFrontiera, string sNote)
         {
 
 
@@ -1343,7 +1352,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             transaction = cnn.BeginTransaction();
 
-                            WriteLog("Cancellazione tabelle temporanee");
+                            WriteLog("Cancellazione tabelle di frontiera per SessionID = '" + currentSessionGuid + "'");
 
                             query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
 
@@ -1511,24 +1520,29 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             transaction = cnn.BeginTransaction();
 
-                            WriteLog("Cancellazione tabelle temporanee");
+                            if (iCancellaFrontiera == 1)
+                            {
 
-                            query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
+                                WriteLog("Cancellazione tabelle di frontiera per SessionID = '" + currentSessionGuid + "'");
 
-                            SqlCommand command = new SqlCommand(query, cnn);
-                            command.CommandTimeout = 0;
-                            command.Transaction = transaction;
+                                query = "DELETE FROM [dbo].[SWBOM] WHERE SessionID = '" + currentSessionGuid + "'";
 
-                            command.ExecuteNonQuery();
+                                SqlCommand command = new SqlCommand(query, cnn);
+                                command.CommandTimeout = 0;
+                                command.Transaction = transaction;
+
+                                command.ExecuteNonQuery();
 
 
-                            query = "DELETE FROM [dbo].[SWANAG] WHERE SessionID = '" + currentSessionGuid + "'";
+                                query = "DELETE FROM [dbo].[SWANAG] WHERE SessionID = '" + currentSessionGuid + "'";
 
-                            SqlCommand command1 = new SqlCommand(query, cnn);
+                                SqlCommand command1 = new SqlCommand(query, cnn);
 
-                            command1.Transaction = transaction;
+                                command1.Transaction = transaction;
 
-                            command1.ExecuteNonQuery();
+                                command1.ExecuteNonQuery();
+
+                            }
 
 
                             /* esporta ricorsivamente i padri per cambio promosso */
@@ -1706,7 +1720,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                                           "CambioPromosso",
                                                                           iFatherCambioPromosso,
                                                                           iOutput,
-                                                                          cFileOutput);
+                                                                          cFileOutput,
+                                                                          iCancellaFrontiera,
+                                                                          sNote);
 
 
                                         }

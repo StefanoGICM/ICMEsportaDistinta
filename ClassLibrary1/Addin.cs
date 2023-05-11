@@ -177,6 +177,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           "Workflow",
                                                           0,
                                                           1,
+                                                          "",
+                                                          1,
                                                           "");
 
 
