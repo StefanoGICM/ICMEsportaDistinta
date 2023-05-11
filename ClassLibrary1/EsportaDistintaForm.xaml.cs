@@ -589,7 +589,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         else
                             iOutput = 3;
 
-                        if ((iOutput == 1) && (sDitta != "ICM") && (sDitta != "FREDDO"))
+                        if ((iOutput == 1) && (sDitta.ToUpper() != "ICM") && (sDitta.ToUpper() != "FREDDO"))
                         {
 
                             System.Windows.Forms.MessageBox.Show("Ditta deve essere ICM o FREDDO");
@@ -597,7 +597,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         
                         }
 
-                        if ((iOutput == 1) && (sDitta != "ICM"))
+                        if ((iOutput == 1) && (sDitta.ToUpper() == "ICM"))
                         {
 
                             string sMessage = "Attenzione: è stata scelta la ditta ICM. Sei sicuro di voler procedere ?";
