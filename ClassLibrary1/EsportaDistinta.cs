@@ -28,6 +28,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Net.Http;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -35,19 +36,20 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
     public static class ConnectionsClass
     {
-        public static string connectionStringSWICMDATA = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
+        public static string connectionStringSWICMDATA = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True";        
+        public static string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True";
+
 
 
     }
-                
+
     public class PreEsportaDistinta
     {
 
         string cLogFileName;
         string cLogFileNamePath;
         StreamWriter outputFile;
-
-        string connectionStringSWICMDATA = ConnectionsClass.connectionStringSWICMDATA;
+        
 
         EsportaDistinta espDistinta;
 
@@ -77,18 +79,16 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     int iOutput,
                                     string cFileName)
         {
-            string connectionStringSWICMDATA;
+            
 
            
             id = 0;
 
-            connectionStringSWICMDATA = this.connectionStringSWICMDATA;
+            
 
 
-            string connectionString;
-            connectionString = connectionStringSWICMDATA;
 
-            using (SqlConnection cnn = new SqlConnection(connectionString))
+            using (SqlConnection cnn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA))
             {
                 cnn.Open();
 
@@ -406,8 +406,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         string cLogFileNamePath;
 
-        string connectionStringSWICMDATA = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'";
-        string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
 
 
         string connectionStringVault;
@@ -457,6 +455,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         int iCounter = 0;
 
         int iCountCheckConnection = 0;
+
+        List<String> listaCodiciElab = new List<String>();
+
+        long iANAGRow;
 
 
         /*struct ReturnData
@@ -1302,7 +1304,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //Connessione al DB e inizio transazione
 
-                        connectionString = connectionStringSWICMDATA;
+                        connectionString = ConnectionsClass.connectionStringSWICMDATA;
 
                         using (cnn = new SqlConnection(connectionString))
                         {
@@ -1420,7 +1422,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 WriteLog("Importazione distinta in ARCA");
 
-                                connectionString = connectionStringARCA;
+                                connectionString = ConnectionsClass.connectionStringARCA;
 
                                 using (cnnARCA = new SqlConnection(connectionString))
                                 {
@@ -1472,23 +1474,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             case 2:
 
-                                connectionString = connectionStringSWICMDATA;
-
-                                using (cnn = new SqlConnection(connectionString))
-                                {
-
-                                    cnn.Open();
+                                WriteLog("Esportazione su file XML: " + cFileOutput);
 
 
+                                EsportaFileXML(cFileOutput, currentSessionGuid);
+
+                                break;
 
 
-                                    break;
-
-
-                                }
+                                
                         }
 
-                        connectionString = connectionStringSWICMDATA;
+                        connectionString = ConnectionsClass.connectionStringSWICMDATA;
 
                         using (cnn = new SqlConnection(connectionString))
                         {
@@ -1521,6 +1518,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             if (iCambioPromosso == 1 && bOnlyTop)
                             {
 
+                                WriteLog("Esporta i padri per cambio stato di promosso");
 
                                 IEdmFile5 file = null;
                                 IEdmFolder5 parentFolder = null;
@@ -1856,9 +1854,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sFamiglia2_Prefix = "";
             string sFamiglia3_Prefix = "";
 
-            string XPromosso;
+            string XPromosso = default(string);
 
-            string XConfigId;
+            string XConfigId = default(string);
 
             int iPromosso;
 
@@ -1945,69 +1943,69 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 }
 
-                
+
 
 
                 // verifico se è un assieme promosso
-                
-                SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetPromossoSP", cnn);
+                if (cFileName.ToUpper().EndsWith(".SLDASM"))
+                {
+                 
 
-                command2.CommandType = CommandType.StoredProcedure;
-                command2.Transaction = transaction;
+                    SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetPromossoSP", cnn);
+
+                    command2.CommandType = CommandType.StoredProcedure;
+                    command2.Transaction = transaction;
 
                     //WriteLog(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
 
 
-                SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = iDocument;
+                    SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
+                    sqlParam.Direction = ParameterDirection.Input;
+                    sqlParam.Value = iDocument;
 
 
-                sqlParam = command2.Parameters.Add("@Conf", SqlDbType.VarChar, 50);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = sConf;
+                    sqlParam = command2.Parameters.Add("@Conf", SqlDbType.VarChar, 50);
+                    sqlParam.Direction = ParameterDirection.Input;
+                    sqlParam.Value = sConf;
 
-                sqlParam = command2.Parameters.Add("@RevisionNo", SqlDbType.Int);
-                sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = iVersionBOM;
+                    sqlParam = command2.Parameters.Add("@RevisionNo", SqlDbType.Int);
+                    sqlParam.Direction = ParameterDirection.Input;
+                    sqlParam.Value = iVersionBOM;
 
-                //TS.WriteLine("Check Assieme promosso: " + iDocument.ToString() + " ----- " + sConf + " ------ " + iVersione.ToString());
+                    //TS.WriteLine("Check Assieme promosso: " + iDocument.ToString() + " ----- " + sConf + " ------ " + iVersione.ToString());
 
-                sqlParam = new SqlParameter("@Promosso", SqlDbType.Int);
-                //sqlParam.ParameterName = "@Result";
-                //sqlParam.DbType = DbType.Boolean;
-                sqlParam.Direction = ParameterDirection.Output;
-                command2.Parameters.Add(sqlParam);
+                    sqlParam = new SqlParameter("@Promosso", SqlDbType.Int);
+                    //sqlParam.ParameterName = "@Result";
+                    //sqlParam.DbType = DbType.Boolean;
+                    sqlParam.Direction = ParameterDirection.Output;
+                    command2.Parameters.Add(sqlParam);
 
-                sqlParam = new SqlParameter("@ConfigId", SqlDbType.Int);
-                //sqlParam.ParameterName = "@Result";
-                //sqlParam.DbType = DbType.Boolean;
-                sqlParam.Direction = ParameterDirection.Output;
-                command2.Parameters.Add(sqlParam);
-
-
-
-                command2.ExecuteNonQuery();
-
-                XPromosso = command2.Parameters["@Promosso"].Value.ToString();
-
-                if (XPromosso.Trim() == "" || XPromosso == null)
-                {
-
-                   throw new ApplicationException("Errore nel verificare assieme/parte promosso: flag prmosso nullo per " + cFileName);
-                }
-
-                XConfigId = command2.Parameters["@ConfigId"].Value.ToString();
-
-                if (XConfigId.Trim() == "" || XConfigId == null)
-                {
-
-                    throw new ApplicationException("Errore nel verificare assieme/parte promosso: id configurazione nullo per " + cFileName);
-                }
+                    sqlParam = new SqlParameter("@ConfigId", SqlDbType.Int);
+                    //sqlParam.ParameterName = "@Result";
+                    //sqlParam.DbType = DbType.Boolean;
+                    sqlParam.Direction = ParameterDirection.Output;
+                    command2.Parameters.Add(sqlParam);
 
 
-                if (cFileName.ToUpper().EndsWith(".SLDASM"))
-                {
+
+                    command2.ExecuteNonQuery();
+
+                    XPromosso = command2.Parameters["@Promosso"].Value.ToString();
+
+                    if (XPromosso.Trim() == "" || XPromosso == null)
+                    {
+
+                        throw new ApplicationException("Errore nel verificare assieme/parte promosso: flag prmosso nullo per " + cFileName);
+                    }
+
+                    XConfigId = command2.Parameters["@ConfigId"].Value.ToString();
+
+                    if (XConfigId.Trim() == "" || XConfigId == null)
+                    {
+
+                        throw new ApplicationException("Errore nel verificare assieme/parte promosso: id configurazione nullo per " + cFileName);
+                    }
+                    
 
                     bConvPromosso = Int32.TryParse(XPromosso, out iPromosso);
 
@@ -2016,20 +2014,24 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         throw new ApplicationException("Flag promosso non accessibile in: " + cFileName);
 
+
                     }
                 }
                 else if (cFileName.ToUpper().EndsWith(".SLDPRT"))
                 {
-                    iPromosso = 0;
+                   iPromosso = 0;
+                   XConfigId = "0";
 
                 }
-                else 
+                else
                 {
 
-                    throw new ApplicationException("Distinta BOM non associata per file: " + cFileName);
+                  throw new ApplicationException("Distinta BOM non associata per file: " + cFileName);
                 }
 
                 iRetPromossoPar = iPromosso;
+
+                
 
                 //if (first && (iPromosso == 2))
                 //{
@@ -2711,9 +2713,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                        ",GETDATE()" +
                                        ",GETDATE())";
 
-                        query.Replace("<@@@!!èà@@ConfigId>", "'" + XConfigId.Replace("'", "''") + "'");
-                        query.Replace("<@@@!!èà@@DocumentId>", "'" + (iDocument.ToString()).Replace("'", "''") + "'");
+                        
 
+                        query = query.Replace("<@@@!!èà@@ConfigId>", "'" + XConfigId.Replace("'", "''") + "'");
+                        query = query.Replace("<@@@!!èà@@DocumentId>", "'" + (iDocument.ToString()).Replace("'", "''") + "'");
                         
 
                         int j = 0;
@@ -4067,6 +4070,484 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         SwDM.SwDMApplication4 swDocMgr = null;
         SwDM.SwDMClassFactory swClassFact = null;
+
+        void EsportaFileXML(string sDir, Guid SessionID)
+        {
+            string query;
+
+            string sDEDID;
+            string sDEDREV;
+            string sDEDCOD;
+
+
+            using (SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA))
+            {
+                conn.Open();
+
+                query = "SELECT TOP 1 DEDID, DEDREV, DED_COD FROM SWANAG WHERE SessionID = '" + SessionID + "' AND DEDStart = 'S'";
+
+
+                using (SqlCommand command = new SqlCommand(query, conn))
+                {
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+
+                        while (reader.Read())
+                        {
+
+                            try
+                            {
+
+                                sDEDID = default(string);
+                                sDEDREV = default(string);
+                                sDEDCOD = default(string);
+
+                                if (!reader.IsDBNull(0))
+                                    sDEDID = reader.GetString(0);
+                                if (!reader.IsDBNull(1))
+                                    sDEDREV = reader.GetString(1);
+                                if (!reader.IsDBNull(2))
+                                    sDEDCOD = reader.GetString(2);
+
+                                using (SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA))
+                                {
+                                    conn2.Open();
+                                    var sts = new XmlWriterSettings()
+                                    {
+                                        Indent = true,
+                                        IndentChars = ("    "),
+                                        CloseOutput = true,
+                                        OmitXmlDeclaration = true,
+                                        Encoding = System.Text.Encoding.UTF8
+                                    };
+
+                                    if (sDEDCOD.Trim() == "")
+                                        sDEDCOD = "NONCODIFICATO";
+
+
+                                    XmlWriter writerDIST = default(XmlWriter);
+
+                                    writerDIST = XmlWriter.Create(sDir + @"\" + sDEDCOD + "_DIST.xml", sts);
+
+                                    XmlWriter writerANAG = default(XmlWriter);
+
+                                    writerANAG = XmlWriter.Create(sDir + @"\" + sDEDCOD + "_ANAG.xml", sts);
+
+                                    iANAGRow = -1;
+
+
+                                    EsportaFileXMLRic(SessionID, sDEDID, sDEDREV, true, conn2, "1,0", writerDIST, writerANAG);
+
+                                }
+
+                            }
+                            catch (Exception ex)
+                            {
+
+                                throw ex;
+
+                            }
+
+
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+        void EsportaFileXMLRic(Guid SessionID, string sDEDID, string sDEDREV, bool bFirst, SqlConnection conn, string sQuantity, XmlWriter writerDIST, XmlWriter writerANAG)
+        {
+
+
+            Console.WriteLine("Esporta in files XML: " + (sDEDID + @"\" + sDEDREV));
+
+
+            string query;
+            bool bFirstElement;
+
+            bFirstElement = true;
+
+
+
+            /* Legge il record dalla tabella di frontiera */
+
+            query = "SELECT TOP 1 " +
+                    "[CATEGORIA1]" +
+                    ",[CATEGORIA2]" +
+                    ",[CATEGORIA3]" +
+                    ",[CATEGORIA1_PREFIX]" +
+                    ",[CATEGORIA2_PREFIX]" +
+                    ",[CATEGORIA3_PREFIX]" +
+                    ",[FAMIGLIA1]" +
+                    ",[FAMIGLIA2]" +
+                    ",[FAMIGLIA3]" +
+                    ",[FAMIGLIA1_PREFIX]" +
+                    ",[FAMIGLIA2_PREFIX]" +
+                    ",[FAMIGLIA3_PREFIX]" +
+                    ",[COMMESSA]" +
+                    ",[DEDDATE]" +
+                    ",[DBPATH]" +
+                    ",[DED_COD]" +
+                    ",[DED_DIS]" +
+                    ",[DED_FILE]" +
+                    ",[DEDREVDATE]" +
+                    ",[DEDREVDESC]" +
+                    ",[DEDREVUSER]" +
+                    ",[DEDSTATEID]" +
+                    ",[DEDDESC]" +
+                    ",[LG]" +
+                    ",[MATERIALE]" +
+                    ",[NOTA_DI_TAGLIO]" +
+                    ",[PESO]" +
+                    ",[SUP_GOMMATA]" +
+                    ",[TIPOLOGIA]" +
+                    ",[TRATT_TERM]" +
+                    ",[DEDSTATEID1]" +
+                    ",[ITEM]" +
+                    ",[POTENZA]" +
+                    ",[N_MOTORI]" +
+                    ",[SOTTOCOMMESSA]" +
+                    ",[Standard_DIN]" +
+                    ",[Standard_ISO]" +
+                    ",[Standard_UNI]" +
+                    ",[MPTH]" +
+                    ",[Produttore]" +
+                    ",[shmetal_AreaContorno_mm2]" +
+                    ",[shmetal_L1_Contorno]" +
+                    ",[shmetal_L2_Contorno]" +
+                    ",[shmetal_Piegature]" +
+                    ",[shmetal_RaggioDiPiegatura]" +
+                    ",[shmetal_Sp_Lamiera]" +
+                    ",[Designazione]" +
+                    ",[DesignazioneGeometrica]" +
+                    ",[DesignazioneGeometricaEN]" +
+                    ",[DesignazioneGeometricaENG]" +
+                    ",[DesignazioneGeometricaITA]" +
+                    ",[IngombroX]" +
+                    ",[IngombroY]" +
+                    ",[IngombroZ]" +
+                    ",[LargMacchina]" +
+                    ",[LungMacchina]" +
+                    ",[CATEGORIA4]" +
+                    ",[CATEGORIA4_PREFIX]" +
+                    ",[CodiceProduttore]" +
+                    ",[CATEGORIA0]" +
+                    ",[CATEGORIA0_PREFIX]" +
+                    ",[FaiAcquista]" +
+                    ",[Configurazione]" +
+                    ",[DescTecnicaITA]" +
+                    ",[DescTecnicaENG]" +
+                    ",[DescCommercialeITA]" +
+                    ",[DescCommercialeENG]" +
+                    ",[TRATT_TERMICO]" +
+                    ",[TrattFinitura]" +
+                    ",[TrattGalvanico]" +
+                    ",[TrattProtezione]" +
+                    ",[TrattSuperficiale]" +
+                    ",[TipoSW]" +
+                    ",[DEDStart]" +
+                    ",[DEDLinear]" +
+                    ",[DEDMass]" +
+                    ",[DateIns]" +
+                    ",[DateUpd]" +
+                    ",[UMMaga]" +
+                    ",[MagaFatConv]" +
+                    ",[UMAcq]" +
+                    ",[AcqFatConv]" +
+                    ",[FattoreUMLinear]" +
+                    ",[FattoreUMMass]" +
+                    ",[Configuration] " +
+                    ",[ConfigId] " +
+                    ",[Document" +
+                    "Id] " +
+                    "FROM SWANAG WHERE SessionID = '" + SessionID + "' AND DEDID = '" + sDEDID + "' AND DEDREV = '" + sDEDREV + "'";
+
+            List<String> ListaNomi = new List<string>();
+            List<String> ListaValori = new List<string>();
+            List<String> ListaTipiDato = new List<string>();
+
+            string sdate = default(string);
+            string svaultname = default(string);
+            string sconfig_id = default(string);
+            string sconfig_name = default(string);
+            string sdocument_id = default(string);
+            string sdocument_path = default(string);
+            string sdocument_file = default(string);
+            string sdocument_pathfile = default(string);
+            string scodice = default(string);
+
+            using (SqlCommand command = new SqlCommand(query, conn))
+            {
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+
+                    while (reader.Read())
+                    {
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+
+
+                            ListaNomi.Add(reader.GetName(i));
+
+                            if (!reader.IsDBNull(i))
+                                ListaValori.Add(reader[i].ToString());
+                            else
+                                ListaValori.Add("");
+
+                            if (!reader.IsDBNull(i))
+                                ListaTipiDato.Add(reader.GetFieldType(i).ToString());
+                            else
+                                ListaTipiDato.Add("System.String");
+
+                            if (ListaNomi[i].ToUpper() == "CONFIGURATION")
+                                if (!reader.IsDBNull(i))
+                                    sconfig_name = reader.GetString(i);
+                                else
+                                    sconfig_name = "";
+
+                            if (ListaNomi[i].ToUpper() == "DOCUMENTID")
+                                if (!reader.IsDBNull(i))
+                                    sdocument_id = reader.GetString(i);
+                                else
+                                    sdocument_id = "";
+
+                            if (ListaNomi[i].ToUpper() == "DBPATH")
+                                if (!reader.IsDBNull(i))
+                                    sdocument_path = reader.GetString(i);
+                                else
+                                    sdocument_path = "";
+
+                            if (ListaNomi[i].ToUpper() == "DED_FILE")
+                                if (!reader.IsDBNull(i))
+                                    sdocument_file = reader.GetString(i);
+                                else
+                                    sdocument_file = "";
+
+                            if (ListaNomi[i].ToUpper() == "CONFIGID")
+                                if (!reader.IsDBNull(i))
+                                    sconfig_id = reader.GetString(i);
+                                else
+                                    sconfig_id = "";
+
+                            if (ListaNomi[i].ToUpper() == "DED_COD")
+                                if (!reader.IsDBNull(i))
+                                    scodice = reader.GetString(i);
+                                else
+                                    scodice = "";
+
+
+                        }
+
+                    }
+                }
+
+            }
+
+            bool bANAG;
+            bANAG = false;
+
+            if (!(listaCodiciElab.Contains(scodice)))
+            {
+
+                listaCodiciElab.Add(scodice);
+                bANAG = true;
+                iANAGRow++;
+
+            }
+
+            if (bFirst)
+            {
+
+
+                writerDIST.WriteStartElement("xml");
+                writerDIST.WriteStartElement("transactions");
+                writerDIST.WriteStartElement("transaction");
+                writerDIST.WriteAttributeString("date", sdate); //guic: calcolare la data
+                writerDIST.WriteAttributeString("type", "wf_export_document_attributes");
+                writerDIST.WriteAttributeString("vaultname", svaultname);  // guic gestire il vault name
+
+                writerANAG.WriteStartElement("xml");
+                writerANAG.WriteStartElement("transactions");
+                writerANAG.WriteStartElement("transaction");
+                writerANAG.WriteAttributeString("date", sdate); //guic: calcolare la data
+                writerANAG.WriteAttributeString("type", "export_bom_spreadsheet");
+                writerANAG.WriteAttributeString("vaultname", svaultname);  // guic gestire il vault name
+
+
+
+            }
+
+            writerDIST.WriteStartElement("document");
+            writerDIST.WriteAttributeString("aliasset", "");
+            writerDIST.WriteAttributeString("pdmweid", sdocument_id);
+            writerDIST.WriteStartElement("configuration");
+            writerDIST.WriteAttributeString("name", sconfig_name);
+            writerDIST.WriteAttributeString("quantity", sQuantity);  // guic gestire il config name
+
+            if (bANAG)
+            {
+                writerANAG.WriteStartElement("bom");
+                writerANAG.WriteAttributeString("config_id", sconfig_id);
+                writerANAG.WriteAttributeString("config_name", sconfig_name);
+                writerANAG.WriteAttributeString("document_id", sdocument_id);
+                writerANAG.WriteAttributeString("document_path", sdocument_path + @"\" + sdocument_file);
+                writerANAG.WriteAttributeString("type", "0");
+                writerANAG.WriteStartElement("bomheader");
+
+            }
+
+
+            for (int i = 0; i < ListaNomi.Count; i++)
+            {
+                if (ListaNomi[i] == "DED_COD")
+                {
+                    writerDIST.WriteStartElement("attribute");
+                    writerDIST.WriteAttributeString("name", ListaNomi[i]);
+                    writerDIST.WriteAttributeString("value", ListaValori[i]);
+
+                    writerDIST.WriteEndElement();
+
+                }
+
+                if (bANAG)
+                {
+                    writerANAG.WriteStartElement("bomcol");
+                    writerANAG.WriteAttributeString("col_no", i.ToString()); ;
+                    writerANAG.WriteAttributeString("name", ListaNomi[i]);
+
+                    writerANAG.WriteEndElement();
+                }
+
+            }
+
+            if (bANAG)
+            {
+                writerANAG.WriteEndElement();
+                writerANAG.WriteStartElement("bomrow");
+                writerANAG.WriteAttributeString("document_id", sdocument_id);
+                writerANAG.WriteAttributeString("path", sdocument_path + @"\" + sdocument_file);
+                writerANAG.WriteAttributeString("row_no", iANAGRow.ToString());
+
+                for (int i = 0; i < ListaNomi.Count; i++)
+                {
+                    writerANAG.WriteStartElement("bomcell");
+                    writerANAG.WriteAttributeString("col_no", i.ToString());
+                    writerANAG.WriteAttributeString("value", ListaValori[i]);
+                    writerANAG.WriteAttributeString("data_type", ListaTipiDato[i]);
+
+                    writerANAG.WriteEndElement();
+                }
+
+
+
+
+                writerANAG.WriteEndElement();
+                writerANAG.WriteEndElement();
+
+
+
+
+
+            }
+
+
+            query = "SELECT " +
+                                "[DEDIDP]" +
+                                ",[DEDREVP]" +
+                                ",[DEDIDC]" +
+                                ",[DEDREVC]" +
+                                ",[QTA] " +
+                                "FROM SWBOM WHERE SessionID = '" + SessionID + "' AND DEDIDP = '" + sDEDID + "' AND DEDREVP = '" + sDEDREV + "'";
+
+
+            string sChildDEDIDC = default(string);
+            string sChildDEDREVC = default(string);
+            string sChildQTA = default(string);
+
+
+            using (SqlCommand command2 = new SqlCommand(query, conn))
+            {
+
+                using (SqlDataReader reader2 = command2.ExecuteReader())
+                {
+
+                    while (reader2.Read())
+                    {
+
+
+                        for (int i = 0; i < reader2.FieldCount; i++)
+                        {
+
+                            if (reader2.GetName(i).ToUpper() == "DEDIDC")
+                                if (!reader2.IsDBNull(i))
+                                    sChildDEDIDC = reader2.GetString(i);
+                                else
+                                    sChildDEDIDC = "";
+
+                            if (reader2.GetName(i).ToUpper() == "DEDREVC")
+                                if (!reader2.IsDBNull(i))
+                                    sChildDEDREVC = reader2.GetString(i);
+                                else
+                                    sChildDEDREVC = "";
+
+                            if (reader2.GetName(i).ToUpper() == "QTA")
+                                if (!reader2.IsDBNull(i))
+                                    sChildQTA = reader2[i].ToString();
+                                else
+                                    sChildQTA = "";
+                        }
+
+                        writerDIST.WriteStartElement("references");
+
+
+                        EsportaFileXMLRic(SessionID, sChildDEDIDC, sChildDEDREVC, false, conn, sChildQTA, writerDIST, writerANAG);
+
+                        writerDIST.WriteEndElement();
+
+
+
+                    }
+
+                }
+
+            }
+
+            writerDIST.WriteEndElement();
+            writerDIST.WriteEndElement();
+
+
+            if (bFirst)
+            {
+
+                writerDIST.WriteEndElement();
+                writerDIST.WriteEndElement();
+                writerDIST.WriteEndElement();
+                writerDIST.Flush();
+                writerDIST.Close();
+                writerDIST.Dispose();
+
+
+                writerANAG.WriteEndElement();
+                writerANAG.WriteEndElement();
+                writerANAG.WriteEndElement();
+                writerANAG.Flush();
+                writerANAG.Close();
+                writerANAG.Dispose();
+
+
+
+
+            }
+
+        }
+
+
 
         public void IniziaAggiornamento(string sFileName, string sConfigurazioni, IEdmVault5 vault)
         {

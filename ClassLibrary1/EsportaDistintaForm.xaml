@@ -49,7 +49,7 @@
         <RadioButton x:Name="RB9" Grid.Column="4" Content="Tabella di frontiera" HorizontalAlignment="Left" Margin="170,168,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB4" Height="15"/>
         <GroupBox Grid.Column="4" HorizontalAlignment="Left" Height="102" Header="Output" Margin="159,87,0,0" VerticalAlignment="Top" Width="329"/>
         <TextBox x:Name="FileName" Grid.Column="4" HorizontalAlignment="Left" Height="24" Margin="260,134,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="215"/>
-        <Label Grid.Column="4" Content="File:" HorizontalAlignment="Left" Height="25" Margin="230,136,0,0" VerticalAlignment="Top" Width="30"/>
+        <Label Grid.Column="4" Content="Dir:" HorizontalAlignment="Left" Height="25" Margin="230,136,0,0" VerticalAlignment="Top" Width="30"/>
         <!--<WPF:ConsoleControl x:Name="embeddedConsole" HorizontalAlignment="Center" Margin="0,217,0,0" VerticalAlignment="Top" Height="207" Width="780"/>-->
     </Grid>
 </Window>

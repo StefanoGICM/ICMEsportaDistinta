@@ -580,7 +580,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         if ((bool)RB7.IsChecked)
                             iOutput = 1;
-                        else if ((bool)RB7.IsChecked)
+                        else if ((bool)RB8.IsChecked)
                             iOutput = 2;
                         else
                             iOutput = 3;
