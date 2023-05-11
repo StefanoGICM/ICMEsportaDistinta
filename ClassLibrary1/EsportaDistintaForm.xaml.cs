@@ -530,8 +530,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             bool bSet2;
             int iSelectedRootVersion;
 
+            int iDeleteFrontiera;
+
             int iOutput = 0;
             string cFileName;
+            string cNote;
 
             /*if ((sConfigurazioni == null) || (sConfigurazioni.Trim() == ""))
             {
@@ -648,7 +651,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         id = 0;
 
-                        
+                        if (deleteFrontiera.IsChecked == true)
+                            iDeleteFrontiera = 1;
+                        else
+                            iDeleteFrontiera = 0;
+
+                        cNote = NoteTB.Text;
+
                         /* aggiunge record nella tabella di esportazione */
                         preEsportaDistinta.insertDistinta(this.vault
                                                           , this.iDocument
@@ -665,7 +674,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           , "Form"
                                                           , 0
                                                           , iOutput
-                                                          , cFileName);
+                                                          , cFileName
+                                                          , iDeleteFrontiera
+                                                          , cNote);
 
 
                         EspDistinta.TS.WriteLine("Record inserito nella queue di esportazione");

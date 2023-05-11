@@ -77,7 +77,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     string origine,
                                     int iCambioPromosso,
                                     int iOutput,
-                                    string cFileName)
+                                    string cFileName,
+                                    int iDeleteFrontiera,
+                                    string sNote)
         {
             
 
@@ -188,6 +190,21 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 sqlParam = command.Parameters.Add("@Id", SqlDbType.BigInt);
                 sqlParam.Direction = ParameterDirection.Output;
                 sqlParam.Value = 0;
+
+                sqlParam = command.Parameters.Add("@DeleteFrontiera", SqlDbType.Int);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = iDeleteFrontiera;
+
+                WriteLog("Parametro Cancella Frontiera: " + iDeleteFrontiera.ToString());
+
+
+                sqlParam = command.Parameters.Add("@Note", SqlDbType.NVarChar, 2000);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sNote;
+
+                WriteLog("Parametro Note: " + sNote);
+
+
 
                 IPHostEntry host = Dns.GetHostEntry("localhost");
                 IPAddress ipAddress = host.AddressList[0];
