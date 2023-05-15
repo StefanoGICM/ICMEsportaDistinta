@@ -43,8 +43,17 @@
             this.outputGroupBox = new System.Windows.Forms.GroupBox();
             this.connARCALabel = new System.Windows.Forms.Label();
             this.ConnARCATextBox = new System.Windows.Forms.TextBox();
+            this.ConnICMSWDataTextBox = new System.Windows.Forms.TextBox();
+            this.ICMSWDataLabel = new System.Windows.Forms.Label();
+            this.dirFileXMLTextBox = new System.Windows.Forms.TextBox();
+            this.dirFileXMLLabel = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.noteTextBox = new System.Windows.Forms.TextBox();
+            this.noteLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.outputGroupBox.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // confTextBox
@@ -170,6 +179,7 @@
             // 
             // outputGroupBox
             // 
+            this.outputGroupBox.Controls.Add(this.groupBox2);
             this.outputGroupBox.Controls.Add(this.listBox1);
             this.outputGroupBox.Location = new System.Drawing.Point(65, 296);
             this.outputGroupBox.Name = "outputGroupBox";
@@ -181,26 +191,98 @@
             // connARCALabel
             // 
             this.connARCALabel.AutoSize = true;
-            this.connARCALabel.Location = new System.Drawing.Point(360, 330);
+            this.connARCALabel.Location = new System.Drawing.Point(4, 24);
             this.connARCALabel.Name = "connARCALabel";
-            this.connARCALabel.Size = new System.Drawing.Size(187, 20);
+            this.connARCALabel.Size = new System.Drawing.Size(191, 20);
             this.connARCALabel.TabIndex = 13;
-            this.connARCALabel.Text = "Connessione SQL ARCA";
+            this.connARCALabel.Text = "Connessione SQL ARCA:";
             // 
             // ConnARCATextBox
             // 
-            this.ConnARCATextBox.Location = new System.Drawing.Point(559, 327);
+            this.ConnARCATextBox.Location = new System.Drawing.Point(203, 21);
             this.ConnARCATextBox.Name = "ConnARCATextBox";
             this.ConnARCATextBox.Size = new System.Drawing.Size(839, 26);
             this.ConnARCATextBox.TabIndex = 12;
+            // 
+            // ConnICMSWDataTextBox
+            // 
+            this.ConnICMSWDataTextBox.Location = new System.Drawing.Point(309, 526);
+            this.ConnICMSWDataTextBox.Name = "ConnICMSWDataTextBox";
+            this.ConnICMSWDataTextBox.Size = new System.Drawing.Size(1044, 26);
+            this.ConnICMSWDataTextBox.TabIndex = 14;
+            // 
+            // ICMSWDataLabel
+            // 
+            this.ICMSWDataLabel.AutoSize = true;
+            this.ICMSWDataLabel.Location = new System.Drawing.Point(71, 526);
+            this.ICMSWDataLabel.Name = "ICMSWDataLabel";
+            this.ICMSWDataLabel.Size = new System.Drawing.Size(236, 20);
+            this.ICMSWDataLabel.TabIndex = 15;
+            this.ICMSWDataLabel.Text = "Connessione tabelle di frontiera:";
+            // 
+            // dirFileXMLTextBox
+            // 
+            this.dirFileXMLTextBox.Location = new System.Drawing.Point(203, 60);
+            this.dirFileXMLTextBox.Name = "dirFileXMLTextBox";
+            this.dirFileXMLTextBox.Size = new System.Drawing.Size(839, 26);
+            this.dirFileXMLTextBox.TabIndex = 16;
+            // 
+            // dirFileXMLLabel
+            // 
+            this.dirFileXMLLabel.AutoSize = true;
+            this.dirFileXMLLabel.Location = new System.Drawing.Point(53, 63);
+            this.dirFileXMLLabel.Name = "dirFileXMLLabel";
+            this.dirFileXMLLabel.Size = new System.Drawing.Size(142, 20);
+            this.dirFileXMLLabel.TabIndex = 17;
+            this.dirFileXMLLabel.Text = "Directory File XML:";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Location = new System.Drawing.Point(288, 43);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(1083, 107);
+            this.groupBox2.TabIndex = 12;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "groupBox2";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.dirFileXMLLabel);
+            this.groupBox3.Controls.Add(this.dirFileXMLTextBox);
+            this.groupBox3.Controls.Add(this.connARCALabel);
+            this.groupBox3.Controls.Add(this.ConnARCATextBox);
+            this.groupBox3.Location = new System.Drawing.Point(372, 339);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(1063, 106);
+            this.groupBox3.TabIndex = 18;
+            this.groupBox3.TabStop = false;
+            // 
+            // noteTextBox
+            // 
+            this.noteTextBox.Location = new System.Drawing.Point(309, 579);
+            this.noteTextBox.Name = "noteTextBox";
+            this.noteTextBox.Size = new System.Drawing.Size(1044, 26);
+            this.noteTextBox.TabIndex = 19;
+            // 
+            // noteLabel
+            // 
+            this.noteLabel.AutoSize = true;
+            this.noteLabel.Location = new System.Drawing.Point(258, 586);
+            this.noteLabel.Name = "noteLabel";
+            this.noteLabel.Size = new System.Drawing.Size(47, 20);
+            this.noteLabel.TabIndex = 20;
+            this.noteLabel.Text = "Note:";
             // 
             // SetupPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.connARCALabel);
+            this.Controls.Add(this.noteLabel);
+            this.Controls.Add(this.noteTextBox);
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.ICMSWDataLabel);
+            this.Controls.Add(this.ConnICMSWDataTextBox);
             this.Controls.Add(this.outputGroupBox);
-            this.Controls.Add(this.ConnARCATextBox);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.figliListBox);
             this.Controls.Add(this.figliLabel);
@@ -211,11 +293,13 @@
             this.Controls.Add(this.confTextBox);
             this.Controls.Add(this.padreListBox);
             this.Name = "SetupPage";
-            this.Size = new System.Drawing.Size(1518, 940);
+            this.Size = new System.Drawing.Size(1518, 743);
             this.Load += new System.EventHandler(this.SetupPage_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.outputGroupBox.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -238,5 +322,13 @@
         private System.Windows.Forms.GroupBox outputGroupBox;
         private System.Windows.Forms.Label connARCALabel;
         private System.Windows.Forms.TextBox ConnARCATextBox;
+        private System.Windows.Forms.TextBox ConnICMSWDataTextBox;
+        private System.Windows.Forms.Label ICMSWDataLabel;
+        private System.Windows.Forms.TextBox dirFileXMLTextBox;
+        private System.Windows.Forms.Label dirFileXMLLabel;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TextBox noteTextBox;
+        private System.Windows.Forms.Label noteLabel;
     }
 }
