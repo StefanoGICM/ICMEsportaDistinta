@@ -117,7 +117,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 //to WorkflowsComboBox
 
-                WorkflowsComboBox.Items.Clear();
+                //WorkflowsComboBox.Items.Clear();
 
                 IEdmWorkflowMgr6 WorkflowMgr = default(IEdmWorkflowMgr6);
 
@@ -129,11 +129,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 {
 
-                    IEdmWorkflow6 Workflow = default(IEdmWorkflow6);
+                    //IEdmWorkflow6 Workflow = default(IEdmWorkflow6);
 
-                    Workflow = WorkflowMgr.GetNextWorkflow(WorkflowPos);
+                    //Workflow = WorkflowMgr.GetNextWorkflow(WorkflowPos);
 
-                    WorkflowsComboBox.Items.Add(Workflow.Name);
+                    //WorkflowsComboBox.Items.Add(Workflow.Name);
 
                 }
 
@@ -195,7 +195,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 {
 
-                    WorkflowsComboBox.SelectedIndex = 0;
+                    //WorkflowsComboBox.SelectedIndex = 0;
 
                 }
 
@@ -203,7 +203,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 {
 
-                    WorkflowsComboBox.Text = SelectedWorkflow;
+                    //WorkflowsComboBox.Text = SelectedWorkflow;
 
                 }
 
@@ -239,7 +239,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         {
 
-            try
+            /*try
 
             {
 
@@ -285,147 +285,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 MessageBox.Show(ex.Message);
 
-            }
+            }*/
 
         }
-
-
-
-
-
-        private void WorkflowsComboBox_SelectedIndexChanged(System.Object sender, System.EventArgs e)
-
-        {
-
-            try
-
-            {
-
-                //Find the IEdmWorkflow corresponding to the
-
-                //selected workflow name
-
-                IEdmWorkflowMgr6 WorkflowMgr = default(IEdmWorkflowMgr6);
-
-                WorkflowMgr = (IEdmWorkflowMgr6)mVault.CreateUtility(EdmUtility.EdmUtil_WorkflowMgr);
-
-                IEdmPos5 WorkflowPos = WorkflowMgr.GetFirstWorkflowPosition();
-
-                IEdmWorkflow6 Workflow = null;
-
-                IEdmWorkflow6 SelectedWorkflow = null;
-
-                while (!WorkflowPos.IsNull)
-
-                {
-
-                    Workflow = WorkflowMgr.GetNextWorkflow(WorkflowPos);
-
-                    if (Workflow.Name == WorkflowsComboBox.Text)
-
-                    {
-
-                        SelectedWorkflow = Workflow;
-
-                        break;
-
-                    }
-
-                }
-
-
-
-                //Add the names of the available states for the
-
-                //selected workflow to StatesListBox
-
-                StatesListBox.Items.Clear();
-
-                if (SelectedWorkflow != null)
-
-                {
-
-                    IEdmPos5 StatePos = SelectedWorkflow.GetFirstStatePosition();
-
-                    while (!(StatePos.IsNull))
-
-                    {
-
-                        IEdmState6 State = default(IEdmState6);
-
-                        State = SelectedWorkflow.GetNextState(StatePos);
-
-                        StatesListBox.Items.Add(State.Name);
-
-
-
-                    }
-
-
-
-                }
-
-
-
-                string SelectedStates = "";
-
-                if ((mTaskProps != null))
-
-                {
-
-                    SelectedStates = (string)mTaskProps.GetValEx("SelectedStatesVar");
-
-                }
-
-                else if ((mTaskInst != null))
-
-                {
-
-                    SelectedStates = (string)mTaskInst.GetValEx("SelectedStatesVar");
-
-                }
-
-
-
-                string[] States = SelectedStates.Split(new string[] { "\\n" }, StringSplitOptions.None);
-
-                foreach (string State in States)
-
-                {
-
-                    if (!string.IsNullOrEmpty(State.Trim()))
-
-                    {
-
-                        StatesListBox.SelectedItems.Add(State);
-
-                    }
-
-                }
-
-
-
-            }
-
-            catch (System.Runtime.InteropServices.COMException ex)
-
-            {
-
-                MessageBox.Show("HRESULT = 0x" + ex.ErrorCode.ToString("X") + ex.Message);
-
-            }
-
-            catch (Exception ex)
-
-            {
-
-                MessageBox.Show(ex.Message);
-
-            }
-
-        }
-
-
 
         public void DisableControls()
 
@@ -434,12 +296,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             try
 
             {
-
-                WorkflowsComboBox.Enabled = false;
-
-                StatesListBox.Enabled = false;
-
-                DaysNumericUpDown.Enabled = false;
 
             }
 
