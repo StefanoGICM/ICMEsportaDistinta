@@ -625,6 +625,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             {
 
                                 System.Windows.Forms.MessageBox.Show("La Directory " + cOutputDir + " non esiste");
+                                return;
 
                             }
 

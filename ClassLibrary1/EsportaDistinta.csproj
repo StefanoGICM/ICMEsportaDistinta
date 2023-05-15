@@ -53,6 +53,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -62,6 +63,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Addin.cs" />
@@ -70,6 +72,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EsportaDistintaForm.xaml.cs">
       <DependentUpon>EsportaDistintaForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SetupPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SetupPage.Designer.cs">
+      <DependentUpon>SetupPage.cs</DependentUpon>
     </Compile>
     <Compile Include="TraceSourceExtension.cs" />
   </ItemGroup>
@@ -95,6 +103,11 @@
     <Content Include="SQLServer\xSOLIDCheckDIBASp.sql" />
     <Content Include="SQLServer\xSOLIDCreaArticoloSp.sql" />
     <Content Include="SQLServer\xSOLIDTTInsert.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SetupPage.resx">
+      <DependentUpon>SetupPage.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

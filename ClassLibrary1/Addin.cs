@@ -8,15 +8,19 @@ using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Data;
 using System.Diagnostics;
-
+using System.Runtime.InteropServices;
 namespace ICM.SWPDM.EsportaDistintaAddin
-{
+{    
+
+    [Guid("E599F5C4-3547-4D96-AD9E-7DAE7F3E8AD4"), ComVisible(true)]
     public class AddIn : IEdmAddIn5
     {
 
         IEdmVault5 vault = null;
         string sFileName = null;
 
+        SetupPage SetupTaskPageObj;
+        
 
         public void GetAddInInfo(ref EdmAddInInfo poInfo, IEdmVault5 poVault, IEdmCmdMgr5 poCmdMgr)
         {
@@ -46,6 +50,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         private void OnTaskDetails(ref EdmCmd poCmd, ref EdmCmdData[] ppoData)
         {
+            /* old
             try
             {
                 IEdmTaskInstance TaskInstance = (IEdmTaskInstance)poCmd.mpoExtra;
@@ -66,6 +71,38 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
                 MessageBox.Show(ex.Message);
             }
+            */
+            try
+            {
+                IEdmTaskInstance TaskInstance = (IEdmTaskInstance)poCmd.mpoExtra;
+                if ((TaskInstance != null))
+                {
+                    SetupTaskPageObj = new SetupPage((IEdmVault7)poCmd.mpoVault, (IEdmTaskInstance) TaskInstance);
+
+                    
+
+                    //Force immediate creation of the control
+                    //and its handle
+
+                    SetupTaskPageObj.CreateControl();
+                    
+
+                    SetupTaskPageObj.LoadData(poCmd);
+                    SetupTaskPageObj.DisableControls();
+                    poCmd.mbsComment = "State Age Details";
+                    poCmd.mlParentWnd = SetupTaskPageObj.Handle.ToInt32();
+                }
+
+            }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                MessageBox.Show("HRESULT = 0x" + ex.ErrorCode.ToString("X") + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
 
         }
 
@@ -235,8 +272,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             }
         }
 
+
+
         private void OnTaskSetup(ref EdmCmd poCmd, ref EdmCmdData[] ppoData)
         {
+
+            /* //old
             try
             {
                 IEdmTaskProperties props = (IEdmTaskProperties)poCmd.mpoExtra;
@@ -248,10 +289,52 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     props.TaskFlags = (int)EdmTaskFlag.EdmTask_SupportsScheduling + (int)EdmTaskFlag.EdmTask_SupportsDetails + (int)EdmTaskFlag.EdmTask_SupportsChangeState;
 
 
+                    EdmTaskSetupTaskPage[] pages = new EdmTaskSetupTaskPage[1];
+                    //Page name that appears in the
+                    //navigation pane of the Add Task dialog
+                    //in the Administration tool
+
+                    props.SetSetupTaskPages(pages);
+
+                }
+
+            }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                MessageBox.Show("HRESULT = 0x" + ex.ErrorCode.ToString("X") + " " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            **/
+            try
+            {
+                IEdmTaskProperties props = (IEdmTaskProperties)poCmd.mpoExtra;
+                if ((props != null))
+                {
+                    //Set the task properties
+                    props.TaskFlags = (int)EdmTaskFlag.EdmTask_SupportsScheduling + (int)EdmTaskFlag.EdmTask_SupportsDetails;
+
+                    SetupTaskPageObj = new SetupPage((IEdmVault7)poCmd.mpoVault, (IEdmTaskProperties)props);
+
+                    //MessageBox.Show(SetupTaskPageObj.handle.ToString());
+
+                    //Force immediate creation of the control
+                    //and its handle
+
+                    SetupTaskPageObj.CreateControl();
+                    
+
+                    SetupTaskPageObj.LoadData(poCmd);
+
                     EdmTaskSetupPage[] pages = new EdmTaskSetupPage[1];
                     //Page name that appears in the
                     //navigation pane of the Add Task dialog
                     //in the Administration tool
+                    pages[0].mbsPageName = "Configurazione esportazione";
+                    pages[0].mlPageHwnd = SetupTaskPageObj.Handle.ToInt32();
+                    pages[0].mpoPageImpl = SetupTaskPageObj;
 
                     props.SetSetupPages(pages);
 
@@ -266,16 +349,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
                 MessageBox.Show(ex.Message);
             }
+
         }
 
         //'Called when the user clicks OK or Cancel in the 
         //'task property dialog box
         private void OnTaskSetupButton(ref EdmCmd poCmd, ref EdmCmdData[] ppoData)
         {
+            /* old
             try
             {
-                //Custom setup page, SetupPageObj, is created
-                //in method Class1::OnTaskSetup; SetupPage::StoreData 
+                //Custom setup page, SetupTaskPageObj, is created
+                //in method Class1::OnTaskSetup; SetupTaskPage::StoreData 
                 //saves the contents of the list box to poCmd.mpoExtra 
                 //in the IEdmTaskProperties interface
 
@@ -288,6 +373,30 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
                 MessageBox.Show(ex.Message);
             }
+            */
+
+            try
+            {
+                //Custom setup page, SetupTaskPageObj, is created
+                //in method Class1::OnTaskSetup; SetupTaskPage::StoreData 
+                //saves the contents of the list box to poCmd.mpoExtra 
+                //in the IEdmTaskProperties interface
+                if (poCmd.mbsComment == "OK" & (SetupTaskPageObj != null))
+                {
+                    //SetupTaskPageObj.StoreData();
+                }
+                SetupTaskPageObj = null;
+
+            }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                MessageBox.Show("HRESULT = 0x" + ex.ErrorCode.ToString("X") + " " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
         }
 
         public int GetFileLatestVersion(IEdmFile5 aFile)
