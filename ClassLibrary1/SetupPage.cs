@@ -113,108 +113,48 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             {
 
-                //Add the names of the available workflows
-
-                //to WorkflowsComboBox
-
-                //WorkflowsComboBox.Items.Clear();
-
-                IEdmWorkflowMgr6 WorkflowMgr = default(IEdmWorkflowMgr6);
-
-                WorkflowMgr = (IEdmWorkflowMgr6)mVault.CreateUtility(EdmUtility.EdmUtil_WorkflowMgr);
-
-                IEdmPos5 WorkflowPos = WorkflowMgr.GetFirstWorkflowPosition();
-
-                while (!WorkflowPos.IsNull)
-
-                {
-
-                    //IEdmWorkflow6 Workflow = default(IEdmWorkflow6);
-
-                    //Workflow = WorkflowMgr.GetNextWorkflow(WorkflowPos);
-
-                    //WorkflowsComboBox.Items.Add(Workflow.Name);
-
-                }
-
-
-
-                string SelectedWorkflow = "";
-
-                string NoDays = "";
+                int iTopLevel;
+                int iCancella;
 
                 if ((mTaskProps != null))
-
                 {
 
-                    //Retrieve the name of the workflow that was
 
-                    //selected by the user
+                    assiemeTextBox.Text = this.mTaskProps.GetValEx("AssiemeVar");
 
-                    SelectedWorkflow = (string)mTaskProps.GetValEx("SelectedWorkflowVar");
+                    confTextBox.Text = this.mTaskProps.GetValEx("confVar");
+                    padreListBox.Text = this.mTaskProps.GetValEx("padreVar");
+                    figliListBox.Text = this.mTaskProps.GetValEx("figliVar");
+                    iTopLevel = this.mTaskProps.GetValEx("topLevelVar").ToInt32();
+                    iCancella = this.mTaskProps.GetValEx("cancellaVar").ToInt32();
+                    outputListBox.Text = this.mTaskProps.GetValEx("outputVar");
+                    connARCATextBox.Text = this.mTaskProps.GetValEx("connARCAVar");
+                    dirFileXMLTextBox.Text = this.mTaskProps.GetValEx("dirFileXMLVar");
+                    connICMSWDataTextBox.Text = this.mTaskProps.GetValEx("connICMSWDataVar");
+                    connICMSWDataTextBox.Text = this.mTaskProps.GetValEx("connICMSWDataVar");
+                    noteTextBox.Text = this.mTaskProps.GetValEx("noteVar");
 
-                    //Retrieve the number of days in a state
 
-                    //before sending a message
 
-                    NoDays = (string)mTaskProps.GetValEx("NoDaysVar");
+
 
                 }
-
                 else if ((mTaskInst != null))
-
                 {
-
-                    //Retrieve the name of the workflow that
-
-                    //was selected by the user
-
-                    SelectedWorkflow = (string)mTaskInst.GetValEx("SelectedWorkflowVar");
-
-                    //Retrieve the number of days in a state
-
-                    //before sending a message
-
-                    NoDays = (string)mTaskInst.GetValEx("NoDaysVar");
+                    confTextBox.Text = this.mTaskInst.GetValEx("confVar");
+                    padreListBox.Text = this.mTaskInst.GetValEx("padreVar");
+                    figliListBox.Text = this.mTaskInst.GetValEx("figliVar");
+                    iTopLevel = this.mTaskInst.GetValEx("topLevelVar").ToInt32();
+                    iCancella = this.mTaskInst.GetValEx("cancellaVar").ToInt32();
+                    outputListBox.Text = this.mTaskInst.GetValEx("outputVar");
+                    connARCATextBox.Text = this.mTaskInst.GetValEx("connARCAVar");
+                    dirFileXMLTextBox.Text = this.mTaskInst.GetValEx("dirFileXMLVar");
+                    connICMSWDataTextBox.Text = this.mTaskInst.GetValEx("connICMSWDataVar");
+                    connICMSWDataTextBox.Text = this.mTaskInst.GetValEx("connICMSWDataVar");
+                    noteTextBox.Text = this.mTaskInst.GetValEx("noteVar");
 
                 }
-
-
-
-                //Select the workflow to display in
-
-                //WorkflowsComboBox; setting this also
-
-                //causes SetupPage::WorkflowsComboBox_SelectedIndexChanged
-
-                //to be called to fill StatesListBox 
-
-                //with the available states for this workflow
-
-                if (string.IsNullOrEmpty(SelectedWorkflow))
-
-                {
-
-                    //WorkflowsComboBox.SelectedIndex = 0;
-
-                }
-
-                else
-
-                {
-
-                    //WorkflowsComboBox.Text = SelectedWorkflow;
-
-                }
-
-
-
-
-
-
-
             }
-
             catch (System.Runtime.InteropServices.COMException ex)
 
             {
@@ -239,33 +179,55 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         {
 
-            /*try
+            int iTopLevel = 0;
+            int iCancella = 0;
+
+            try
 
             {
 
-                //Add the selected states to StatesList
-
-                string StatesList = "";
-
-                foreach (int SelectedStateIndex in StatesListBox.SelectedIndices)
-
+                if (topLevelCheckBox.Checked)
                 {
 
-                    StatesList += StatesListBox.Items[SelectedStateIndex] + "";
+                    iTopLevel = 1;
+
+                }
+                else
+                {
+
+                    iTopLevel = 0;
 
                 }
 
-                //Save the states selected by the user
+                if (cancellaCheckBox.Checked)
+                {
 
-                mTaskProps.SetValEx("SelectedStatesVar", StatesList);
+                    iCancella = 1;
 
-                //Save the workflow selected by the user
+                }
+                else
+                {
 
-                mTaskProps.SetValEx("SelectedWorkflowVar", WorkflowsComboBox.Text);
+                    iCancella = 0;
 
-                //Save the number of days selected by the user
+                }
 
-                mTaskProps.SetValEx("NoDaysVar", DaysNumericUpDown.Text.ToString());
+
+
+                this.mTaskProps.SetValEx("AssiemeVar", assiemeTextBox.Text);
+                this.mTaskProps.SetValEx("confVar", confTextBox.Text);
+                this.mTaskProps.SetValEx("padreVar", padreListBox.Text);
+                this.mTaskProps.SetValEx("figliVar", figliListBox.Text);
+                this.mTaskProps.SetValEx("topLevelVar", iTopLevel.ToString());
+                this.mTaskProps.SetValEx("cancellaVar", iCancella.ToString());
+                this.mTaskProps.SetValEx("outputVar", outputListBox.Text);
+                this.mTaskProps.SetValEx("connARCAVar", connARCATextBox.Text);
+                this.mTaskProps.SetValEx("dirFileXMLVar", dirFileXMLTextBox.Text);
+                this.mTaskProps.SetValEx("connICMSWDataVar", connICMSWDataTextBox.Text);
+                this.mTaskProps.SetValEx("connICMSWDataVar", connICMSWDataTextBox.Text);
+                this.mTaskProps.SetValEx("noteVar", noteTextBox.Text);
+
+
 
 
 
@@ -285,7 +247,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 MessageBox.Show(ex.Message);
 
-            }*/
+            }
 
         }
 
@@ -328,6 +290,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void assiemeTextBox_TextChanged(object sender, EventArgs e)
         {
 
         }

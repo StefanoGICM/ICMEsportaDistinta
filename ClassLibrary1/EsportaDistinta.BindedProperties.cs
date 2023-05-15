@@ -29,6 +29,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
                 documentsAnalyzed = value;
                 InvokePropertyChanged(new PropertyChangedEventArgs("DocumentsAnalyzed"));
+
             }
         }
 
