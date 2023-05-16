@@ -44,8 +44,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public static string connectionStringSWICMDATA = "";
         public static string connectionStringARCA = "";
 
-
-
     }
 
     public class PreEsportaDistinta
@@ -938,11 +936,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             //Debugger.Launch();
 
-            using (SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATAService))
+            using (SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATAService.Replace(@"\\", @"\")))
             {
                 conn.Open();
 
-                using (SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATAService))
+                using (SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATAService.Replace(@"\\", @"\")))
                 {
 
                     conn2.Open();

@@ -76,7 +76,7 @@
             // 
             // assiemeTextBox
             // 
-            this.assiemeTextBox.Location = new System.Drawing.Point(87, 66);
+            this.assiemeTextBox.Location = new System.Drawing.Point(66, 66);
             this.assiemeTextBox.Name = "assiemeTextBox";
             this.assiemeTextBox.Size = new System.Drawing.Size(913, 26);
             this.assiemeTextBox.TabIndex = 2;
@@ -85,7 +85,7 @@
             // assiemeLabel
             // 
             this.assiemeLabel.AutoSize = true;
-            this.assiemeLabel.Location = new System.Drawing.Point(65, 28);
+            this.assiemeLabel.Location = new System.Drawing.Point(65, 35);
             this.assiemeLabel.Name = "assiemeLabel";
             this.assiemeLabel.Size = new System.Drawing.Size(168, 20);
             this.assiemeLabel.TabIndex = 3;

@@ -113,9 +113,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         private void OnTaskRun(ref EdmCmd poCmd, ref EdmCmdData[] ppoData)
         {
 
-
-            
-            
+                       
             int size;
 
             size = ppoData.Length;
@@ -177,54 +175,56 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     sNoteTextBox = TaskInstance.GetValEx("noteVar");
                     sSelezioneVersionePadre = TaskInstance.GetValEx("selezioneVersionePadreVar");
 
+                    sConnICMSWData = sConnICMSWData.Replace(@"\\", @"\");
+                    sConnARCA = sConnARCA.Replace(@"\\", @"\");
+
+                    string sEsplodiPar1 = default(string);
+                    string sEsplodiPar2 = default(string);
 
 
-
-                    if (size == 0)
+                    switch (sPadre.ToUpper())
                     {
 
-                        string sEsplodiPar1 = default(string);
-                        string sEsplodiPar2 = default(string);
+                        case "ULTIMA VERSIONE":
+                            sEsplodiPar1 = "UV";
+                            break;
+
+                        case "ULTIMA REVISIONE":
+                            sEsplodiPar1 = "UR";
+                            break;
+
+                        case "SELEZIONE VERSIONE":
+                            sEsplodiPar1 = "SV";
+                            break;
+
+                    }
 
 
-                        switch (sPadre.ToUpper())
-                        {
+                    switch (sFigli.ToUpper())
+                    {
 
-                            case "ULTIMA VERSIONE":
-                                sEsplodiPar1 = "UV";
-                                break;
+                        case "ULTIMA VERSIONE":
+                            sEsplodiPar1 += (char)1 + "UV";
+                            break;
 
-                            case "ULTIMA REVISIONE":
-                                sEsplodiPar1 = "UR";
-                                break;
+                        case "ULTIMA REVISIONE":
+                            sEsplodiPar1 += (char)1 + "UR";
+                            break;
 
-                            case "SELEZIONE VERSIONE":
-                                sEsplodiPar1 = "SV";
-                                break;
-
-                        }
-
-
-                        switch (sFigli.ToUpper())
-                        {
-
-                            case "ULTIMA VERSIONE":
-                                sEsplodiPar1 += (char)1 + "UV";
-                                break;
-
-                            case "ULTIMA REVISIONE":
-                                sEsplodiPar1 += (char)1 + "UR";
-                                break;
-
-                            case "COME COSTRUITI":
-                                sEsplodiPar1 += (char)1 + "CC";
-                                break;
+                        case "COME COSTRUITI":
+                            sEsplodiPar1 += (char)1 + "CC";
+                            break;
 
 
 
-                        }
+                    }
 
-                        sEsplodiPar2 = sSelezioneVersionePadre;
+                    sEsplodiPar2 = sSelezioneVersionePadre;
+
+                    if (size != 0)
+                    {
+
+
 
                         for (int i = 0; i < size; i++)
                         {
@@ -267,7 +267,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             {
                                 cfgName = cfgList.GetNext(pos);
 
-                                /* salta configurazione @*/
+                                /* salta configurazione @ */
 
                                 if (cfgName == "@")
                                     continue;
@@ -295,7 +295,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                               0,
                                                               newSessionId,
                                                               out longTemp,
-                                                              "Workflow",
+                                                              "Task",
                                                               0,
                                                               1,
                                                               "",
@@ -310,8 +310,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                     bSuccess = true;
                                     ProgresssMsg = "Task Completed";
-
-
 
 
                                 }
@@ -333,12 +331,99 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             }
 
 
-
-
                             espDist.CloseLog();
                             espDist.MoveLog(bSuccess);
 
                         }
+
+                    }
+                    else
+                    {
+
+                        IEdmFile17 File = null;
+                        IEdmFolder5 ParentFolder = null;
+                        File = (IEdmFile17)this.vault.GetFileFromPath(sAssieme, out ParentFolder);
+
+                        if (File == null) 
+                        {
+
+                            throw new ApplicationException("File assieme/parte non trovato");
+
+
+                        }
+
+                        iDocument = File.ID;
+
+                        version = GetFileLatestVersion(File);
+                        string cfgName;
+                        cfgName = sConf;
+                        sFileName = sAssieme;
+
+                        bool bSuccess;
+
+                        bSuccess = false;
+
+                        try
+                        {
+
+                            espDist.WriteLog("-----------------------------------------------------------------------");
+                            espDist.WriteLog("Inserimento record per Esportazione " + sFileName + " (configurazione " + cfgName + ")");
+                            espDist.WriteLog("-----------------------------------------------------------------------");
+
+
+                            newSessionId = Guid.NewGuid();
+                            //espDist.IniziaEsportazione(iDocument, sFileName, version, cfgName, this.vault, true, "UV" + ((char) 1) + "UV", "");
+                            preEspDist.insertDistinta(this.vault,
+                                                      iDocument,
+                                                      sFileName,
+                                                      version,
+                                                      cfgName,
+                                                      true,
+                                                      sEsplodiPar1,
+                                                      sEsplodiPar2,
+                                                      sConnARCA,
+                                                      sConnICMSWData,
+                                                      0,
+                                                      newSessionId,
+                                                      out longTemp,
+                                                      "Task",
+                                                      0,
+                                                      1,
+                                                      "",
+                                                      1,
+                                                      "");
+
+
+
+                            espDist.WriteLog("-----------------------------------------------------------------------");
+                            espDist.WriteLog("Inserimento record per esportazione terminato con successo");
+                            espDist.WriteLog("-----------------------------------------------------------------------");
+
+                            bSuccess = true;
+                            ProgresssMsg = "Task Completed";
+
+
+
+
+                        }
+                        catch (Exception ex)
+                        {
+                            espDist.WriteLog(ex.Message);
+
+                            espDist.WriteLog("-----------------------------------------------------------------------");
+                            espDist.WriteLog("Inserimento record per esportazione interrotta per errori");
+                            espDist.WriteLog("-----------------------------------------------------------------------");
+
+                            ProgresssMsg = "Task Failed";
+
+
+
+
+                        }
+
+
+
+
 
                     }
 
