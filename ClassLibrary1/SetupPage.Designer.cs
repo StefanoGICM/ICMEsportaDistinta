@@ -51,6 +51,8 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.noteTextBox = new System.Windows.Forms.TextBox();
             this.noteLabel = new System.Windows.Forms.Label();
+            this.selezioneVersionePadreTextBox = new System.Windows.Forms.TextBox();
+            this.labelVersionePadre = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.outputGroupBox.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -74,7 +76,7 @@
             // 
             // assiemeTextBox
             // 
-            this.assiemeTextBox.Location = new System.Drawing.Point(66, 56);
+            this.assiemeTextBox.Location = new System.Drawing.Point(87, 66);
             this.assiemeTextBox.Name = "assiemeTextBox";
             this.assiemeTextBox.Size = new System.Drawing.Size(913, 26);
             this.assiemeTextBox.TabIndex = 2;
@@ -224,7 +226,7 @@
             // ICMSWDataLabel
             // 
             this.ICMSWDataLabel.AutoSize = true;
-            this.ICMSWDataLabel.Location = new System.Drawing.Point(71, 526);
+            this.ICMSWDataLabel.Location = new System.Drawing.Point(63, 526);
             this.ICMSWDataLabel.Name = "ICMSWDataLabel";
             this.ICMSWDataLabel.Size = new System.Drawing.Size(236, 20);
             this.ICMSWDataLabel.TabIndex = 15;
@@ -268,16 +270,34 @@
             // noteLabel
             // 
             this.noteLabel.AutoSize = true;
-            this.noteLabel.Location = new System.Drawing.Point(258, 580);
+            this.noteLabel.Location = new System.Drawing.Point(250, 580);
             this.noteLabel.Name = "noteLabel";
             this.noteLabel.Size = new System.Drawing.Size(47, 20);
             this.noteLabel.TabIndex = 20;
             this.noteLabel.Text = "Note:";
             // 
+            // selezioneVersionePadreTextBox
+            // 
+            this.selezioneVersionePadreTextBox.Location = new System.Drawing.Point(171, 259);
+            this.selezioneVersionePadreTextBox.Name = "selezioneVersionePadreTextBox";
+            this.selezioneVersionePadreTextBox.Size = new System.Drawing.Size(187, 26);
+            this.selezioneVersionePadreTextBox.TabIndex = 21;
+            // 
+            // labelVersionePadre
+            // 
+            this.labelVersionePadre.AutoSize = true;
+            this.labelVersionePadre.Location = new System.Drawing.Point(45, 259);
+            this.labelVersionePadre.Name = "labelVersionePadre";
+            this.labelVersionePadre.Size = new System.Drawing.Size(114, 20);
+            this.labelVersionePadre.TabIndex = 22;
+            this.labelVersionePadre.Text = "VersionePadre";
+            // 
             // SetupPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.labelVersionePadre);
+            this.Controls.Add(this.selezioneVersionePadreTextBox);
             this.Controls.Add(this.noteLabel);
             this.Controls.Add(this.noteTextBox);
             this.Controls.Add(this.groupBox3);
@@ -331,5 +351,7 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TextBox noteTextBox;
         private System.Windows.Forms.Label noteLabel;
+        private System.Windows.Forms.TextBox selezioneVersionePadreTextBox;
+        private System.Windows.Forms.Label labelVersionePadre;
     }
 }

@@ -520,7 +520,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sConfigurazioni = ConfigurazioniTextBox.Text;
 
             bool? bTopOnly = this.checkFirstOnly.IsChecked;
-            string sDitta = this.dittaTextBox.Text;
+            string sConnARCA;
+            string sConnFrontiera;
+
+            sConnARCA = this.connARCA.Text;
+            sConnFrontiera = this.connFrontiera.Text;
 
             if (bTopOnly == null)
                 bTopOnly = false;
@@ -589,15 +593,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         else
                             iOutput = 3;
 
-                        if ((iOutput == 1) && (sDitta.ToUpper() != "ICM") && (sDitta.ToUpper() != "FREDDO"))
-                        {
+                        //if ((iOutput == 1) && (sDitta.ToUpper() != "ICM") && (sDitta.ToUpper() != "FREDDO"))
+                        //{
 
-                            System.Windows.Forms.MessageBox.Show("Ditta deve essere ICM o FREDDO");
-                            return;
+                            //System.Windows.Forms.MessageBox.Show("Ditta deve essere ICM o FREDDO");
+                            //return;
                         
-                        }
+                        //}
 
-                        if ((iOutput == 1) && (sDitta.ToUpper() == "ICM"))
+                        if ((iOutput == 1) && (sConnARCA.ToUpper().Contains("ICM")))
                         {
 
                             string sMessage = "Attenzione: è stata scelta la ditta ICM. Sei sicuro di voler procedere ?";
@@ -712,7 +716,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           , bTopOnly
                                                           , sEsplodiPar1
                                                           , sEsplodiPar2
-                                                          , sDitta
+                                                          , sConnARCA
+                                                          , sConnFrontiera
                                                           , 0
                                                           , newSessionId
                                                           , out id

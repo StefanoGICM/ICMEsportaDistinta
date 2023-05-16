@@ -10,8 +10,8 @@
     <Grid Margin="0,-1,10,9" HorizontalAlignment="Right" Width="1077">
         <Grid.RowDefinitions>
             <RowDefinition Height="183*"/>
-            <RowDefinition Height="75*"/>
-            <RowDefinition Height="242*"/>
+            <RowDefinition Height="94*"/>
+            <RowDefinition Height="223*"/>
             <RowDefinition Height="367*"/>
             <RowDefinition Height="0*"/>
         </Grid.RowDefinitions>
@@ -25,9 +25,9 @@
             <ColumnDefinition Width="16*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <ProgressBar x:Name="progBarAnalisi" Height="30" Margin="338,41,8,0" VerticalAlignment="Top" ValueChanged="ProgressBar_ValueChanged" Grid.Column="5" HorizontalContentAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="2" RenderTransformOrigin="0.522,-0.64"/>
-        <ICM.ConsoleControlWPF:ConsoleControl x:Name="consoleControl" Margin="0,10,0,10" Grid.ColumnSpan="8" Grid.Row="2" Grid.RowSpan="2" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Width="1077"/>
-        <Button Content="Esporta Distinta" HorizontalAlignment="Left" Margin="185,49,0,0" VerticalAlignment="Top" Width="148" Click="Button_Click" Height="20" Grid.Column="5" Grid.Row="1"/>
+        <ProgressBar x:Name="progBarAnalisi" Height="30" Margin="338,60,8,0" VerticalAlignment="Top" ValueChanged="ProgressBar_ValueChanged" Grid.Column="5" HorizontalContentAlignment="Stretch" Grid.Row="1" Grid.ColumnSpan="2" RenderTransformOrigin="0.522,-0.64"/>
+        <ICM.ConsoleControlWPF:ConsoleControl x:Name="consoleControl" Margin="0,8,0,-1" Grid.ColumnSpan="8" Grid.Row="2" Grid.RowSpan="3" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Width="1077"/>
+        <Button Content="Esporta Distinta" HorizontalAlignment="Left" Margin="185,68,0,0" VerticalAlignment="Top" Width="148" Click="Button_Click" Height="20" Grid.Column="5" Grid.Row="1"/>
         <TextBox HorizontalAlignment="Left" Margin="30,12,0,0" x:Name ="DistintaTextBox" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="824" Height="22" Grid.ColumnSpan="6"/>
         <TextBox x:Name="ConfigurazioniTextBox" HorizontalAlignment="Left" Margin="22,49,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="841" Grid.Column="1" Height="22" Grid.ColumnSpan="5"/>
         <Label Content="Configurazioni da esportare:" HorizontalAlignment="Left" Margin="14,46,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.145,-0.268" Grid.ColumnSpan="2" Width="178" Height="26"/>
@@ -45,16 +45,18 @@
         <CheckBox x:Name="checkFirstOnly" Grid.Column="3" Content="Solo primo livello" HorizontalAlignment="Left" Margin="86,99,0,0" VerticalAlignment="Top" Width="123" Checked="CheckBox_Checked" ScrollViewer.VerticalScrollBarVisibility="Hidden" Grid.ColumnSpan="2" Height="15"/>
         <CheckBox x:Name="deleteFrontiera" Content="Cancella tabella di frontiera" HorizontalAlignment="Left" Width="177" Margin="86,117,0,14" Grid.Column="3" Grid.ColumnSpan="3" IsChecked="True"/>
         <GroupBox Grid.Column="3" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="81" Header="Altro" Margin="78,76,0,0" VerticalAlignment="Top" Width="274"/>
-        <TextBox x:Name="dittaTextBox" Grid.Column="5" HorizontalAlignment="Left" Height="24" Margin="260,98,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="215" Text="FREDDO"/>
-        <Label Grid.Column="5" Content="Ditta:" HorizontalAlignment="Left" Height="28" Margin="223,96,0,0" VerticalAlignment="Top" Width="72"/>
         <RadioButton x:Name="RB7" Grid.Column="5" Content="ARCA" HorizontalAlignment="Left" Margin="170,103,0,0" VerticalAlignment="Top" GroupName="GRB4" RenderTransformOrigin="0.484,-0.385" IsChecked="True" Height="15" Width="102"/>
         <RadioButton x:Name="RB8" Grid.Column="5" Content="XML" HorizontalAlignment="Left" Margin="170,130,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB4" Height="15"/>
         <RadioButton x:Name="RB9" Grid.Column="5" Content="Tabella di frontiera" HorizontalAlignment="Left" Margin="170,155,0,0" VerticalAlignment="Top" Width="136" IsChecked="False" GroupName="GRB4" Height="15"/>
-        <GroupBox Grid.Column="5" HorizontalAlignment="Left" Height="105" Header="Output" Margin="159,75,0,0" VerticalAlignment="Top" Width="329"/>
-        <TextBox x:Name="FileName" Grid.Column="5" HorizontalAlignment="Left" Height="24" Margin="260,125,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="215" TextChanged="FileName_TextChanged"/>
+        <GroupBox Grid.Column="5" HorizontalAlignment="Left" Height="104" Header="Output" Margin="159,76,0,0" VerticalAlignment="Top" Width="383"/>
+        <TextBox x:Name="FileName" Grid.Column="5" HorizontalAlignment="Left" Height="24" Margin="260,125,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="274" TextChanged="FileName_TextChanged"/>
         <Label Grid.Column="5" Content="Dir:" HorizontalAlignment="Left" Height="25" Margin="230,124,0,0" VerticalAlignment="Top" Width="30"/>
-        <TextBox x:Name="NoteTB" Grid.ColumnSpan="6" HorizontalAlignment="Left" Height="20" Margin="82,46,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="536" Grid.Row="1"/>
-        <Label Content="Note:" HorizontalAlignment="Left" Margin="43,44,0,0" VerticalAlignment="Top" Grid.Row="1" Height="25" Width="39"/>
+        <TextBox x:Name="NoteTB" Grid.ColumnSpan="6" HorizontalAlignment="Left" Height="20" Margin="82,67,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="536" Grid.Row="1"/>
+        <Label Content="Note:" HorizontalAlignment="Left" Margin="43,65,0,0" VerticalAlignment="Top" Grid.Row="1" Height="25" Width="39"/>
+        <TextBox x:Name="connARCA" Grid.ColumnSpan="5" Height="23" Margin="22,10,0,0" Grid.Row="1" TextWrapping="Wrap" Text="Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True&quot;" VerticalAlignment="Top" HorizontalAlignment="Left" Width="759" Grid.Column="1"/>
+        <Label x:Name="connARCALabel" Content="Connessione SQL ARCA:" HorizontalAlignment="Left" Margin="45,8,0,0" Grid.Row="1" VerticalAlignment="Top" Width="136" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="connFrontiera" Grid.Column="1" Grid.ColumnSpan="5" HorizontalAlignment="Left" Height="22" Margin="22,0,0,0" Grid.Row="1" TextWrapping="Wrap" Text="Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True&quot;" VerticalAlignment="Center" Width="768"/>
+        <Label Content="Connessione tabelle di frontiera:" HorizontalAlignment="Left" Margin="0,32,0,0" Grid.Row="1" VerticalAlignment="Top" Width="181" Grid.ColumnSpan="2"/>
         <!--<WPF:ConsoleControl x:Name="embeddedConsole" HorizontalAlignment="Center" Margin="0,217,0,0" VerticalAlignment="Top" Height="207" Width="780"/>-->
     </Grid>
 </Window>

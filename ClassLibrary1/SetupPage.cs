@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -105,6 +106,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
+
         public void LoadData(EdmCmd poCmd)
 
         {
@@ -112,6 +114,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             try
 
             {
+
+
+                string sTopLevel;
+                string sCancella;
+
 
                 int iTopLevel;
                 int iCancella;
@@ -121,37 +128,46 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                     assiemeTextBox.Text = this.mTaskProps.GetValEx("AssiemeVar");
-
                     confTextBox.Text = this.mTaskProps.GetValEx("confVar");
                     padreListBox.Text = this.mTaskProps.GetValEx("padreVar");
                     figliListBox.Text = this.mTaskProps.GetValEx("figliVar");
-                    iTopLevel = this.mTaskProps.GetValEx("topLevelVar").ToInt32();
-                    iCancella = this.mTaskProps.GetValEx("cancellaVar").ToInt32();
+                    sTopLevel = this.mTaskProps.GetValEx("topLevelVar");
+                    sCancella = this.mTaskProps.GetValEx("cancellaVar");
                     outputListBox.Text = this.mTaskProps.GetValEx("outputVar");
                     connARCATextBox.Text = this.mTaskProps.GetValEx("connARCAVar");
-                    dirFileXMLTextBox.Text = this.mTaskProps.GetValEx("dirFileXMLVar");
-                    connICMSWDataTextBox.Text = this.mTaskProps.GetValEx("connICMSWDataVar");
+                    dirFileXMLTextBox.Text = this.mTaskProps.GetValEx("dirFileXMLVar");                    
                     connICMSWDataTextBox.Text = this.mTaskProps.GetValEx("connICMSWDataVar");
                     noteTextBox.Text = this.mTaskProps.GetValEx("noteVar");
+                    selezioneVersionePadreTextBox.Text = this.mTaskProps.GetValEx("selezioneVersionePadreVar");
 
 
+                    if (sTopLevel == "1")
+                        topLevelCheckBox.Checked = true;
+                    else
+                        topLevelCheckBox.Checked = false;
 
+                    if (sCancella == "1")
+                        cancellaCheckBox.Checked = true;
+                    else
+                        cancellaCheckBox.Checked = false;
 
 
                 }
                 else if ((mTaskInst != null))
                 {
+                    assiemeTextBox.Text = this.mTaskInst.GetValEx("AssiemeVar");
                     confTextBox.Text = this.mTaskInst.GetValEx("confVar");
                     padreListBox.Text = this.mTaskInst.GetValEx("padreVar");
                     figliListBox.Text = this.mTaskInst.GetValEx("figliVar");
-                    iTopLevel = this.mTaskInst.GetValEx("topLevelVar").ToInt32();
-                    iCancella = this.mTaskInst.GetValEx("cancellaVar").ToInt32();
+                    sTopLevel = this.mTaskInst.GetValEx("topLevelVar");
+                    sCancella = this.mTaskInst.GetValEx("cancellaVar");
                     outputListBox.Text = this.mTaskInst.GetValEx("outputVar");
                     connARCATextBox.Text = this.mTaskInst.GetValEx("connARCAVar");
                     dirFileXMLTextBox.Text = this.mTaskInst.GetValEx("dirFileXMLVar");
-                    connICMSWDataTextBox.Text = this.mTaskInst.GetValEx("connICMSWDataVar");
-                    connICMSWDataTextBox.Text = this.mTaskInst.GetValEx("connICMSWDataVar");
+                    connICMSWDataTextBox.Text = this.mTaskInst.GetValEx("connICMSWDataVar");                    
                     noteTextBox.Text = this.mTaskInst.GetValEx("noteVar");
+                    selezioneVersionePadreTextBox.Text = this.mTaskInst.GetValEx("selezioneVersionePadreVar");
+
 
                 }
             }
@@ -222,10 +238,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 this.mTaskProps.SetValEx("cancellaVar", iCancella.ToString());
                 this.mTaskProps.SetValEx("outputVar", outputListBox.Text);
                 this.mTaskProps.SetValEx("connARCAVar", connARCATextBox.Text);
-                this.mTaskProps.SetValEx("dirFileXMLVar", dirFileXMLTextBox.Text);
-                this.mTaskProps.SetValEx("connICMSWDataVar", connICMSWDataTextBox.Text);
+                this.mTaskProps.SetValEx("dirFileXMLVar", dirFileXMLTextBox.Text);                
                 this.mTaskProps.SetValEx("connICMSWDataVar", connICMSWDataTextBox.Text);
                 this.mTaskProps.SetValEx("noteVar", noteTextBox.Text);
+                this.mTaskProps.SetValEx("selezioneVersionePadreVar", selezioneVersionePadreTextBox.Text);
+
+                
 
 
 
@@ -258,6 +276,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             try
 
             {
+
+                confTextBox.Enabled = false;
+                padreListBox.Enabled = false;
+                figliListBox.Enabled = false;
+                topLevelCheckBox.Enabled = false;
+                cancellaCheckBox .Enabled = false;
+                outputListBox.Enabled = false;
+                connARCATextBox.Enabled = false;
+                dirFileXMLTextBox.Enabled = false;
+                connICMSWDataTextBox.Enabled = false;
+                connICMSWDataTextBox.Enabled = false;
+                noteTextBox.Enabled = false;
 
             }
 

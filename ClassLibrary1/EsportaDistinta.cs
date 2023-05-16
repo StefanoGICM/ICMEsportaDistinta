@@ -36,10 +36,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
     public static class ConnectionsClass
     {
-        public static string connectionStringSWICMDATA = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True";        
-        public static string connectionStringARCA = "";
 
-        
+
+        public static string connectionStringSWICMDATAService = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True";        
+        //public static string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True"";
+
+        public static string connectionStringSWICMDATA = "";
+        public static string connectionStringARCA = "";
 
 
 
@@ -72,7 +75,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     bool? bTopOnly,
                                     string sEsplodiPar1,
                                     string sEsplodiPar2,
-                                    string sDitta,
+                                    string sConnARCA,
+                                    string sConnFrontiera,
                                     int iPriority,
                                     Guid SessionID,
                                     out long id,
@@ -88,11 +92,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
            
             id = 0;
 
-            
 
 
 
-            using (SqlConnection cnn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA))
+
+            using (SqlConnection cnn = new SqlConnection(sConnFrontiera))
             {
                 cnn.Open();
 
@@ -170,11 +174,17 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 WriteLog("Parametro EsplodiPar2: " + sEsplodiPar2);
 
 
-                sqlParam = command.Parameters.Add("@DittaARCA", SqlDbType.NVarChar, 1000);
+                sqlParam = command.Parameters.Add("@ConnARCA", SqlDbType.NVarChar, 2000);
                 sqlParam.Direction = ParameterDirection.Input;
-                sqlParam.Value = sDitta;
+                sqlParam.Value = sConnARCA;
 
-                WriteLog("Parametro Ditta ARCA: " + sDitta);
+                WriteLog("Parametro Connessione ARCA: " + sConnARCA);
+
+                sqlParam = command.Parameters.Add("@ConnFrontiera", SqlDbType.NVarChar, 2000);
+                sqlParam.Direction = ParameterDirection.Input;
+                sqlParam.Value = sConnFrontiera;
+
+                WriteLog("Parametro Connessione tabelle di frontiera : " + sConnFrontiera);
 
                 sqlParam = command.Parameters.Add("@Priority", SqlDbType.Int);
                 sqlParam.Direction = ParameterDirection.Input;
@@ -273,13 +283,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLog("Parametro ID Ritornato: " + sID);
 
-               
+
                 WriteLog("Prima Commit della transazione");
                 commandTransaction.Commit();
                 WriteLog("Dopo Commit della transazione");
 
                 WriteLog("Fine inserimento record di elaborazione nella Queue");
-                
+
 
                 CloseLog();
                 MoveLog();
@@ -901,7 +911,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             
             string sEsplodiPar1 = default(string);
             string sEsplodiPar2 = default(string);
-            string sDittaARCA = default(string);
+            string sConnARCA = default(string);
+            string sConnFrontiera = default(string);
             int iPriority = default(int);
 
             int iDocumentID = default(int);
@@ -927,11 +938,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             //Debugger.Launch();
 
-            using (SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA))
+            using (SqlConnection conn = new SqlConnection(ConnectionsClass.connectionStringSWICMDATAService))
             {
                 conn.Open();
 
-                using (SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATA))
+                using (SqlConnection conn2 = new SqlConnection(ConnectionsClass.connectionStringSWICMDATAService))
                 {
 
                     conn2.Open();
@@ -951,7 +962,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                        ",OnlyTop" +
                        ",EsplodiPar1" +
                        ",EsplodiPar2" +
-                       ",DittaARCA" +
+                       ",ConnARCA" +
+                       ",ConnFrontiera" +
                        ",Priority" +
                        ",IPLog" +
                        ",PortLog" +
@@ -987,7 +999,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                     sEsplodiPar1 = default(string);
                                     sEsplodiPar2 = default(string);
-                                    sDittaARCA = default(string);
+                                    sConnARCA = default(string);
+                                    sConnFrontiera = default(string);
                                     iPriority = default(int);
 
                                     iDocumentID = default(int);
@@ -1041,24 +1054,26 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     if (!reader.IsDBNull(14))
                                         sEsplodiPar2 = reader.GetString(14);
                                     if (!reader.IsDBNull(15))
-                                        sDittaARCA = reader.GetString(15);
+                                        sConnARCA = reader.GetString(15);
                                     if (!reader.IsDBNull(16))
-                                        iPriority = reader.GetInt32(16);
-                                    if (!reader.IsDBNull(17))
-                                        sIPLog = reader.GetString(17);
-                                    if (!reader.IsDBNull(18))
-                                        sPortLog = reader.GetString(18);
-                                    if (!reader.IsDBNull(19))
-                                        iCambioPromosso = reader.GetInt32(19);
-                                    if (!reader.IsDBNull(20))
-                                        iOutput = reader.GetInt32(20);
-                                    if (!reader.IsDBNull(21))
-                                        cFileOutput = reader.GetString(21);
-                                    if (!reader.IsDBNull(22))
-                                        iCancellaFrontiera = reader.GetInt32(22);
-                                    if(!reader.IsDBNull(23))
-                                        sNote = reader.GetString(23);
+                                        sConnFrontiera = reader.GetString(16);
 
+                                    if (!reader.IsDBNull(17))
+                                        iPriority = reader.GetInt32(17);
+                                    if (!reader.IsDBNull(18))
+                                        sIPLog = reader.GetString(18);
+                                    if (!reader.IsDBNull(19))
+                                        sPortLog = reader.GetString(19);
+                                    if (!reader.IsDBNull(20))
+                                        iCambioPromosso = reader.GetInt32(20);
+                                    if (!reader.IsDBNull(21))
+                                        iOutput = reader.GetInt32(21);
+                                    if (!reader.IsDBNull(22))
+                                        cFileOutput = reader.GetString(22);
+                                    if (!reader.IsDBNull(23))
+                                        iCancellaFrontiera = reader.GetInt32(23);
+                                    if(!reader.IsDBNull(24))
+                                        sNote = reader.GetString(24);
 
 
                                     this.sender = null;
@@ -1123,7 +1138,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         WriteLog("-----------------------------------------------------------------------");
 
 
-                                        IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID, iOutput, cFileOutput, iCancellaFrontiera, sNote, sDittaARCA);
+                                        IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID, iOutput, cFileOutput, iCancellaFrontiera, sNote, sConnARCA, sConnFrontiera);
 
 
                                         query = "UPDATE XPORT_Elab SET EndDate = GETDATE()" +
@@ -1243,7 +1258,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid, int iOutput, string cFileOutput, int iCancellaFrontiera, string sNote, string sDittaARCA)
+        public void IniziaEsportazione(int iDocument, string sFileName, int iVersione, string sConfigurazioni, IEdmVault5 vault, bool bOnlyTop, string sEsplodiPar1, string sEsplodiPar2, int iCambioPromosso, Guid sessionGuid, int iOutput, string cFileOutput, int iCancellaFrontiera, string sNote, string sConnARCA, string sConnFrontiera)
         {
             //Debugger.Launch();
 
@@ -1321,20 +1336,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
                     WriteLog("Inizio elaborazione");
 
-                    ConnectionsClass.connectionStringARCA = "";
-                    switch (sDittaARCA.ToUpper())
-                    {
-                        case "FREDDO":
-                            ConnectionsClass.connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True"; ;
-                            break;
-
-                        case "ICM":
-                            throw new ApplicationException("Impossibile esportare su Ditta ICM");
-                            break;
-
-
-                    }
-
+                    ConnectionsClass.connectionStringARCA = sConnARCA;
+                    ConnectionsClass.connectionStringSWICMDATA = sConnFrontiera;
 
 
                     foreach (string sConf in sConfigurazioni.Split((char) 1))
@@ -1461,9 +1464,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             case 1:
 
                                 WriteLog("Importazione distinta in ARCA");
-                                WriteLog("Distinta importata nella Ditta: " + sDittaARCA);
+                                
 
                                 connectionString = ConnectionsClass.connectionStringARCA;
+
+                                WriteLog("Stringa di connessione ARCA: " + connectionString);
 
                                 using (cnnARCA = new SqlConnection(connectionString))
                                 {
@@ -1576,7 +1581,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 string sFatherEsplodiPar1;
                                 string sFatherEsplodiPar2;
 
-                                string sFatherDitta;
+                                
 
                                 Guid FatherSessionID;
 
@@ -1646,9 +1651,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                             continue;
 
                                         sFatherConfiguration = cfgName;
-                                        sFatherEsplodiPar1 = "UV" + ((char)1) + "UV";
+                                        sFatherEsplodiPar1 = sEsplodiPar1;
                                         sFatherEsplodiPar2 = iFatherVersione.ToString();
-                                        sFatherDitta = "FREDDO";
+                                        
                                         FatherSessionID = Guid.NewGuid();
 
                                         /* Se l'assieme è promosso allora devo esportare anche suo padre */
@@ -1728,7 +1733,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                                           bOnlyTop,
                                                                           sFatherEsplodiPar1,
                                                                           sFatherEsplodiPar2,
-                                                                          sFatherDitta,
+                                                                          ConnectionsClass.connectionStringARCA,
+                                                                          ConnectionsClass.connectionStringSWICMDATA,
                                                                           0, //iPriority
                                                                           FatherSessionID,
                                                                           out lFatherID,
