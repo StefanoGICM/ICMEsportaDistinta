@@ -516,6 +516,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+
+            Debugger.Launch();
+
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;
 
@@ -525,6 +528,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             sConnARCA = this.connARCA.Text;
             sConnFrontiera = this.connFrontiera.Text;
+
+            sConnARCA = sConnARCA.Replace(@"\\", @"\");
+            sConnFrontiera = sConnFrontiera.Replace(@"\\", @"\");
 
             if (bTopOnly == null)
                 bTopOnly = false;
