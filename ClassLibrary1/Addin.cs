@@ -49,6 +49,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             poCmdMgr.AddHook(EdmCmdType.EdmCmd_TaskRun);
             poCmdMgr.AddHook(EdmCmdType.EdmCmd_TaskDetails);
 
+            poCmdMgr.AddCmd(10000, "Configura Esportazione", (int) EdmMenuFlags.EdmMenu_Administration);
+
         }
 
         private void OnTaskDetails(ref EdmCmd poCmd, ref EdmCmdData[] ppoData)
@@ -574,8 +576,20 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             try
             {
+
+               
+
                 switch (poCmd.meCmdType)
                 {
+
+
+                    case EdmCmdType.EdmCmd_Menu:
+
+                        if (poCmd.mlCmdID == 10000)
+                            MessageBox.Show("Configura Esportazione");
+
+                        break;
+                    
                     // Handle the menu command
                     case EdmCmdType.EdmCmd_CardButton:
 
