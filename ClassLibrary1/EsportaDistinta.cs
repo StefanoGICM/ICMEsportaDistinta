@@ -358,7 +358,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         // Attenzione: togliere
 
                         // Calcolo consumo
-                        
+
+
                         TS.WriteLine("Calcolo consumo e creazione distinta");
 
                         SqlCommand command2 = new SqlCommand("dbo.ICMCalcoloConsumoSp", cnn);
@@ -409,7 +410,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         TS.WriteLine("Importazione distinta in ARCA");
 
                         //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='gestionale';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='erp';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
 
                         cnn = new SqlConnection(connectionString);
 
@@ -3065,7 +3066,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 /* salva Computed BOM per configurazione */                
 
-                if (true)
+                if (false)
                 {
 
                     IEdmFile7 aFile;
