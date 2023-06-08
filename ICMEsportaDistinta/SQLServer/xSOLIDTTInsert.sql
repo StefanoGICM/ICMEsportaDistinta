@@ -154,8 +154,11 @@ BEGIN
 	  (26, '560', 'NR', 'QTA', 'NR', 'QTA'),    --GUARNIZIONI E TENUTE
 	  --(27, 'BAV-000-000')     -- ??GREZZO BAVETTA
 	  (27, '517', 'NR', 'QTA', 'NR', 'QTA'),     -- RIVESTIMENTI
-	  (28, '516', 'NR', 'QTA', 'NR', 'QTA')      -- GUARNIZIONI CUSTOM
-	  
+	  (28, '516', 'NR', 'QTA', 'NR', 'QTA'),      -- GUARNIZIONI CUSTOM
+	  (29, '518', 'NR', 'QTA', 'NR', 'QTA'),      -- RULLI
+	  (30, '400', 'NR', 'QTA', 'NR', 'QTA'),   -- ASSIEMI DI MONTAGGIO
+	  (31, 'AP', 'NR', 'QTA', 'NR', 'QTA'),   -- ASSIEMI PROMOSSI
+	  (32, '521', 'NR', 'QTA', 'NR', 'QTA')   --- RETI
 
 
 
