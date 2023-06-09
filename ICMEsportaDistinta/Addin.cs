@@ -84,14 +84,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
                     SetupTaskPageObj = new SetupPage((IEdmVault7)poCmd.mpoVault, (IEdmTaskInstance) TaskInstance);
 
-                    
-
+                   
                     //Force immediate creation of the control
                     //and its handle
 
                     SetupTaskPageObj.CreateControl();
                     
-
                     SetupTaskPageObj.LoadData(poCmd);
                     SetupTaskPageObj.DisableControls();
                     poCmd.mbsComment = "State Age Details";
