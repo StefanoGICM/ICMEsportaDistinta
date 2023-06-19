@@ -29,7 +29,7 @@ using System.Threading;
 using System.Net.Http;
 using System.Windows.Controls;
 using System.Xml;
-using SwAC = ICM.SWPDM.AssegnaCPAddin;
+
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -383,7 +383,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string cOld;
             string cNew;
 
-
             
             newPath = cLogFileNamePath + @"\Inserted";
             
@@ -403,7 +402,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
     public partial class EsportaDistinta
     {
 
-        SwAC.AddIn AddInAC;
+               
         bool bOpenLogAC;
 
         public int iType = 0;   /* */
@@ -435,7 +434,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         string cLogFileNamePath;
 
-
+        int iCounterPre = 0;
 
         string connectionStringVault;
         Dictionary<Tuple<string, string>, Tuple<string, string, int>> cacheDictionary;
@@ -449,6 +448,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         string descTecnicaENG;
 
         StreamWriter outputFile = default(StreamWriter);
+        StreamWriter outputFileAC = default(StreamWriter);
 
         string sFAMIGLIA1_PREFIX;
         string sFAMIGLIA2_PREFIX;
@@ -1407,7 +1407,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             insertSW_ANAG_BOM(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato, bOnlyTop);
 
                             if (bOpenLogAC)
-                                AddInAC.CloseLog();
+                                CloseLogAC();
 
                             // Calcolo consumo
 
@@ -1478,6 +1478,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 WriteLog("Stringa di connessione ARCA: " + connectionString);
 
+                                
+
                                 using (cnnARCA = new SqlConnection(connectionString))
                                 {
 
@@ -1524,6 +1526,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                     cnnARCA.Close();
                                 }
+
+                                
+
                                 break;
 
                             case 2:
@@ -1835,6 +1840,429 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
         }
+
+        public void elaboraFile(int parent_folder_id, IEdmFile5 pdmFile)
+        {
+
+            SwDM.SwDMDocument19 swDoc19;
+            SwDM.SwDMConfiguration12 config;
+            SwDM.SwDMConfiguration15 config15;
+
+            string[] vCustPropNameArr = null;
+            string sCustPropStr = null;
+
+            string[] vCfgNameArr = null;
+
+            string sConfig;
+
+
+            int i;
+
+            bool lFound;
+            bool lFoundFaiAcquista;
+            bool lFoundGuid;
+            bool lFoundCategoria3_prefix;
+
+
+            string sFaiAcquista;
+
+            bool lChangedGUID;
+            string sFileName = null;
+
+            string configurationGUID;
+
+            string sParteAssieme;
+
+            sParteAssieme = "";
+
+            sFaiAcquista = "";
+
+            sFileName = pdmFile.GetLocalPath(parent_folder_id);
+
+            WriteLogAC("---------------------------------------------");
+
+            WriteLogAC("Elaborazione file: " + sFileName);
+
+
+            if (sFileName.ToUpper().EndsWith(".SLDASM"))
+                sParteAssieme = "Assieme";
+            else if (sFileName.ToUpper().EndsWith(".SLDPRT"))
+                sParteAssieme = "Parte";
+            else
+            {
+                WriteLogAC("Il file " + sFileName + " non è nè parte nè assieme");
+
+                return;
+            }
+
+
+            if (!pdmFile.IsLocked)
+            {
+
+
+                WriteLogAC("Prendo file in check-out");
+
+                pdmFile.LockFile(parent_folder_id, 0, (int)EdmLockFlag.EdmLock_Simple);
+
+                WriteLogAC("Apertura documento");
+
+                OpenFileAC(sFileName, out swDoc19, false, true);
+
+                WriteLogAC("Aggiorno custom properties");
+
+
+                SwDmCustomInfoType nPropType = 0;
+
+                SwDMConfigurationMgr2 configMgr = default(SwDMConfigurationMgr2);
+                configMgr = (SwDMConfigurationMgr2)swDoc19.ConfigurationManager;
+
+                SwDMConfigurationError results = 0;
+
+                vCfgNameArr = (string[])configMgr.GetConfigurationNames2(out results);
+
+                if (results != SwDMConfigurationError.SwDMConfigurationError_None)
+                {
+                    throw new ApplicationException("ERROR: Errore in ottenimento lista configurazioni per file: " + swDoc19.FullName);
+
+                }
+
+
+                for (i = 0; i < vCfgNameArr.Length; i++)
+                {
+
+                    sConfig = vCfgNameArr[i];
+
+                    config = default(SwDMConfiguration12);
+                    config = (SwDM.SwDMConfiguration12)configMgr.GetConfigurationByName(sConfig);
+
+                    if (config == null)
+                    {
+
+                        throw new ApplicationException("ERROR: Errore in ottenimento configurazione " + sConfig + "per file: " + swDoc19.FullName);
+
+                    }
+
+                    config15 = (SwDMConfiguration15)config;
+
+
+                    if (config15.ShowChildComponentsInBOM2 == (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_TRUE)
+                        config15.ShowChildComponentsInBOM2 = (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_FALSE;
+
+
+                    vCustPropNameArr = (string[])config.GetCustomPropertyNames();
+
+                    lFound = false;
+                    lFoundFaiAcquista = false;
+                    lFoundGuid = false;
+                    lFoundCategoria3_prefix = false;
+
+                    if ((vCustPropNameArr != null))
+                    {
+
+                        for (int k = 0; k < vCustPropNameArr.Length; k++)
+                        {
+
+
+                            if (vCustPropNameArr[k].ToUpper() == "ICMREFBOMGUID")
+                            {
+                                lFound = true;
+                            }
+
+
+                            if (vCustPropNameArr[k].ToUpper() == "FAIACQUISTA")
+                            {
+                                lFoundFaiAcquista = true;
+                            }
+
+
+                            if (vCustPropNameArr[k].ToUpper() == "ICMBOMGUID")
+                            {
+                                lFoundGuid = true;
+                            }
+
+                            if (vCustPropNameArr[k].ToUpper() == "CATEGORIA3_PREFIX")
+                            {
+                                lFoundCategoria3_prefix = true;
+                            }
+
+                            if (lFound && lFoundGuid && lFoundFaiAcquista && lFoundCategoria3_prefix)
+                                break;
+                        }
+
+                    }
+
+                    if (sParteAssieme == "Parte")
+                    {
+
+                        sFaiAcquista = "ACQUISTA";
+
+                    }
+                    else
+                    {
+
+                        sFaiAcquista = "FAI";
+
+                        if (lFoundCategoria3_prefix)
+                        {
+
+                            sCustPropStr = config.GetCustomProperty("CATEGORIA3_PREFIX", out nPropType);
+
+
+                            if (sCustPropStr == null || sCustPropStr.Trim() == "")
+                            {
+
+
+                            }
+                            else if (sCustPropStr.ToUpper() == "AS")   // Assieme saldato
+                            {
+
+                                sFaiAcquista = "ACQUISTA";
+
+                            }
+
+                        }
+
+                    }
+
+
+                    if (lFoundFaiAcquista)
+                    {
+
+                        sCustPropStr = config.GetCustomProperty("FaiAcquista", out nPropType);
+
+
+                        if (sCustPropStr == null || sCustPropStr.Trim() == "" || sCustPropStr.Trim().StartsWith("nuovo"))
+                        {
+
+                            WriteLogAC("Assegnazione CP FaiAcquista: " + sFaiAcquista);
+
+                            config.SetCustomProperty("FaiAcquista", sFaiAcquista);
+
+                        }
+
+
+
+                    }
+                    else
+                    {
+
+                        WriteLogAC("Creazione CP FaiAcquista: " + sFaiAcquista);
+                        config.AddCustomProperty("FaiAcquista", SwDmCustomInfoType.swDmCustomInfoText, sFaiAcquista);
+
+                    }
+
+
+                    if (lFound)
+                    {
+
+                        sCustPropStr = config.GetCustomProperty("ICMRefBOMGUID", out nPropType);
+
+
+                        if (sCustPropStr == null || sCustPropStr.Trim() == "" || sCustPropStr.Trim().StartsWith("nuovo"))
+                        {
+
+
+                            WriteLogAC("Assegnazione CP ICMRefBOMGUID: " + "THIS");
+                            config.SetCustomProperty("ICMRefBOMGUID", "THIS");
+
+                        }
+
+                    }
+                    else
+                    {
+
+
+                        WriteLogAC("Creazione CP ICMRefBOMGUID: " + "THIS");
+                        config.AddCustomProperty("ICMRefBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, "THIS");
+
+
+
+                    }
+
+                    lChangedGUID = false;
+
+                    configurationGUID = "";
+
+
+                    if (lFoundGuid)
+                    {
+                        string sCurrentGuid;
+                        SwDmCustomInfoType parType;
+
+                        sCurrentGuid = config.GetCustomProperty("ICMBOMGUID", out parType);
+
+
+
+
+                        if (sCurrentGuid == null || sCurrentGuid.Trim() == "" || sCurrentGuid.Trim().StartsWith("nuovo"))
+                        {
+                            Guid newGuid;
+
+                            newGuid = Guid.NewGuid();
+
+                            WriteLogAC("Assegnazione CP ICMBOMGUID: " + newGuid.ToString());
+
+                            config.SetCustomProperty("ICMBOMGUID", newGuid.ToString());
+
+                            lChangedGUID = true;
+                            configurationGUID = newGuid.ToString();
+
+                        }
+
+                        /*
+                        if (true)
+                        {
+                            Guid newGuid;
+
+                            newGuid = Guid.NewGuid();
+
+                            iCounter++;
+
+                            WriteLog("Assegnazione CP ICMBOMGUID: " + "nuovo" + iCounter.ToString());
+
+                            config.SetCustomProperty("ICMBOMGUID", "nuovo" + iCounter.ToString());
+
+                            lChangedGUID = true;
+                            configurationGUID = newGuid.ToString();
+
+                        }
+                        */
+                        else
+                        {
+
+                            configurationGUID = sCurrentGuid;
+
+                        }
+
+                    }
+                    else
+                    {
+                        Guid newGuid;
+
+                        newGuid = Guid.NewGuid();
+
+                        WriteLogAC("Creazione CP ICMBOMGUID: " + newGuid.ToString());
+
+                        config.AddCustomProperty("ICMBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, newGuid.ToString());
+
+                        lChangedGUID = true;
+
+                        configurationGUID = newGuid.ToString();
+
+                    }
+
+
+                }
+
+
+                WriteLogAC("Salvataggio documento");
+                swDoc19.Save();
+
+                WriteLogAC("Chiusura documento");
+                swDoc19.CloseDoc();
+
+
+                WriteLogAC("check-in del file");
+                pdmFile.UnlockFile(0, "Aggiunte custom properties per esportazione", (int)EdmUnlockFlag.EdmUnlock_IgnoreReferences + (int)EdmUnlockFlag.EdmUnlock_IgnoreRefsOutsideVault + (int)EdmUnlockFlag.EdmUnlock_OverwriteLatestVersion);
+
+
+            }
+            else
+            {
+                WriteLogAC("File saltato perchè in check-out: metterlo in check-in per aggiornarlo");
+
+            }
+
+
+        }
+
+        public void OpenLogAC(string vaultName)
+        {
+
+            //sFileName = sFileName.Substring(0, sFileName.Length - 7);
+
+            this.iCounterPre++;
+
+            if (this.iCounterPre > 99)
+                this.iCounterPre = 1;
+
+            cLogFileName = ("log_AssegnaCP_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + "Count" + this.iCounterPre.ToString() + ".txt";
+
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
+
+            }
+
+            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\AssegnaCustomProperties"))
+            {
+
+                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\AssegnaCustomProperties");
+
+            }
+
+
+
+            cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\AssegnaCustomProperties";
+
+            //MessageBox.Show(Path.Combine(cLogFileNamePath, cLogFileName));
+
+            outputFileAC = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
+
+        }
+
+
+
+        public void WriteLogAC(string content)
+        {
+
+            if (outputFileAC != null)
+                outputFileAC.WriteLine(DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss") + ": " + content);
+
+
+
+        }
+
+        public void CloseLogAC()
+        {
+            outputFileAC.Close();
+
+        }
+
+
+        public void initializeDMAC()
+        {
+
+            if (swDocMgr == null)
+            {
+
+
+                //Inizializzo un'istanza del document manager
+                try
+                {
+                XFORMCOORDS:
+
+                    swClassFact = new SwDM.SwDMClassFactory();
+
+                    swDocMgr = (SwDM.SwDMApplication4)swClassFact.GetApplication(LIC_KEY);
+                }
+                catch (Exception ex)
+                {
+
+                    WriteLog(ex.Message);
+                    return;
+
+                }
+
+            }
+
+
+
+        }
+
+
 
 
         public void insertSW_ANAG_BOM(int iDocument, string cFileName, int iVersione, string sConf, out string sDEDID, out string sDEDREV, bool first, bool bDaPromosso, string sDEDIDPromosso, string sDEDREVPromosso, double dQtyPromosso, out int iRetPromossoPar, out bool bNonCodificatoPar, bool bOnlyTop)
@@ -2217,20 +2645,17 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 if (!lFoundVar)
                 {
 
-                    if (AddInAC == null)
-                    {
-                       AddInAC = new SwAC.AddIn();
-                    }
+                    
 
                     if (!bOpenLogAC)
                     {
 
                         bOpenLogAC = true;
 
-                        AddInAC.OpenLog(this.vault.Name);
+                        OpenLogAC(this.vault.Name);
 
                     }
-                    AddInAC.initializeDM();
+                    initializeDMAC();
 
                     IEdmPos5 aPos = default(IEdmPos5);
                     IEdmFolder5 aFolder = default(IEdmFolder5);
@@ -2239,7 +2664,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     aFolder = ((IEdmFile5)aFile).GetNextFolder(aPos);
 
 
-                    AddInAC.elaboraFile(aFolder.ID, (IEdmFile5)aFile);
+                    elaboraFile(aFolder.ID, (IEdmFile5)aFile);
                                         
 
                 }
@@ -4628,7 +5053,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-        public void OpenFile(string filename, out SwDM.SwDMDocument19 swDoc19, bool lReadonly, bool bTS)
+        public void OpenFileAC(string filename, out SwDM.SwDMDocument19 swDoc19, bool lReadonly, bool bTS)
         {
 
             string sDocFileName = null;
