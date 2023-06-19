@@ -29,6 +29,7 @@ using System.Threading;
 using System.Net.Http;
 using System.Windows.Controls;
 using System.Xml;
+using SwAC = ICM.SWPDM.AssegnaCPAddin;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -402,6 +403,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
     public partial class EsportaDistinta
     {
 
+        SwAC.AddIn AddInAC;
+        bool bOpenLogAC;
 
         public int iType = 0;   /* */
 
@@ -416,6 +419,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         public string ExpP2;
         
         IEdmVault5 vault;
+
+
 
         IEdmFile7 aFile;
         IEdmBom bom;
@@ -1397,7 +1402,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             bool bNonCodificato;
 
+                            bOpenLogAC = false;
+
                             insertSW_ANAG_BOM(iDocument, sFileName, iVersione, sConf, out @DEDID, out @DEDREV, true, false, null, null, 1, out iRetPromosso, out bNonCodificato, bOnlyTop);
+
+                            if (bOpenLogAC)
+                                AddInAC.CloseLog();
 
                             // Calcolo consumo
 
@@ -1939,6 +1949,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             string cLocalPath;
 
+            bool lFoundVar;
+
 
             aFile = (IEdmFile7)this.vault.GetObject(EdmObjectType.EdmObject_File, iDocument);
 
@@ -2079,6 +2091,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
 
                   throw new ApplicationException("Distinta BOM non associata per file: " + cFileName);
+
                 }
 
                 iRetPromossoPar = iPromosso;
@@ -2165,33 +2178,71 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 int iIdBom;
 
                 IEdmEnumeratorVariable8 EnumVarObj = default(IEdmEnumeratorVariable8);
+
                 //Keeps the file open
                 EnumVarObj = (IEdmEnumeratorVariable8)aFile.GetEnumeratorVariable();
+
+                lFoundVar = true;
 
                 lOK = EnumVarObj.GetVar(
                     "ICMBOMGUID",
                     sConf,
                     out poRetValue);
 
-                if (lOK)
+                if (!lOK)
+                    lFoundVar = false;
+                else
                 {
+                    if (lOK)
+                    {
 
-                    sICMBOMGUID = null;
-                    if (poRetValue != null)
-                        sICMBOMGUID = (string)poRetValue;
+                        sICMBOMGUID = null;
+                        if (poRetValue != null)
+                            sICMBOMGUID = (string)poRetValue;
 
 
-                    if ((sICMBOMGUID == null) || (sICMBOMGUID.Trim() == "") || (sICMBOMGUID.Trim().StartsWith("nuovo")))
-                    { 
-                    
+                        if ((sICMBOMGUID == null) || (sICMBOMGUID.Trim() == "") || (sICMBOMGUID.Trim().StartsWith("nuovo")))
+                        {
 
-                    
+                            lFoundVar = false;
+
+                        }
+
+
                     }
 
+                }
+
+
+                if (!lFoundVar)
+                {
+
+                    if (AddInAC == null)
+                    {
+                       AddInAC = new SwAC.AddIn();
+                    }
+
+                    if (!bOpenLogAC)
+                    {
+
+                        bOpenLogAC = true;
+
+                        AddInAC.OpenLog(this.vault.Name);
+
+                    }
+                    AddInAC.initializeDM();
+
+                    IEdmPos5 aPos = default(IEdmPos5);
+                    IEdmFolder5 aFolder = default(IEdmFolder5);
+
+                    aPos = ((IEdmFile5) aFile).GetFirstFolderPosition();
+                    aFolder = ((IEdmFile5)aFile).GetNextFolder(aPos);
+
+
+                    AddInAC.elaboraFile(aFolder.ID, (IEdmFile5)aFile);
+                                        
 
                 }
-                
-                
 
                 WriteLog("Uso Computed BOM ");
 
