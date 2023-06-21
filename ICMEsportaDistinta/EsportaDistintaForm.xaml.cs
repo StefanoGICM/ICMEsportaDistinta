@@ -129,7 +129,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         private void Button_Click(object sender, RoutedEventArgs e)
         {
 
-            Debugger.Launch();
+            //Debugger.Launch();
 
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;

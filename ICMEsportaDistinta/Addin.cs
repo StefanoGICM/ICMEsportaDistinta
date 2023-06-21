@@ -604,6 +604,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 IEdmFile17 aFile = (IEdmFile17)this.vault.GetObject(EdmObjectType.EdmObject_File, ID);
 
+                                
+
+
                                 IEdmFolder5 aFolder = default(IEdmFolder5);
                                 IEdmPos5 aPos = default(IEdmPos5);
 
