@@ -75,8 +75,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-
-
             InitializeComponent();
 
             DistintaTextBox.Text = "Distinta: " + sFileName;
