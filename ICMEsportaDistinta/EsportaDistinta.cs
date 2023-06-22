@@ -2645,7 +2645,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 if (!lFoundVar)
                 {
 
-                    
+                    if (aFile.IsLocked)
+                    {
+
+                        throw new ApplicationException("File: " + aFile.Name + " in check-out. Impossibile assegnare le custom properties per l'esportazione.");
+
+                    }
+
+
 
                     if (!bOpenLogAC)
                     {
@@ -2663,6 +2670,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     aPos = ((IEdmFile5) aFile).GetFirstFolderPosition();
                     aFolder = ((IEdmFile5)aFile).GetNextFolder(aPos);
 
+
+                    
 
                     elaboraFile(aFolder.ID, (IEdmFile5)aFile);
                                         
