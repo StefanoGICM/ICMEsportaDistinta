@@ -39,7 +39,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
     {
 
 
-        public static string connectionStringSWICMDATAService = "Data Source='WS22\\SQLSRV2022DEV';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True";        
+        public static string connectionStringSWICMDATAService = "Data Source='PDMTEST';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True";        
         //public static string connectionStringARCA = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True"";
 
         public static string connectionStringSWICMDATA = "";
