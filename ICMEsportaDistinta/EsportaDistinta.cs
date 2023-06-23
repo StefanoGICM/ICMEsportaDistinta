@@ -405,6 +405,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                
         bool bOpenLogAC;
 
+        string sPrefixLog = "";
+        string sPrefixLogAC = "";
+
         public int iType = 0;   /* */
 
         public TraceSource TS = new TraceSource("EsportaDistintaTrace");
@@ -612,10 +615,27 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
+        public EsportaDistinta(IEdmVault5 vault, int iType, string sPrefixLog, string sPrefixLogAC)
+        {
+
+            this.iType = iType;
+            this.vault = vault;
+            this.sPrefixLog = sPrefixLog;
+            this.sPrefixLogAC = sPrefixLogAC;
+
+        }
 
 
         public void OpenLog(string sFileName, string vaultName)
         {
+            string sPrefix;
+
+            if (this.iType != 10)
+                sPrefix = @"D:\LocalView\" + vaultName;
+            else
+                sPrefix = this.sPrefixLog;
+
+
             this.iCounter++;
 
             if (this.iCounter > 99)
@@ -625,36 +645,36 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
+            if (!Directory.Exists(sPrefix + @"\Log"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
+                Directory.CreateDirectory(sPrefix + @"\Log");
 
             }
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale"))
+            if (!Directory.Exists(sPrefix + @"\Log\EsportaGestionale"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale");
+                Directory.CreateDirectory(sPrefix + @"\Log\EsportaGestionale");
 
             }
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed"))
+            if (!Directory.Exists(sPrefix + @"\Log\EsportaGestionale\Failed"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed");
+                Directory.CreateDirectory(sPrefix + @"\Log\EsportaGestionale\Failed");
 
             }
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed"))
+            if (!Directory.Exists(sPrefix + @"\Log\EsportaGestionale\Completed"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed");
+                Directory.CreateDirectory(sPrefix + @"\Log\EsportaGestionale\Completed");
 
             }
 
 
-            cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
+            cLogFileNamePath = sPrefix + @"\Log\EsportaGestionale";
 
             outputFile = new StreamWriter(Path.Combine(cLogFileNamePath, cLogFileName));
             
@@ -2180,32 +2200,38 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
 
             //sFileName = sFileName.Substring(0, sFileName.Length - 7);
+            string sPrefixAC;
 
             this.iCounterPre++;
 
             if (this.iCounterPre > 99)
                 this.iCounterPre = 1;
 
+            if (this.iType != 10)
+                sPrefixAC = @"D:\LocalView\" + vaultName;
+            else
+                sPrefixAC = this.sPrefixLogAC;
+
             cLogFileName = ("log_AssegnaCP_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + "Count" + this.iCounterPre.ToString() + ".txt";
 
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
+            if (!Directory.Exists(sPrefixAC + @"\Log"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
+                Directory.CreateDirectory(sPrefixAC + @"\Log");
 
             }
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\AssegnaCustomProperties"))
+            if (!Directory.Exists(sPrefixAC + @"\Log\AssegnaCustomProperties"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\AssegnaCustomProperties");
+                Directory.CreateDirectory(sPrefixAC + @"\Log\AssegnaCustomProperties");
 
             }
 
 
 
-            cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\AssegnaCustomProperties";
+            cLogFileNamePath = sPrefixAC + @"\Log\AssegnaCustomProperties";
 
             //MessageBox.Show(Path.Combine(cLogFileNamePath, cLogFileName));
 
