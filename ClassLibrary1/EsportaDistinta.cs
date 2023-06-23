@@ -2815,6 +2815,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             bool lChangedGUID;
 
+            bool bSave;
+            bSave = false;
+
             sFaiAcquista = "";
 
             string sParteAssieme;
@@ -2847,6 +2850,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             for (i = 0; i < vCfgNameArr.Length; i++)
             {
+
+               
 
                 sConfig = vCfgNameArr[i];                
 
@@ -2975,6 +2980,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     {
 
                         config.SetCustomProperty("FaiAcquista", sFaiAcquista);
+                        bSave = true;
 
                     }
 
@@ -2985,6 +2991,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
 
                     config.AddCustomProperty("FaiAcquista", SwDmCustomInfoType.swDmCustomInfoText, sFaiAcquista);
+                    bSave = true;
 
                 }
                 
@@ -3001,8 +3008,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         
                         config.SetCustomProperty("ICMRefBOMGUID", "THIS");
+                        bSave = true;
 
-                        
+
 
                     }
 
@@ -3012,9 +3020,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     
 
                         config.AddCustomProperty("ICMRefBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, "THIS");
+                        bSave = true;
 
 
-                   
+
                 }
 
                 lChangedGUID = false;
@@ -3036,6 +3045,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         newGuid = Guid.NewGuid();
 
                         config.SetCustomProperty("ICMBOMGUID", newGuid.ToString());
+                        bSave = true;
 
                         lChangedGUID = true;
                         configurationGUID = newGuid.ToString();
@@ -3057,6 +3067,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     newGuid = Guid.NewGuid();
 
                     config.AddCustomProperty("ICMBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, newGuid.ToString());
+                    bSave = true;
 
                     lChangedGUID = true;
 
@@ -3066,74 +3077,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 /* salva Computed BOM per configurazione */                
 
-                if (false)
-                {
-
-                    IEdmFile7 aFile;
-                    IEdmFolder5 ppoRetParentFolder;
-
-                    string cTipoDistinta;
-
-                    int plFocusNode = 0;
-
-                    string sErrorMessage;
-
-                    sErrorMessage = "";
-
-                    aFile = (IEdmFile7)this.vault.GetFileFromPath(cFileName, out ppoRetParentFolder);
-
-                    if (aFile != null)
-                    {
-                        IEdmEnumeratorVariable7 enumVar;
-
-                        object[] ppoRetVars = null;
-                        string[] ppoRetConfs = null;
-                        EdmGetVarData poRetDat = new EdmGetVarData();
-                        string sVersion;
-
-                        enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
-                        enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
-
-
-                        sVersion = poRetDat.mlLatestVersion.ToString();
-
-
-                        //MessageBox.Show(cFileName + " --- " + sConf);
-                        if (sParteAssieme == "Assieme")
-                            cTipoDistinta = "DistintaAssiemePerArca";
-                        else
-                            cTipoDistinta = "DistintaPartePerArca";
-
-
-
-                        bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConfig, (int)EdmBomFlag.EdmBf_ShowSelected);
-
-                        object[] ppoRows = null;
-                        IEdmBomCell ppoRow = default(IEdmBomCell);
-                        bomView.GetRows(out ppoRows);                        
-                        int arrSize = ppoRows.Length;
-
-                        //MessageBox.Show(arrSize.ToString());
-                        string sBomName;
-
-                        sBomName = (configurationGUID + "_" + sConfig + "_" + sVersion);
-
-                        sBomName = sBomName.Replace("\\", "_");
-
-                        bomView.Commit(sBomName, out sErrorMessage, out plFocusNode);
-
-                        if (sErrorMessage != "")
-                        {
-
-                            TS.WriteLine(sErrorMessage, TraceEventType.Error);
-                        
-                        
-                        }
-                        
-                    }
-
-
-                }
 
 
 
@@ -3194,7 +3137,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             PopulateFile (swDoc19, cFileName, first);
 
-            swDoc19.Save();
+            if (bSave)
+                swDoc19.Save();
+
             swDoc19.CloseDoc();
 
             cacheFile.Add(cFileName);
