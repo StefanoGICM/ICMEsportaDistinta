@@ -29,7 +29,8 @@ using System.Threading;
 using System.Net.Http;
 using System.Windows.Controls;
 using System.Xml;
-
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using System.Windows.Forms;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
@@ -100,7 +101,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 cnn.Open();
 
 
-                OpenLog(System.IO.Path.GetFileName(sFileName), vault.Name);
+                OpenLog(System.IO.Path.GetFileName(sFileName), vault.RootFolderPath);
 
                 WriteLog("Inizio inserimento record di elaborazione nella Queue");
 
@@ -297,7 +298,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void OpenLog(string sFileName, string vaultName)
+        public void OpenLog(string sFileName, string vaultRootFolderPath)
         {
 
             //sFileName = sFileName.Substring(0, sFileName.Length - 7);
@@ -310,43 +311,43 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             cLogFileName = ("prelog_" + sFileName + "_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_')+ "Count" + this.iCounterPre.ToString() + ".txt";
 
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log"))
+            if (!Directory.Exists(vaultRootFolderPath + @"\Log"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log");
+                Directory.CreateDirectory(vaultRootFolderPath + @"\Log");
 
             }
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale"))
+            if (!Directory.Exists(vaultRootFolderPath + @"\Log\EsportaGestionale"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale");
+                Directory.CreateDirectory(vaultRootFolderPath + @"\Log\EsportaGestionale");
 
             }
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed"))
+            if (!Directory.Exists(vaultRootFolderPath + @"\Log\EsportaGestionale\Failed"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Failed");
+                Directory.CreateDirectory(vaultRootFolderPath + @"\Log\EsportaGestionale\Failed");
 
             }
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed"))
+            if (!Directory.Exists(vaultRootFolderPath + @"\Log\EsportaGestionale\Completed"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Completed");
+                Directory.CreateDirectory(vaultRootFolderPath + @"\Log\EsportaGestionale\Completed");
 
             }
 
-            if (!Directory.Exists(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Inserted"))
+            if (!Directory.Exists(vaultRootFolderPath + @"\Log\EsportaGestionale\Inserted"))
             {
 
-                Directory.CreateDirectory(@"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale\Inserted");
+                Directory.CreateDirectory(vaultRootFolderPath + @"\Log\EsportaGestionale\Inserted");
 
             }
 
 
-            cLogFileNamePath = @"D:\LocalView\" + vaultName + @"\Log\EsportaGestionale";
+            cLogFileNamePath = vaultRootFolderPath + @"\Log\EsportaGestionale";
 
             //MessageBox.Show(Path.Combine(cLogFileNamePath, cLogFileName));
 
@@ -405,8 +406,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                
         bool bOpenLogAC;
 
-        string sPrefixLog = "";
-        string sPrefixLogAC = "";
+        Form appForm;
+        
 
         public int iType = 0;   /* */
 
@@ -615,26 +616,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public EsportaDistinta(IEdmVault5 vault, int iType, string sPrefixLog, string sPrefixLogAC)
-        {
-
-            this.iType = iType;
-            this.vault = vault;
-            this.sPrefixLog = sPrefixLog;
-            this.sPrefixLogAC = sPrefixLogAC;
-
-        }
+        
 
 
-        public void OpenLog(string sFileName, string vaultName)
+        public void OpenLog(string sFileName, string vaultRootFolderPath)
         {
             string sPrefix;
 
-            if (this.iType != 10)
-                sPrefix = @"D:\LocalView\" + vaultName;
-            else
-                sPrefix = this.sPrefixLog;
-
+            sPrefix = vaultRootFolderPath;
 
             this.iCounter++;
 
@@ -918,10 +907,22 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
             
 
+            if (this.appForm == null)
+                this.appForm = new Form();
+
+            
+
+
             string query;
 
             string sNumeroElementi;
-            
+
+            IEdmFolder5 ricFolder = default(IEdmFolder5);
+            IEdmPos5 ricPos = default(IEdmPos5);
+            IEdmFile5 ricFile = default(IEdmFile5);
+
+
+
 
             string sFilename = default(string);
             DateTime dStartDate = default(DateTime);
@@ -1138,7 +1139,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                     this.iCountCheckConnection = 0;
 
-                                    OpenLog(System.IO.Path.GetFileName(sFilename), sVault);
+                                    OpenLog(System.IO.Path.GetFileName(sFilename), workerVault.RootFolderPath);
 
 
                                     bOnlyTop = false;
@@ -1155,11 +1156,22 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     if (workerVault.Name == sVault)
                                     {
 
+                                        //Ricalcola il filename
+
+                                        ricFile = (IEdmFile5)this.vault.GetObject(EdmObjectType.EdmObject_File, iDocumentID);
+                                        //file = this.vault.GetFileFromPath(sFileName, out parentFolder);
+
+                                        ricPos = ricFile.GetFirstFolderPosition();
+                                        ricFolder = ricFile.GetNextFolder(ricPos);
+
+                                        sFilename = ricFile.GetLocalPath(ricFolder.ID);
+
+
                                         WriteLog(Environment.NewLine);
                                         WriteLog("-----------------------------------------------------------------------");
                                         WriteLog("Esportazione " + sFilename + " (configurazioni: " + sConfigurazioniWrite + " )");
                                         WriteLog("-----------------------------------------------------------------------");
-
+                                                                               
 
                                         IniziaEsportazione(iDocumentID, sFilename, iVersione, sConfigurazioni, vault, bOnlyTop, sEsplodiPar1, sEsplodiPar2, iCambioPromosso, sessionID, iOutput, cFileOutput, iCancellaFrontiera, sNote, sConnARCA, sConnFrontiera);
 
@@ -1922,7 +1934,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLogAC("Prendo file in check-out");
 
-                pdmFile.LockFile(parent_folder_id, 0, (int)EdmLockFlag.EdmLock_Simple);
+                pdmFile.LockFile(parent_folder_id, this.appForm.Handle.ToInt32(), (int)EdmLockFlag.EdmLock_Simple);
 
                 WriteLogAC("Apertura documento");
 
@@ -2183,7 +2195,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                 WriteLogAC("check-in del file");
-                pdmFile.UnlockFile(0, "Aggiunte custom properties per esportazione", (int)EdmUnlockFlag.EdmUnlock_IgnoreReferences + (int)EdmUnlockFlag.EdmUnlock_IgnoreRefsOutsideVault + (int)EdmUnlockFlag.EdmUnlock_OverwriteLatestVersion);
+                pdmFile.UnlockFile(this.appForm.Handle.ToInt32(), "Aggiunte custom properties per esportazione", (int)EdmUnlockFlag.EdmUnlock_IgnoreReferences + (int)EdmUnlockFlag.EdmUnlock_IgnoreRefsOutsideVault + (int)EdmUnlockFlag.EdmUnlock_OverwriteLatestVersion);
 
 
             }
@@ -2196,7 +2208,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         }
 
-        public void OpenLogAC(string vaultName)
+        public void OpenLogAC(string vaultRootFolderPath)
         {
 
             //sFileName = sFileName.Substring(0, sFileName.Length - 7);
@@ -2207,10 +2219,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             if (this.iCounterPre > 99)
                 this.iCounterPre = 1;
 
-            if (this.iType != 10)
-                sPrefixAC = @"D:\LocalView\" + vaultName;
-            else
-                sPrefixAC = this.sPrefixLogAC;
+            
+            sPrefixAC = vaultRootFolderPath;
+
 
             cLogFileName = ("log_AssegnaCP_" + DateTime.Now.ToString("yyyy'_'MM'_'dd'T'HH'_'mm'_'ss")).Replace('.', '_') + "Count" + this.iCounterPre.ToString() + ".txt";
 
@@ -2652,12 +2663,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         sICMBOMGUID = null;
                         if (poRetValue != null)
+                        {
                             sICMBOMGUID = (string)poRetValue;
+
+                            WriteLog("sICMBOMGUID = " + sICMBOMGUID);
+
+                        }
 
 
                         if ((sICMBOMGUID == null) || (sICMBOMGUID.Trim() == "") || (sICMBOMGUID.Trim().StartsWith("nuovo")))
                         {
 
+                            WriteLog("sICMBOMGUID = blank, assegna custom properties per esportazione");
                             lFoundVar = false;
 
                         }
@@ -2685,7 +2702,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         bOpenLogAC = true;
 
-                        OpenLogAC(this.vault.Name);
+                        OpenLogAC(this.vault.RootFolderPath);
 
                     }
                     initializeDMAC();
@@ -3568,8 +3585,89 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                           , out pbsConfiguration
                                           , out pbReadOnly);
 
+                            /*
+                            if (poValue.ToString().Trim() == "")
+                            {
+                                IEdmFile17 elabFile;
+                                string sElabID;
+                                int iElabIDChild;
+                                bool bElabConv;
+                                object pdmElabObject;
 
-                            if (poValue.ToString().ToUpper() == "THIS")
+                           
+                                ppoRow.GetVar(iIDID
+                                          , ebctID
+                                          , out poValue
+                                          , out poComputedValue
+                                          , out pbsConfiguration
+                                          , out pbReadOnly);
+
+
+                                sElabID = poValue.ToString();
+
+                                bElabConv = Int32.TryParse(sElabID, out iElabIDChild);
+
+                                if (!bElabConv)
+                                {
+
+                                    throw new ApplicationException("ID non trovato nella BOM del file: " + cFileName);
+
+                                }
+
+
+                                pdmElabObject = vault.GetObject(EdmObjectType.EdmObject_File, iElabIDChild);
+
+                                if (pdmElabObject != null)
+                                {
+
+                                    elabFile = (IEdmFile17)pdmElabObject;
+
+
+                                    if (elabFile.IsLocked)
+                                    {
+
+                                        throw new ApplicationException("File: " + elabFile.Name + " in check-out. Impossibile assegnare le custom properties per l'esportazione.");
+
+                                    }
+
+
+
+                                    if (!bOpenLogAC)
+                                    {
+
+                                        bOpenLogAC = true;
+
+                                        OpenLogAC(this.vault.Name);
+
+                                    }
+                                    initializeDMAC();
+
+                                    IEdmPos5 elabPos = default(IEdmPos5);
+                                    IEdmFolder5 elabFolder = default(IEdmFolder5);
+
+                                    elabPos = ((IEdmFile5)elabFile).GetFirstFolderPosition();
+                                    elabFolder = ((IEdmFile5)elabFile).GetNextFolder(elabPos);
+
+
+
+
+                                    elaboraFile(elabFolder.ID, (IEdmFile5)elabFile);
+
+
+                                }
+
+
+                            }
+                            */
+
+
+                            // se oValue.ToString().Trim() == "" allora le variabili per l'esportazione non
+                            // sono state create
+                            // Verranno create al prossimo livello quando viene richiamata questa funzione ricorsiva
+                            // In particolare a ICMRefBOMGUID verrà assegnato "THIS" e quindi mi comporto come
+                            // se fosse già stato assegnato
+
+                            if ((poValue.ToString().ToUpper() == "THIS") || (poValue.ToString().Trim() == ""))
                             {
                                 bThis = true;
                                 sFileNameDocCostr = ppoRow.GetPathName();
@@ -3591,9 +3689,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 //Debugger.Launch();
 
-                                bThis = false; 
+                                bThis = false;
                                 sFileNameDocCostr = "";
-                                
+
 
                                 sGuidConfCostr = poValue.ToString();
 
@@ -3601,19 +3699,19 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 //recupera il nomefile dal GUID
 
-                                IEdmSearch9 Search = (IEdmSearch9)((IEdmVault21) vault).CreateSearch2();
+                                IEdmSearch9 Search = (IEdmSearch9)((IEdmVault21)vault).CreateSearch2();
                                 if (Search != null)
                                 {
 
 
                                     Search.FindFiles = true;
                                     Search.FindFolders = false;
-                                    
+
 
                                     Search.AddVariable2("ICMBOMGUID", sGuidConfCostr);
-                                    
 
-                                    IEdmSearchResult5 SearchResult = Search.GetFirstResult();   
+
+                                    IEdmSearchResult5 SearchResult = Search.GetFirstResult();
                                     while ((SearchResult != null))
                                     {
 
@@ -3624,7 +3722,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                         IEdmFile5 pdmFile;
 
                                         id = SearchResult.ID;
-                                                                                
+
 
                                         parent_folder_id = SearchResult.ParentFolderID;
 
@@ -3637,7 +3735,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                             pdmFile = (IEdmFile5)pdmObject;
 
-                                           
+
                                             sFileNameDocCostr = pdmFile.GetLocalPath(parent_folder_id);
 
                                             newIdToTake = id;
@@ -3660,8 +3758,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                             sqlParam.Value = sGuidConfCostr;
 
                                             sqlParam = command2.Parameters.Add("@ConfName", SqlDbType.VarChar, 200);
-                                            sqlParam.Direction = ParameterDirection.Output;                                           
-                                            
+                                            sqlParam.Direction = ParameterDirection.Output;
+
 
                                             sqlParam = new SqlParameter("@UltRevisionNo", SqlDbType.Int);
                                             //sqlParam.ParameterName = "@Result";
