@@ -253,7 +253,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                             version = GetFileLatestVersion(aFile);
 
-                            espDist.OpenLog(System.IO.Path.GetFileName(sFileName), this.vault.Name);
+                            espDist.OpenLog(System.IO.Path.GetFileName(sFileName), this.vault.RootFolderPath);
 
                             EdmStrLst5 cfgList = default(EdmStrLst5);
                             cfgList = aFile.GetConfigurations();
@@ -627,6 +627,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                                         EsportaDistintaForm esportaDistintaForm = new EsportaDistintaForm(iDocument, sFileName, version, this.vault);
+                                        
 
                                         esportaDistintaForm.Show();
 

@@ -269,8 +269,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 sqlParam = command.Parameters.Add("@FileOutput", SqlDbType.NVarChar, 1000);
                 sqlParam.Direction = ParameterDirection.Input;
                 sqlParam.Value = cFileName;
-
                 WriteLog("Parametro File Output: " + cFileName);
+
+
+                sqlParam = command.Parameters.Add("@Errore", SqlDbType.NVarChar, 2000);
+                sqlParam.Direction = ParameterDirection.Output;
+                sqlParam.Value = "";
+                WriteLog("Parametro Errore: ");
 
 
 
@@ -283,16 +288,37 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 WriteLog("Parametro ID Ritornato: " + sID);
 
+                string sErrore;
+                sErrore = command.Parameters["@Errore"].Value.ToString();
 
-                WriteLog("Prima Commit della transazione");
-                commandTransaction.Commit();
-                WriteLog("Dopo Commit della transazione");
+                if ((sErrore.Trim() != null) && (sErrore.Trim() != ""))
+                {
+                    WriteLog(sErrore);
+                    WriteLog("Prima Rollback della transazione");
+                    commandTransaction.Rollback();
+                    WriteLog("Dopo Rollaback della transazione");
+                    
 
-                WriteLog("Fine inserimento record di elaborazione nella Queue");
+
+                    CloseLog();
+                    MoveLog();
 
 
-                CloseLog();
-                MoveLog();
+                }
+                else
+                {
+
+                    WriteLog("Prima Commit della transazione");
+                    commandTransaction.Commit();
+                    WriteLog("Dopo Commit della transazione");
+
+                    WriteLog("Fine inserimento record di elaborazione nella Queue");
+
+
+                    CloseLog();
+                    MoveLog();
+
+                }
 
             }
 

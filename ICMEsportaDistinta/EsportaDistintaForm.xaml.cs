@@ -345,7 +345,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                                           , cNote);
 
 
-                        EspDistinta.TS.WriteLine("Record inserito nella queue di esportazione");
+                        EspDistinta.TS.WriteLine("Operazione terminata");
 
                         bElabOK = true;
 
