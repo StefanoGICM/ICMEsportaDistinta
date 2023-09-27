@@ -127,18 +127,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
 
 
-                    assiemeTextBox.Text = this.mTaskProps.GetValEx("AssiemeVar");
-                    confTextBox.Text = this.mTaskProps.GetValEx("confVar");
-                    padreListBox.Text = this.mTaskProps.GetValEx("padreVar");
-                    figliListBox.Text = this.mTaskProps.GetValEx("figliVar");
-                    sTopLevel = this.mTaskProps.GetValEx("topLevelVar");
-                    sCancella = this.mTaskProps.GetValEx("cancellaVar");
-                    outputListBox.Text = this.mTaskProps.GetValEx("outputVar");
-                    connARCATextBox.Text = this.mTaskProps.GetValEx("connARCAVar");
-                    dirFileXMLTextBox.Text = this.mTaskProps.GetValEx("dirFileXMLVar");                    
-                    connICMSWDataTextBox.Text = this.mTaskProps.GetValEx("connICMSWDataVar");
-                    noteTextBox.Text = this.mTaskProps.GetValEx("noteVar");
-                    selezioneVersionePadreTextBox.Text = this.mTaskProps.GetValEx("selezioneVersionePadreVar");
+                    assiemeTextBox.Text = (string)this.mTaskProps.GetValEx("AssiemeVar");
+                    confTextBox.Text = (string)this.mTaskProps.GetValEx("confVar");
+                    padreListBox.Text = (string)this.mTaskProps.GetValEx("padreVar");
+                    figliListBox.Text = (string)this.mTaskProps.GetValEx("figliVar");
+                    sTopLevel = (string)this.mTaskProps.GetValEx("topLevelVar");
+                    sCancella = (string)this.mTaskProps.GetValEx("cancellaVar");
+                    outputListBox.Text = (string)this.mTaskProps.GetValEx("outputVar");
+                    connARCATextBox.Text = (string)this.mTaskProps.GetValEx("connARCAVar");
+                    dirFileXMLTextBox.Text = (string)this.mTaskProps.GetValEx("dirFileXMLVar");                    
+                    connICMSWDataTextBox.Text = (string)this.mTaskProps.GetValEx("connICMSWDataVar");
+                    noteTextBox.Text = (string)this.mTaskProps.GetValEx("noteVar");
+                    selezioneVersionePadreTextBox.Text = (string)this.mTaskProps.GetValEx("selezioneVersionePadreVar");
 
 
                     if (sTopLevel == "1")
@@ -155,18 +155,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 }
                 else if ((mTaskInst != null))
                 {
-                    assiemeTextBox.Text = this.mTaskInst.GetValEx("AssiemeVar");
-                    confTextBox.Text = this.mTaskInst.GetValEx("confVar");
-                    padreListBox.Text = this.mTaskInst.GetValEx("padreVar");
-                    figliListBox.Text = this.mTaskInst.GetValEx("figliVar");
-                    sTopLevel = this.mTaskInst.GetValEx("topLevelVar");
-                    sCancella = this.mTaskInst.GetValEx("cancellaVar");
-                    outputListBox.Text = this.mTaskInst.GetValEx("outputVar");
-                    connARCATextBox.Text = this.mTaskInst.GetValEx("connARCAVar");
-                    dirFileXMLTextBox.Text = this.mTaskInst.GetValEx("dirFileXMLVar");
-                    connICMSWDataTextBox.Text = this.mTaskInst.GetValEx("connICMSWDataVar");                    
-                    noteTextBox.Text = this.mTaskInst.GetValEx("noteVar");
-                    selezioneVersionePadreTextBox.Text = this.mTaskInst.GetValEx("selezioneVersionePadreVar");
+                    assiemeTextBox.Text = (string)this.mTaskInst.GetValEx("AssiemeVar");
+                    confTextBox.Text = (string)this.mTaskInst.GetValEx("confVar");
+                    padreListBox.Text = (string)this.mTaskInst.GetValEx("padreVar");
+                    figliListBox.Text = (string)this.mTaskInst.GetValEx("figliVar");
+                    sTopLevel = (string)this.mTaskInst.GetValEx("topLevelVar");
+                    sCancella = (string)this.mTaskInst.GetValEx("cancellaVar");
+                    outputListBox.Text = (string)this.mTaskInst.GetValEx("outputVar");
+                    connARCATextBox.Text = (string)this.mTaskInst.GetValEx("connARCAVar");
+                    dirFileXMLTextBox.Text = (string)this.mTaskInst.GetValEx("dirFileXMLVar");
+                    connICMSWDataTextBox.Text = (string)this.mTaskInst.GetValEx("connICMSWDataVar");                    
+                    noteTextBox.Text = (string)this.mTaskInst.GetValEx("noteVar");
+                    selezioneVersionePadreTextBox.Text = (string)this.mTaskInst.GetValEx("selezioneVersionePadreVar");
 
 
                 }

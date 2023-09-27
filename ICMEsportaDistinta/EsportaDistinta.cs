@@ -88,12 +88,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                     string sNote)
         {
             
-
            
             id = 0;
-
-
-
 
 
             using (SqlConnection cnn = new SqlConnection(sConnFrontiera))

@@ -16,6 +16,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 {    
 
     [Guid("E599F5C4-3547-4D96-AD9E-7DAE7F3E8AD4"), ComVisible(true)]
+    
     public class AddIn : IEdmAddIn5
     {
 
@@ -161,19 +162,19 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     string sNoteTextBox;
                     string sSelezioneVersionePadre;
 
-
-                    sAssieme = TaskInstance.GetValEx("AssiemeVar");
-                    sConf = TaskInstance.GetValEx("confVar");
-                    sPadre = TaskInstance.GetValEx("padreVar");
-                    sFigli = TaskInstance.GetValEx("figliVar");
-                    sTopLevel = TaskInstance.GetValEx("topLevelVar");
-                    sCancella = TaskInstance.GetValEx("cancellaVar");
-                    sOutput = TaskInstance.GetValEx("outputVar");
-                    sConnARCA = TaskInstance.GetValEx("connARCAVar");
-                    sDirFileXML = TaskInstance.GetValEx("dirFileXMLVar");
-                    sConnICMSWData = TaskInstance.GetValEx("connICMSWDataVar");                    
-                    sNoteTextBox = TaskInstance.GetValEx("noteVar");
-                    sSelezioneVersionePadre = TaskInstance.GetValEx("selezioneVersionePadreVar");
+                    
+                    sAssieme = (string)TaskInstance.GetValEx("AssiemeVar");
+                    sConf = (string)TaskInstance.GetValEx("confVar");
+                    sPadre = (string)TaskInstance.GetValEx("padreVar");
+                    sFigli = (string)TaskInstance.GetValEx("figliVar");
+                    sTopLevel = (string)TaskInstance.GetValEx("topLevelVar");
+                    sCancella = (string)TaskInstance.GetValEx("cancellaVar");
+                    sOutput = (string)TaskInstance.GetValEx("outputVar");
+                    sConnARCA = (string)TaskInstance.GetValEx("connARCAVar");
+                    sDirFileXML = (string)TaskInstance.GetValEx("dirFileXMLVar");
+                    sConnICMSWData = (string)TaskInstance.GetValEx("connICMSWDataVar");                    
+                    sNoteTextBox = (string)TaskInstance.GetValEx("noteVar");
+                    sSelezioneVersionePadre = (string)TaskInstance.GetValEx("selezioneVersionePadreVar");
 
                     sConnICMSWData = sConnICMSWData.Replace(@"\\", @"\");
                     sConnARCA = sConnARCA.Replace(@"\\", @"\");
@@ -574,12 +575,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             try
             {
-
-               
+                
 
                 switch (poCmd.meCmdType)
                 {
 
+                    
 
                     case EdmCmdType.EdmCmd_Menu:
 
@@ -591,7 +592,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     // Handle the menu command
                     case EdmCmdType.EdmCmd_CardButton:
 
-                        if (poCmd.mlCmdID == 0 && poCmd.mbsComment == "ESPORTADISTINTAPDM")
+                        if (poCmd.mlCmdID == 0 && poCmd.mbsComment == "ESPORTADISTINTAPDM2")
                         {
 
                             if (ppoData.Length == 1)

@@ -29,7 +29,7 @@
         <ICM.ConsoleControlWPF:ConsoleControl x:Name="consoleControl" Margin="0,8,0,-1" Grid.ColumnSpan="8" Grid.Row="2" Grid.RowSpan="3" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Width="1077"/>
         <Button Content="Esporta Distinta" HorizontalAlignment="Left" Margin="185,68,0,0" VerticalAlignment="Top" Width="148" Click="Button_Click" Height="20" Grid.Column="5" Grid.Row="1"/>
         <TextBox HorizontalAlignment="Left" Margin="30,12,0,0" x:Name ="DistintaTextBox" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="824" Height="22" Grid.ColumnSpan="6"/>
-        <TextBox x:Name="ConfigurazioniTextBox" HorizontalAlignment="Left" Margin="22,49,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="841" Grid.Column="1" Height="22" Grid.ColumnSpan="5"/>
+        <TextBox x:Name="ConfigurazioniTextBox" HorizontalAlignment="Left" Margin="22,49,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="724" Grid.Column="1" Height="22" Grid.ColumnSpan="5"/>
         <Label Content="Configurazioni da esportare:" HorizontalAlignment="Left" Margin="14,46,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.145,-0.268" Grid.ColumnSpan="2" Width="178" Height="26"/>
         <RadioButton x:Name="RB1" Content="Ultima Versione" Margin="28,98,0,0" VerticalAlignment="Top" Checked="RadioButton_Checked" RenderTransformOrigin="1.866,-1.214" GroupName="GRB1" Click="RB1_Click" HorizontalAlignment="Left" IsChecked="True" Width="118" Height="15"/>
         <RadioButton x:Name="RB2" Content="Seleziona Versione" HorizontalAlignment="Left" Margin="28,133,0,0" VerticalAlignment="Top" GroupName="GRB1" Click="RB2_Click" Height="15" Width="118"/>
@@ -52,10 +52,13 @@
         <Label Grid.Column="5" Content="Dir:" HorizontalAlignment="Left" Height="25" Margin="230,124,0,0" VerticalAlignment="Top" Width="30"/>
         <TextBox x:Name="NoteTB" Grid.ColumnSpan="6" HorizontalAlignment="Left" Height="20" Margin="82,67,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="536" Grid.Row="1"/>
         <Label Content="Note:" HorizontalAlignment="Left" Margin="43,65,0,0" VerticalAlignment="Top" Grid.Row="1" Height="25" Width="39"/>
-        <TextBox x:Name="connARCA" Grid.ColumnSpan="5" Height="23" Margin="22,10,0,0" Grid.Row="1" TextWrapping="Wrap" Text="Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True" VerticalAlignment="Top" HorizontalAlignment="Left" Width="759" Grid.Column="1"/>
-        <Label x:Name="connARCALabel" Content="Connessione SQL ARCA:" HorizontalAlignment="Left" Margin="45,8,0,0" Grid.Row="1" VerticalAlignment="Top" Width="136" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="connFrontiera" Grid.Column="1" Grid.ColumnSpan="5" HorizontalAlignment="Left" Height="22" Margin="22,0,0,0" Grid.Row="1" TextWrapping="Wrap" Text="Data Source='PDMTest';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True" VerticalAlignment="Center" Width="768"/>
-        <Label Content="Connessione tabelle di frontiera:" HorizontalAlignment="Left" Margin="0,32,0,0" Grid.Row="1" VerticalAlignment="Top" Width="181" Grid.ColumnSpan="2"/>
+        <Label x:Name="connARCALabel" Content="Database ARCA:" HorizontalAlignment="Left" Margin="80,6,0,0" Grid.Row="1" VerticalAlignment="Top" Width="95" Grid.ColumnSpan="2"/>
+
+        <Label Content="Database tabelle di frontiera:" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" Width="181" Grid.ColumnSpan="2" Margin="15,0,0,0"/>
+        <ComboBox x:Name="DbARCACombo" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Margin="23,9,0,0" Grid.Row="1" VerticalAlignment="Top" Width="160" SelectionChanged="ComboBox_SelectionChanged"/>
+        <ComboBox x:Name="DbFrontieraCombo" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Margin="23,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="160" SelectionChanged="ComboBox_SelectionChanged"/>
+        <Label Grid.Column="5" Content="Bianco = tutte
+               " HorizontalAlignment="Left" Margin="452,47,0,0" VerticalAlignment="Top" Width="84" Height="25"/>
         <!--<WPF:ConsoleControl x:Name="embeddedConsole" HorizontalAlignment="Center" Margin="0,217,0,0" VerticalAlignment="Top" Height="207" Width="780"/>-->
     </Grid>
 </Window>

@@ -25,8 +25,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         EsportaDistinta EspDistinta = new EsportaDistinta(1);
 
-
-
         byte[] bytesReceived = new byte[1_024];
         
         string sFileName;
@@ -90,7 +88,45 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             EspDistinta.TS.WriteLine("Test Console");
 
             TSStatic = EspDistinta.TS;
-           
+
+            //DbARCACombo Inizializzazione
+
+            DbARCACombo.ItemsSource = null;
+            DbARCACombo.Items.Clear();//Nie wolno używać gdy jest podpięty ItemsSource, chyba że jest null'em
+
+            System.Collections.Generic.Dictionary<string, string> DbARCAComboSource = new System.Collections.Generic.Dictionary<string, string>();
+
+            DbARCAComboSource.Add("ADB_FREDDO", "Data Source='erp';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True");
+            DbARCAComboSource.Add("ADB_ICM", "Data Source='erp';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'; MultipleActiveResultSets=True");
+
+            DbARCACombo.ItemsSource = DbARCAComboSource;//Przypisanie kolekcji do ComboBox'a
+            DbARCACombo.DisplayMemberPath = "Key";//Wybór kolumny do wyświetlenia
+
+            DbARCACombo.Items.Refresh();
+
+            DbARCACombo.SelectedIndex = 0;
+
+            //DbFrontieraCombo Inizializzazione
+
+            DbFrontieraCombo.ItemsSource = null;
+            DbFrontieraCombo.Items.Clear();//Nie wolno używać gdy jest podpięty ItemsSource, chyba że jest null'em
+
+            System.Collections.Generic.Dictionary<string, string> DbFrontieraComboSource = new System.Collections.Generic.Dictionary<string, string>();
+
+            DbFrontieraComboSource.Add("ICMSWDataTest", "Data Source='PDMTest';Initial Catalog = ICMSWDataTest; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True");
+            DbFrontieraComboSource.Add("ICMSWData", "Data Source='PDMTest';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True");
+            
+
+            DbFrontieraCombo.ItemsSource = DbFrontieraComboSource;//Przypisanie kolekcji do ComboBox'a
+            DbFrontieraCombo.DisplayMemberPath = "Key";//Wybór kolumny do wyświetlenia
+
+            DbFrontieraCombo.Items.Refresh();
+
+            DbFrontieraCombo.SelectedIndex = 0;
+
+
+
+
 
         }
 
@@ -126,8 +162,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-
-            //Debugger.Launch();
+            
 
             string sFileName = this.sFileName;
             string sConfigurazioni = ConfigurazioniTextBox.Text;
@@ -136,8 +171,15 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string sConnARCA;
             string sConnFrontiera;
 
-            sConnARCA = this.connARCA.Text;
-            sConnFrontiera = this.connFrontiera.Text;
+
+
+            sConnARCA = ((System.Collections.Generic.KeyValuePair<string, string>)DbARCACombo.SelectedItem).Value.ToString();
+            sConnFrontiera = ((System.Collections.Generic.KeyValuePair<string, string>)DbFrontieraCombo.SelectedItem).Value.ToString();
+
+            System.Windows.Forms.MessageBox.Show(sConnARCA);
+            System.Windows.Forms.MessageBox.Show(sConnFrontiera);
+
+            return;
 
             sConnARCA = sConnARCA.Replace(@"\\", @"\");
             sConnFrontiera = sConnFrontiera.Replace(@"\\", @"\");
@@ -455,6 +497,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         }
 
         private void FileName_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+
+        }
+
+        private void ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
 
         }
