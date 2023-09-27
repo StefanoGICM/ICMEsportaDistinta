@@ -187,7 +187,8 @@ BEGIN
 	  (27, '517'),     -- RIVESTIMENTI
 	  (28, '516'),      -- GUARNIZIONI CUSTOM
 	  (29, '518'),      -- RULLI
-	  (30, '400')   -- ASSIEMI DI MONTAGGIO
+	  (30, '400'),   -- ASSIEMI DI MONTAGGIO
+	  (31, 'AP')   -- ASSIEMI PROMOSSI
 
 	  insert into ICM_UMMaga 
 	  values
@@ -221,7 +222,8 @@ BEGIN
 	  (27, 'NR', 'QTA'),     --RIVESTIMENTI
 	  (28, 'NR', 'QTA'),      -- GUARNIZIONI CUSTOM
 	  (29, 'NR', 'QTA'),     --RULLI
-	  (30, 'NR', 'QTA')      --MONTAGGI
+	  (30, 'NR', 'QTA'),      --MONTAGGI
+	  (31, 'NR', 'QTA')      -- ASSIEMI PROMOSSI
 
 	  insert into ICM_UMAcq 
 	  values
@@ -255,7 +257,8 @@ BEGIN
 	  (27, 'NR', 'QTA'),    --RIVESTIMENTI
 	  (28, 'NR', 'QTA'),      -- GUARNIZIONI CUSTOM
 	  (29, 'NR', 'QTA'),    -- RULLI
-	  (30, 'NR', 'QTA')      --MONTAGGI
+	  (30, 'NR', 'QTA'),      --MONTAGGI
+	  (31, 'NR', 'QTA')      -- ASSIEMI PROMOSSI
 
 
 END

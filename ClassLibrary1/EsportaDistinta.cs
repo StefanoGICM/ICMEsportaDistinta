@@ -358,7 +358,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         // Attenzione: togliere
 
                         // Calcolo consumo
-                        
+
+
                         TS.WriteLine("Calcolo consumo e creazione distinta");
 
                         SqlCommand command2 = new SqlCommand("dbo.ICMCalcoloConsumoSp", cnn);
@@ -409,7 +410,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         TS.WriteLine("Importazione distinta in ARCA");
 
                         //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='gestionale';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='erp';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
 
                         cnn = new SqlConnection(connectionString);
 
@@ -2767,7 +2768,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             NavigateFile(sFileName, true);
 
 
-
         }
 
         public void NavigateFile(string cFileName, bool first)
@@ -2842,7 +2842,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             }
 
-            
+            bool bModified = false;
 
             for (i = 0; i < vCfgNameArr.Length; i++)
             {
@@ -2974,6 +2974,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     {
 
                         config.SetCustomProperty("FaiAcquista", sFaiAcquista);
+                        bModified = true;
 
                     }
 
@@ -2984,6 +2985,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
 
                     config.AddCustomProperty("FaiAcquista", SwDmCustomInfoType.swDmCustomInfoText, sFaiAcquista);
+                    bModified = true;
 
                 }
                 
@@ -3000,8 +3002,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         
                         config.SetCustomProperty("ICMRefBOMGUID", "THIS");
+                        bModified = true;
 
-                        
 
                     }
 
@@ -3011,9 +3013,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     
 
                         config.AddCustomProperty("ICMRefBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, "THIS");
+                        bModified = true;
 
 
-                   
+
                 }
 
                 lChangedGUID = false;
@@ -3035,6 +3038,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         newGuid = Guid.NewGuid();
 
                         config.SetCustomProperty("ICMBOMGUID", newGuid.ToString());
+                        bModified = true;
 
                         lChangedGUID = true;
                         configurationGUID = newGuid.ToString();
@@ -3056,6 +3060,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     newGuid = Guid.NewGuid();
 
                     config.AddCustomProperty("ICMBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, newGuid.ToString());
+                    bModified = true;
 
                     lChangedGUID = true;
 
@@ -3065,7 +3070,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 /* salva Computed BOM per configurazione */                
 
-                if (true)
+                if (false)
                 {
 
                     IEdmFile7 aFile;
@@ -3193,7 +3198,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             PopulateFile (swDoc19, cFileName, first);
 
-            swDoc19.Save();
+            if (bModified)
+                swDoc19.Save();
+
             swDoc19.CloseDoc();
 
             cacheFile.Add(cFileName);

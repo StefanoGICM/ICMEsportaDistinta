@@ -8,9 +8,11 @@ using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Data;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ICM.SWPDM.EsportaDistintaAddin
 {
+    [Guid("6E599310-1C5D-492C-8B52-AED63CD14BF5"), ComVisible(true)]
     public class AddIn : IEdmAddIn5
     {
 

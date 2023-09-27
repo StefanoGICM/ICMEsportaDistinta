@@ -19,6 +19,7 @@
         <TextBox x:Name="ConfigurazioniTextBox" HorizontalAlignment="Left" Margin="22,51,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="825" Grid.Column="1" Height="22"/>
         <Label Content="Configurazioni da esportare:" HorizontalAlignment="Left" Margin="14,46,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.145,-0.268" Grid.ColumnSpan="2" Width="178"/>
         <Button Grid.Column="1" Content="Aggiorna Distinta Pregressa" HorizontalAlignment="Left" Margin="503,130,0,0" VerticalAlignment="Top" Width="170" Click="Button_Click_1"/>
+        <Label Grid.Column="1" Content="New 20230901" HorizontalAlignment="Left" Margin="601,97,0,0" VerticalAlignment="Top"/>
         <!--<WPF:ConsoleControl x:Name="embeddedConsole" HorizontalAlignment="Center" Margin="0,217,0,0" VerticalAlignment="Top" Height="207" Width="780"/>-->
     </Grid>
 </Window>
