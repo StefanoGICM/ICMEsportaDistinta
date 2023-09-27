@@ -188,7 +188,17 @@ BEGIN
 	  (28, '516'),      -- GUARNIZIONI CUSTOM
 	  (29, '518'),      -- RULLI
 	  (30, '400'),   -- ASSIEMI DI MONTAGGIO
+<<<<<<< HEAD
 	  (31, 'AP')   -- ASSIEMI PROMOSSI
+=======
+	  (31, 'AP'),   -- ASSIEMI PROMOSSI
+	  (32, '521'),   --- RETI
+	  (33, '522'),   --- CALETTATORI
+	  (34, '530'),   --- FISSAGGI
+	  (35, '550'),   --- TRAVERSE AUTOCENTRANTI
+	  (36, '555')   --- FERRAMENTA
+
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
 	  insert into ICM_UMMaga 
 	  values
@@ -223,7 +233,16 @@ BEGIN
 	  (28, 'NR', 'QTA'),      -- GUARNIZIONI CUSTOM
 	  (29, 'NR', 'QTA'),     --RULLI
 	  (30, 'NR', 'QTA'),      --MONTAGGI
+<<<<<<< HEAD
 	  (31, 'NR', 'QTA')      -- ASSIEMI PROMOSSI
+=======
+	  (31, 'NR', 'QTA'),      -- ASSIEMI PROMOSSI
+	  (32, 'NR', 'QTA'),      -- RETI
+	  (33, 'NR', 'QTA'),      -- CALETTATORI
+	  (34, 'NR', 'QTA'),   --- FISSAGGI
+	  (35, 'NR', 'QTA'),   --- TRAVERSE AUTOCENTRANTI
+	  (36, 'NR', 'QTA')   --- FERRAMENTA
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
 	  insert into ICM_UMAcq 
 	  values
@@ -258,7 +277,16 @@ BEGIN
 	  (28, 'NR', 'QTA'),      -- GUARNIZIONI CUSTOM
 	  (29, 'NR', 'QTA'),    -- RULLI
 	  (30, 'NR', 'QTA'),      --MONTAGGI
+<<<<<<< HEAD
 	  (31, 'NR', 'QTA')      -- ASSIEMI PROMOSSI
+=======
+	  (31, 'NR', 'QTA'),     -- ASSIEMI PROMOSSI
+	  (32, 'NR', 'QTA'),      -- RETI
+	  (33, 'NR', 'QTA'),      -- CALETTATORI
+	  (34, 'NR', 'QTA'),   --- FISSAGGI
+	  (35, 'NR', 'QTA'),   --- TRAVERSE AUTOCENTRANTI
+	  (36, 'NR', 'QTA')   --- FERRAMENTA
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
 
 END

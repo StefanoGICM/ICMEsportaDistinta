@@ -2814,6 +2814,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             bool lChangedGUID;
 
+            bool bSave;
+            bSave = false;
+
             sFaiAcquista = "";
 
             string sParteAssieme;
@@ -2846,6 +2849,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             for (i = 0; i < vCfgNameArr.Length; i++)
             {
+
+               
 
                 sConfig = vCfgNameArr[i];                
 
@@ -2974,7 +2979,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     {
 
                         config.SetCustomProperty("FaiAcquista", sFaiAcquista);
+<<<<<<< HEAD
                         bModified = true;
+=======
+                        bSave = true;
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
                     }
 
@@ -2985,7 +2994,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
 
                     config.AddCustomProperty("FaiAcquista", SwDmCustomInfoType.swDmCustomInfoText, sFaiAcquista);
+<<<<<<< HEAD
                     bModified = true;
+=======
+                    bSave = true;
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
                 }
                 
@@ -3002,7 +3015,12 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         
                         config.SetCustomProperty("ICMRefBOMGUID", "THIS");
+<<<<<<< HEAD
                         bModified = true;
+=======
+                        bSave = true;
+
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
 
                     }
@@ -3013,7 +3031,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     
 
                         config.AddCustomProperty("ICMRefBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, "THIS");
+<<<<<<< HEAD
                         bModified = true;
+=======
+                        bSave = true;
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
 
 
@@ -3038,7 +3060,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         newGuid = Guid.NewGuid();
 
                         config.SetCustomProperty("ICMBOMGUID", newGuid.ToString());
+<<<<<<< HEAD
                         bModified = true;
+=======
+                        bSave = true;
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
                         lChangedGUID = true;
                         configurationGUID = newGuid.ToString();
@@ -3060,7 +3086,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     newGuid = Guid.NewGuid();
 
                     config.AddCustomProperty("ICMBOMGUID", SwDmCustomInfoType.swDmCustomInfoText, newGuid.ToString());
+<<<<<<< HEAD
                     bModified = true;
+=======
+                    bSave = true;
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
                     lChangedGUID = true;
 
@@ -3070,6 +3100,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 /* salva Computed BOM per configurazione */                
 
+<<<<<<< HEAD
                 if (false)
                 {
 
@@ -3138,6 +3169,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                 }
+=======
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
 
 
 
@@ -3198,7 +3231,11 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             PopulateFile (swDoc19, cFileName, first);
 
+<<<<<<< HEAD
             if (bModified)
+=======
+            if (bSave)
+>>>>>>> 5f2a4d667b6f7d7b0dc3acfe9ab90ef887e6aabd
                 swDoc19.Save();
 
             swDoc19.CloseDoc();
