@@ -192,7 +192,7 @@ BEGIN
 	  (32, '521'),   --- RETI
 	  (33, '522'),   --- CALETTATORI
 	  (34, '530'),   --- FISSAGGI
-	  (35, '550'),   --- TRAVERSE AUTOCENTRANTI
+	  (35, '519'),   --- TRAVERSE AUTOCENTRANTI
 	  (36, '555')   --- FERRAMENTA
 
 
