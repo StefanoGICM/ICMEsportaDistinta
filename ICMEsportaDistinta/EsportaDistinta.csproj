@@ -95,9 +95,6 @@
     <Content Include="SQLServer\ICM_Conf_GetPromossoSP.sql" />
     <Content Include="SQLServer\ICM_Importa_Distinta_In_Arca_Gestionale.sql" />
     <Content Include="SQLServer\ICM_XPORT_Elab_InsertQueueSp.sql" />
-    <Content Include="SQLServer\xDEDCancellaDistintaSp.sql" />
-    <Content Include="SQLServer\xDEDCheckDIBASp.sql" />
-    <Content Include="SQLServer\xDEDCreaArticoloSp.sql" />
     <Content Include="SQLServer\xInserisciStati.sql" />
     <Content Include="SQLServer\SWANAG.sql" />
     <Content Include="SQLServer\SWBOM.sql" />
