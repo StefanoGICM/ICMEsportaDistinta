@@ -176,10 +176,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             sConnARCA = ((System.Collections.Generic.KeyValuePair<string, string>)DbARCACombo.SelectedItem).Value.ToString();
             sConnFrontiera = ((System.Collections.Generic.KeyValuePair<string, string>)DbFrontieraCombo.SelectedItem).Value.ToString();
 
-            System.Windows.Forms.MessageBox.Show(sConnARCA);
-            System.Windows.Forms.MessageBox.Show(sConnFrontiera);
-
-            return;
+            
 
             sConnARCA = sConnARCA.Replace(@"\\", @"\");
             sConnFrontiera = sConnFrontiera.Replace(@"\\", @"\");

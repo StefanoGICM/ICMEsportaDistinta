@@ -161,7 +161,7 @@ BEGIN
 	  (32, '521', 'NR', 'QTA', 'NR', 'QTA'),   --- RETI
 	  (33, '522', 'NR', 'QTA', 'NR', 'QTA'),   --- CALETTATORI
 	  (34, '530', 'NR', 'QTA', 'NR', 'QTA'),   --- FISSAGGI
-	  (35, '550', 'NR', 'QTA', 'NR', 'QTA'),   --- TRAVERSE AUTOCENTRANTI
+	  (35, '519', 'NR', 'QTA', 'NR', 'QTA'),   --- TRAVERSE AUTOCENTRANTI
 	  (36, '555', 'NR', 'QTA', 'NR', 'QTA')   --- FERRAMENTA
 
 
