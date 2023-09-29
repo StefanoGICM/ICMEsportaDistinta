@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EsportaDistinta", "ICMEsportaDistinta\EsportaDistinta.csproj", "{4CD36C9E-C31C-4478-952D-D0C6DE91972F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICMEsportaDistintaWindowsService1", "ICMEsportaDistintaWindowsService1\ICMEsportaDistintaWindowsService1.csproj", "{2C820024-DF8A-479A-ADC8-840A52F28AEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4CD36C9E-C31C-4478-952D-D0C6DE91972F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CD36C9E-C31C-4478-952D-D0C6DE91972F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CD36C9E-C31C-4478-952D-D0C6DE91972F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C820024-DF8A-479A-ADC8-840A52F28AEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C820024-DF8A-479A-ADC8-840A52F28AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C820024-DF8A-479A-ADC8-840A52F28AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C820024-DF8A-479A-ADC8-840A52F28AEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

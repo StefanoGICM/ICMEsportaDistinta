@@ -113,7 +113,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             System.Collections.Generic.Dictionary<string, string> DbFrontieraComboSource = new System.Collections.Generic.Dictionary<string, string>();
 
-            DbFrontieraComboSource.Add("ICMSWDataTest", "Data Source='PDMTest';Initial Catalog = ICMSWDataTest; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True");
+            DbFrontieraComboSource.Add("ICMSWDataTest", "Data Source='PDMTest';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True");
             DbFrontieraComboSource.Add("ICMSWData", "Data Source='PDMTest';Initial Catalog = ICMSWData; User ID = sa; Password = 'P@ssw0rd'; MultipleActiveResultSets=True");
             
 

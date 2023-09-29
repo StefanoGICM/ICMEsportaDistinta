@@ -592,7 +592,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     // Handle the menu command
                     case EdmCmdType.EdmCmd_CardButton:
 
-                        if (poCmd.mlCmdID == 0 && poCmd.mbsComment == "ESPORTADISTINTAPDM2")
+                        if (poCmd.mlCmdID == 0 && poCmd.mbsComment == "ESPORTADISTINTAPDM")
                         {
 
                             if (ppoData.Length == 1)
