@@ -3120,78 +3120,78 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 /* salva Computed BOM per configurazione */                
 
 
-                if (false)
-                {
+            //    if (false)
+            //    {
 
-                    IEdmFile7 aFile;
-                    IEdmFolder5 ppoRetParentFolder;
+            //        IEdmFile7 aFile;
+            //        IEdmFolder5 ppoRetParentFolder;
 
-                    string cTipoDistinta;
+            //        string cTipoDistinta;
 
-                    int plFocusNode = 0;
+            //        int plFocusNode = 0;
 
-                    string sErrorMessage;
+            //        string sErrorMessage;
 
-                    sErrorMessage = "";
+            //        sErrorMessage = "";
 
-                    aFile = (IEdmFile7)this.vault.GetFileFromPath(cFileName, out ppoRetParentFolder);
+            //        aFile = (IEdmFile7)this.vault.GetFileFromPath(cFileName, out ppoRetParentFolder);
 
-                    if (aFile != null)
-                    {
-                        IEdmEnumeratorVariable7 enumVar;
+            //        if (aFile != null)
+            //        {
+            //            IEdmEnumeratorVariable7 enumVar;
 
-                        object[] ppoRetVars = null;
-                        string[] ppoRetConfs = null;
-                        EdmGetVarData poRetDat = new EdmGetVarData();
-                        string sVersion;
+            //            object[] ppoRetVars = null;
+            //            string[] ppoRetConfs = null;
+            //            EdmGetVarData poRetDat = new EdmGetVarData();
+            //            string sVersion;
 
-                        enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
-                        enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
-
-
-                        sVersion = poRetDat.mlLatestVersion.ToString();
+            //            enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
+            //            enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
 
 
-                        //MessageBox.Show(cFileName + " --- " + sConf);
-                        if (sParteAssieme == "Assieme")
-                            cTipoDistinta = "DistintaAssiemePerArca";
-                        else
-                            cTipoDistinta = "DistintaPartePerArca";
+            //            sVersion = poRetDat.mlLatestVersion.ToString();
+
+
+            //            //MessageBox.Show(cFileName + " --- " + sConf);
+            //            if (sParteAssieme == "Assieme")
+            //                cTipoDistinta = "DistintaAssiemePerArca";
+            //            else
+            //                cTipoDistinta = "DistintaPartePerArca";
 
 
 
-                        bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConfig, (int)EdmBomFlag.EdmBf_ShowSelected);
+            //            bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConfig, (int)EdmBomFlag.EdmBf_ShowSelected);
 
-                        object[] ppoRows = null;
-                        IEdmBomCell ppoRow = default(IEdmBomCell);
-                        bomView.GetRows(out ppoRows);                        
-                        int arrSize = ppoRows.Length;
+            //            object[] ppoRows = null;
+            //            IEdmBomCell ppoRow = default(IEdmBomCell);
+            //            bomView.GetRows(out ppoRows);                        
+            //            int arrSize = ppoRows.Length;
 
-                        //MessageBox.Show(arrSize.ToString());
-                        string sBomName;
+            //            //MessageBox.Show(arrSize.ToString());
+            //            string sBomName;
 
-                        sBomName = (configurationGUID + "_" + sConfig + "_" + sVersion);
+            //            sBomName = (configurationGUID + "_" + sConfig + "_" + sVersion);
 
-                        sBomName = sBomName.Replace("\\", "_");
+            //            sBomName = sBomName.Replace("\\", "_");
 
-                        bomView.Commit(sBomName, out sErrorMessage, out plFocusNode);
+            //            bomView.Commit(sBomName, out sErrorMessage, out plFocusNode);
 
-                        if (sErrorMessage != "")
-                        {
+            //            if (sErrorMessage != "")
+            //            {
 
-                            TS.WriteLine(sErrorMessage, TraceEventType.Error);
+            //                TS.WriteLine(sErrorMessage, TraceEventType.Error);
                         
                         
-                        }
+            //            }
                         
-                    }
+            //        }
 
 
-                }
+            //    }
 
 
 
-            }
+            //}
 
 
             /*
@@ -3253,7 +3253,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             {
                 swDoc19.Save();
                 swDoc19.CloseDoc();
-                edmFile5.UnlockFile(0, "Aggiunte custom properties per esportazione", (int)EdmUnlockFlag.EdmUnlock_IgnoreReferences + (int)EdmUnlockFlag.EdmUnlock_IgnoreRefsOutsideVault + (int)EdmUnlockFlag.EdmUnlock_OverwriteLatestVersion);
+                edmFile5.UnlockFile(0, "Aggiunte custom properties per esportazione", (int)EdmUnlockFlag.EdmUnlock_IgnoreReferences + (int)EdmUnlockFlag.EdmUnlock_IgnoreRefsOutsideVault);
             }
             else
             {
