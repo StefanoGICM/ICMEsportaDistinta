@@ -23,7 +23,7 @@ ALTER PROCEDURE ICM_Conf_GetPromossoSP (
 	@DocumentID AS int
   , @Conf nvarchar(200)
   , @RevisionNo int
-  , @Promosso int OUTPUT  
+  , @Promosso int OUTPUT    
   )
 AS
 BEGIN
@@ -42,11 +42,14 @@ BEGIN
 	  
 	DECLARE @IsLastRevision smallint
 
+	DECLARE @Message nvarchar(100)
+
 	SET @CheckPromossoChanged = 0
 	
+	/*
 	SELECT TOP 1 
 	  @ConfigurationID = ConfigurationID
-	FROM SandBox.dbo.DocumentConfiguration
+	FROM ICM.dbo.DocumentConfiguration
 	WHERE ConfigurationName = @Conf
 
 	IF @@ROWCOUNT <> 1
@@ -56,22 +59,29 @@ BEGIN
 
 	END
 
+	*/
+
 	SELECT TOP 1
-	    @Promosso = ShowChildComponentsInBOM	  
+	    @Promosso = drc.ShowChildComponentsInBOM
 	FROM 
-	  SandBox.dbo.DocumentRevisionConfiguration
-	WHERE DocumentID = @DocumentID
-	  AND RevisionNo = @RevisionNo
-	  AND ConfigurationID = @ConfigurationID
-	ORDER BY RevisionNo DESC
+	  ICM.dbo.DocumentRevisionConfiguration drc
+	INNER JOIN ICM.dbo.DocumentConfiguration conf ON drc.ConfigurationID = conf.ConfigurationID
+	WHERE drc.DocumentID = @DocumentID
+	  AND drc.RevisionNo >= @RevisionNo
+	  AND conf.ConfigurationName = @Conf
+	ORDER BY drc.RevisionNo 
 
 	IF @@ROWCOUNT <> 1
-	BEGIN;
+	BEGIN
 
-	  THROW 51000, 'Errore nel verificare assieme promosso: il record non esiste.', 16
+
+	  SET @Message = 'Errore nel verificare assieme promosso: il record non esiste. (' + CAST(@DocumentID AS nvarchar(10)) + '-' + CAST(@RevisionNo AS nvarchar(10)) + '-' + @Conf + ')';
+	  THROW 51000, @Message, 16
 
 	END
 
+
+	/*
 	IF EXISTS (SELECT 1 FROM DocumentRevisionConfiguration 
 	           WHERE DocumentID = @DocumentID
 			     AND ConfigurationID = @ConfigurationID
@@ -144,7 +154,7 @@ BEGIN
 	END
 
 
-
+	*/
 
 
 END

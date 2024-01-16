@@ -212,7 +212,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 }
 
-                MessageBox.Show(sConfigurazioni);
+                //MessageBox.Show(sConfigurazioni);
 
 
             }
@@ -232,7 +232,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //Connessione al DB e inizio transazione
 
-                        connectionString = "Data Source='pdmtest';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                        connectionString = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
                         //connectionString = "Data Source='ws91';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
 
                         cnn = new SqlConnection(connectionString);
@@ -410,7 +410,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         TS.WriteLine("Importazione distinta in ARCA");
 
                         //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='erp';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='erp';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
 
                         cnn = new SqlConnection(connectionString);
 
@@ -1704,6 +1704,23 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                           , out pbsConfiguration
                                           , out pbReadOnly);
 
+                            //DEBUG: Inizio
+                            //if (poValue.ToString() == "")
+                            //{
+
+
+                            //    ppoRow.GetVar(iIDID
+                            //                , ebctID
+                            //                , out poValue
+                            //                , out poComputedValue
+                            //                , out pbsConfiguration
+                            //                , out pbReadOnly);
+
+                            //    MessageBox.Show(poValue.ToString());
+
+                            //}
+                            //DEBUG: Fine
+
 
                             if (poValue.ToString().ToUpper() == "THIS")
                             {
@@ -2789,6 +2806,27 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             string cFile;
             string cPathName;
 
+            //prendo il file in check-out
+            IEdmFile5 edmFile5 = null;
+            IEdmFolder5 edmFolder5 = null;
+
+            edmFile5 = this.vault.GetFileFromPath(cFileName, out edmFolder5);
+
+            if (edmFile5 == null)
+            {
+
+                throw new ApplicationException("ERROR: Impossibile ottenere interfaccia PDM per il file: " + cFileName);
+
+            }
+
+            if (edmFile5.IsLocked)
+            {
+                throw new ApplicationException("ERROR: File: " + cFileName + " lockato. Rilasciare il lock");
+
+            }
+
+            edmFile5.LockFile(edmFolder5.ID, 0, (int)EdmLockFlag.EdmLock_Simple);
+
             OpenFile(cFileName, out swDoc19, false, true);
 
             //Debugger.Launch();
@@ -3212,9 +3250,18 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
             if (bModified)
+            {
                 swDoc19.Save();
+                swDoc19.CloseDoc();
+                edmFile5.UnlockFile(0, "Aggiunte custom properties per esportazione", (int)EdmUnlockFlag.EdmUnlock_IgnoreReferences + (int)EdmUnlockFlag.EdmUnlock_IgnoreRefsOutsideVault + (int)EdmUnlockFlag.EdmUnlock_OverwriteLatestVersion);
+            }
+            else
+            {
 
-            swDoc19.CloseDoc();
+                swDoc19.CloseDoc();
+                edmFile5.UndoLockFile(0, true);
+
+            }
 
             cacheFile.Add(cFileName);
 

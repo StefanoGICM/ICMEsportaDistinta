@@ -193,7 +193,8 @@ BEGIN
 	  (33, '522'),   --- CALETTATORI
 	  (34, '530'),   --- FISSAGGI
 	  (35, '519'),   --- TRAVERSE AUTOCENTRANTI
-	  (36, '555')   --- FERRAMENTA
+	  (36, '555'),  --- FERRAMENTA
+	  (37, '523')   --- ADESIVI
 
 
 
@@ -235,8 +236,8 @@ BEGIN
 	  (33, 'NR', 'QTA'),      -- CALETTATORI
 	  (34, 'NR', 'QTA'),   --- FISSAGGI
 	  (35, 'NR', 'QTA'),   --- TRAVERSE AUTOCENTRANTI
-	  (36, 'NR', 'QTA')   --- FERRAMENTA
-
+	  (36, 'NR', 'QTA'),   --- FERRAMENTA
+	  (37, 'NR', 'QTA')    --- ADESIVI
 
 	  insert into ICM_UMAcq 
 	  values
@@ -276,7 +277,8 @@ BEGIN
 	  (33, 'NR', 'QTA'),      -- CALETTATORI
 	  (34, 'NR', 'QTA'),   --- FISSAGGI
 	  (35, 'NR', 'QTA'),   --- TRAVERSE AUTOCENTRANTI
-	  (36, 'NR', 'QTA')   --- FERRAMENTA
+	  (36, 'NR', 'QTA'),   --- FERRAMENTA
+	  (37, 'NR', 'QTA')    --- ADESIVI
 
 
 
