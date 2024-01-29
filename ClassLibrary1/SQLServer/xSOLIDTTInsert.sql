@@ -180,7 +180,7 @@ BEGIN
 	  --(21, 'GRI'),    -- ??GRIGLIATI
 	  (22, '509'),    -- APPARECCHIATURE ELTTRICHE CUSTOM
 	  (23, '506'),    --FILTRI
-	  (24, '700'),    --COMMERCIALI 
+	  (24, '700'),    --PRODOTTI IN GOMMA
 	  (25, '540'),    --PIPING
 	  (26, '560'),    --GUARNIZIONI E TENUTE
 	  --(27, 'BAV-000-000')     -- ??GREZZO BAVETTA
@@ -194,9 +194,9 @@ BEGIN
 	  (34, '530'),   --- FISSAGGI
 	  (35, '519'),   --- TRAVERSE AUTOCENTRANTI
 	  (36, '555'),  --- FERRAMENTA
-	  (37, '523')   --- ADESIVI
-
-
+	  (37, '523'),   --- ADESIVI
+	  (38, 'ALIMENTATORI VIBRANTI'),   --- ALIMENTATORI VIBRANTI
+	  (39, '520')   --- GRIGLIATI
 
 	  insert into ICM_UMMaga 
 	  values
@@ -223,7 +223,7 @@ BEGIN
 	 -- (21, 'NR', 'QTA'),    -- ??GRIGLIATI
 	  (22, 'NR', 'QTA'),    -- APPARECCHIATURE ELTTRICHE CUSTOM
 	  (23, 'NR', 'QTA'),    --FILTRI
-	  (24, 'NR', 'QTA'),    --COMMERCIALI 
+	  (24, 'NR', 'QTA'),    --PRODOTTI IN GOMMA 
 	  (25, 'NR', 'QTA'),    --PIPING
 	  (26, 'NR', 'QTA'),    --GUARNIZIONI E TENUTE
 	  --(27, 'MT', 'LG')     -- ??GREZZO BAVETTA
@@ -237,7 +237,9 @@ BEGIN
 	  (34, 'NR', 'QTA'),   --- FISSAGGI
 	  (35, 'NR', 'QTA'),   --- TRAVERSE AUTOCENTRANTI
 	  (36, 'NR', 'QTA'),   --- FERRAMENTA
-	  (37, 'NR', 'QTA')    --- ADESIVI
+	  (37, 'NR', 'QTA'),    --- ADESIVI
+	  (38, 'NR', 'QTA'),    --- ALIMENTATORI VIBRANTI
+	  (39, 'NR', 'QTA')     --- GRIGLIATI
 
 	  insert into ICM_UMAcq 
 	  values
@@ -264,7 +266,7 @@ BEGIN
 	  --(21, 'MTGRI', 'PESO'), -- ??GRIGLIATI
 	  (22, 'NR', 'QTA'),   -- APPARECCHIATURE ELTTRICHE CUSTOM
 	  (23, 'NR', 'QTA'),   --FILTRI
-	  (24, 'NR', 'QTA'),   --COMMERCIALI 
+	  (24, 'NR', 'QTA'),   --PRODOTTI IN GOMMA 
 	  (25, 'NR', 'QTA'),   --PIPING
 	  (26, 'NR', 'QTA'),   --GUARNIZIONI E TENUTE
 	  --(27, 'MT', 'LG')    -- ??GREZZO BAVETTA
@@ -278,9 +280,9 @@ BEGIN
 	  (34, 'NR', 'QTA'),   --- FISSAGGI
 	  (35, 'NR', 'QTA'),   --- TRAVERSE AUTOCENTRANTI
 	  (36, 'NR', 'QTA'),   --- FERRAMENTA
-	  (37, 'NR', 'QTA')    --- ADESIVI
-
-
+	  (37, 'NR', 'QTA'),    --- ADESIVI
+	  (38, 'NR', 'QTA'),    --- ALIMENTATORI VIBRANTI
+	  (39, 'NR', 'QTA')     --- GRIGLIATI
 
 END
 GO
