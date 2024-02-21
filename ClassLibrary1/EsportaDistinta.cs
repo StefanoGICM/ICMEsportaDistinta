@@ -410,7 +410,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         TS.WriteLine("Importazione distinta in ARCA");
 
                         //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='erp';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='erp';Initial Catalog = ADB_FREDDO2; User ID = sa; Password = 'Logitech0'";
+
+                        MessageBox.Show(connectionString);
 
                         cnn = new SqlConnection(connectionString);
 
@@ -2825,6 +2827,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             }
 
+            TS.WriteLine("Prendo in lock il file : " + cFileName);
             edmFile5.LockFile(edmFolder5.ID, 0, (int)EdmLockFlag.EdmLock_Simple);
 
             OpenFile(cFileName, out swDoc19, false, true);
