@@ -196,7 +196,8 @@ BEGIN
 	  (36, '555'),  --- FERRAMENTA
 	  (37, '523'),   --- ADESIVI
 	  (38, 'ALIMENTATORI VIBRANTI'),   --- ALIMENTATORI VIBRANTI
-	  (39, '520')   --- GRIGLIATI
+	  (39, '520'),   --- GRIGLIATI
+	  (40, '-') --- TRATTINO
 
 	  insert into ICM_UMMaga 
 	  values
@@ -239,7 +240,8 @@ BEGIN
 	  (36, 'NR', 'QTA'),   --- FERRAMENTA
 	  (37, 'NR', 'QTA'),    --- ADESIVI
 	  (38, 'NR', 'QTA'),    --- ALIMENTATORI VIBRANTI
-	  (39, 'NR', 'QTA')     --- GRIGLIATI
+	  (39, 'NR', 'QTA'),    --- GRIGLIATI
+	  (40, 'NR', 'QTA')     --- TRATTINO
 
 	  insert into ICM_UMAcq 
 	  values
@@ -282,7 +284,8 @@ BEGIN
 	  (36, 'NR', 'QTA'),   --- FERRAMENTA
 	  (37, 'NR', 'QTA'),    --- ADESIVI
 	  (38, 'NR', 'QTA'),    --- ALIMENTATORI VIBRANTI
-	  (39, 'NR', 'QTA')     --- GRIGLIATI
+	  (39, 'NR', 'QTA'),     --- GRIGLIATI
+	  (40, 'NR', 'QTA')     --- TRATTINO
 
 END
 GO
