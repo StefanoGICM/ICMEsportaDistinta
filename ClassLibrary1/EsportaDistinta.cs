@@ -3248,65 +3248,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 NavigateFile(sFileNameDocCostr, false);
 
-                                //                SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetConfiUltVerSp", cnn);
-
-                                //                command2.CommandType = CommandType.StoredProcedure;
-                                //                command2.Transaction = transaction;
-
-                                //                //MessageBox.Show(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
-
-
-                                //                SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
-                                //                sqlParam.Direction = ParameterDirection.Input;
-                                //                sqlParam.Value = id;
-
-
-                                //                sqlParam = command2.Parameters.Add("@ICMRefBOMGUID", SqlDbType.VarChar, 200);
-                                //                sqlParam.Direction = ParameterDirection.Input;
-                                //                sqlParam.Value = sGuidConfCostr;
-
-                                //                sqlParam = command2.Parameters.Add("@ConfName", SqlDbType.VarChar, 200);
-                                //                sqlParam.Direction = ParameterDirection.Output;
-
-
-                                //                sqlParam = new SqlParameter("@UltRevisionNo", SqlDbType.Int);
-                                //                //sqlParam.ParameterName = "@Result";
-                                //                //sqlParam.DbType = DbType.Boolean;
-                                //                sqlParam.Direction = ParameterDirection.Output;
-                                //                command2.Parameters.Add(sqlParam);
-
-                                //                command2.ExecuteNonQuery();
-
-                                //                string sConfigurazioneCostruttiva;
-                                //                string sUltimaRevisione;
-                                //                bool bUltimaRevisione;
-                                //                int newVersionToTake;
-
-                                //                sConfigurazioneCostruttiva = command2.Parameters["@ConfName"].Value.ToString();
-
-                                //                if (sConfigurazioneCostruttiva.Trim() == "" || sConfigurazioneCostruttiva == null)
-                                //                {
-
-                                //                    throw new ApplicationException("Errore nel recuperare il nome della configurazione costruttiva nella BOM di " + cFileName);
-                                //                }
-
-
-                                //                sUltimaRevisione = command2.Parameters["@UltRevisionNo"].Value.ToString();
-
-                                //                if (sUltimaRevisione.Trim() == "" || sUltimaRevisione == null)
-                                //                {
-
-                                //                    throw new ApplicationException("Errore nel recuperare l'ultima versione della configurazione costruttiva nella BOM di " + cFileName);
-                                //                }
-
-                                //                bUltimaRevisione = Int32.TryParse(sUltimaRevisione, out newVersionToTake);
-
-                                //                if (!bUltimaRevisione)
-                                //                {
-
-                                //                    throw new ApplicationException("Errore nel recuperare l'ultima versione della configurazione costruttiva nella BOM di " + cFileName);
-
-                                //                }
 
                             }
 
@@ -3315,37 +3256,40 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                     }
 
                 }
-
-                object comps = config.GetComponents();
-
-                if (comps != null)
+                else
                 {
+                   object comps = config.GetComponents();
 
-                    Array arrComps = (Array)comps;
+                   if (comps != null)
+                   {
+
+                      Array arrComps = (Array)comps;
 
 
-                    foreach (SwDM.SwDMComponent11 swComp in arrComps)
-                    {
+                      foreach (SwDM.SwDMComponent11 swComp in arrComps)
+                      {
 
-                        //if (swComp.IsVirtual)
-                        //continue;
+                         //if (swComp.IsVirtual)
+                         //continue;
 
-                        sPath = swComp.PathName;
+                         sPath = swComp.PathName;
 
-                        sPath = this.GetChangedReferencePath(this.vault, sPath, swDoc19);
+                         sPath = this.GetChangedReferencePath(this.vault, sPath, swDoc19);
 
-                        if (sPath == "")
-                        {
+                         if (sPath == "")
+                         {
                             MessageBox.Show("ERROR: Path non trovato per component " + sPath);
                             throw new ApplicationException("ERROR: Path non trovato per component " + sPath);
-                        }
-                        
+                         }
 
-                        NavigateFile(sPath, false);
+
+                         NavigateFile(sPath, false);
+
+
+                        }
 
 
                     }
-
 
                 }
 
