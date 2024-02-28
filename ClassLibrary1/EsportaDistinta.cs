@@ -410,9 +410,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         TS.WriteLine("Importazione distinta in ARCA");
 
                         //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='erp';Initial Catalog = ADB_FREDDO2; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='erp';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
 
-                        MessageBox.Show(connectionString);
+                        //MessageBox.Show(connectionString);
 
                         cnn = new SqlConnection(connectionString);
 
@@ -546,6 +546,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
         {
 
             //Debugger.Launch();
+
+            TS.WriteLine("Elaborazione file: " + cFileName);
 
             sDEDID = null;
             sDEDREV = null;
@@ -1740,6 +1742,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                                 sConfigurazioneCostruttiva = poValue.ToString();
 
+                                TS.WriteLine("Configurazione costruttiva (THIS->Configurazione) ---> " + sConfigurazioneCostruttiva);
+
                             }
                             else
                             {
@@ -1751,6 +1755,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                 
 
                                 sGuidConfCostr = poValue.ToString();
+
+                                TS.WriteLine("Configurazione costruttiva ---> " + sGuidConfCostr);
 
                                 //MessageBox.Show(sGuidDocCostr);
 
@@ -2795,7 +2801,6 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             SwDM.SwDMConfiguration12 config;
             SwDM.SwDMConfiguration15 config15;
 
-            SwDM.SwDMConfiguration12 configCostr;
 
             if (cacheFile.Contains(cFileName))
                 return;
@@ -2848,7 +2853,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             bool lFoundGuid;
             bool lFoundCategoria3_prefix;
 
-            string sConfigurazioneCostr;
+            
             string sParentConf;
 
             string sFaiAcquista;
@@ -2909,26 +2914,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 if (config15.ShowChildComponentsInBOM2 == (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_TRUE)
                     config15.ShowChildComponentsInBOM2 = (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_FALSE;
 
-                /* cerco configurazione costruttiva */
-                sConfigurazioneCostr = sConfig;
-
                 
-                configCostr = default(SwDMConfiguration12);
-                configCostr = (SwDM.SwDMConfiguration12)configMgr.GetConfigurationByName(sConfigurazioneCostr);
-
-                sParentConf = configCostr.GetParentConfigurationName();
-
-                while (sParentConf != null && sParentConf.Trim() != "")
-                {
-
-                    sConfigurazioneCostr = sParentConf;
-
-                    configCostr = (SwDM.SwDMConfiguration12)configMgr.GetConfigurationByName(sConfigurazioneCostr);
-
-                    sParentConf = configCostr.GetParentConfigurationName();
-
-                }
-
 
                 vCustPropNameArr = (string[])config.GetCustomPropertyNames();
                 
@@ -3120,134 +3106,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                 }
 
-                /* salva Computed BOM per configurazione */
-
-
-                //if (false)
-                //{
-
-                //    IEdmFile7 aFile;
-                //    IEdmFolder5 ppoRetParentFolder;
-
-                //    string cTipoDistinta;
-
-                //    int plFocusNode = 0;
-
-                //    string sErrorMessage;
-
-                //    sErrorMessage = "";
-
-                //    aFile = (IEdmFile7)this.vault.GetFileFromPath(cFileName, out ppoRetParentFolder);
-
-                //    if (aFile != null)
-                //    {
-                //        IEdmEnumeratorVariable7 enumVar;
-
-                //        object[] ppoRetVars = null;
-                //        string[] ppoRetConfs = null;
-                //        EdmGetVarData poRetDat = new EdmGetVarData();
-                //        string sVersion;
-
-                //        enumVar = (IEdmEnumeratorVariable7)aFile.GetEnumeratorVariable();
-                //        enumVar.GetVersionVars(0, ppoRetParentFolder.ID, out ppoRetVars, out ppoRetConfs, ref poRetDat);
-
-
-                //        sVersion = poRetDat.mlLatestVersion.ToString();
-
-
-                //        //MessageBox.Show(cFileName + " --- " + sConf);
-                //        if (sParteAssieme == "Assieme")
-                //            cTipoDistinta = "DistintaAssiemePerArca";
-                //        else
-                //            cTipoDistinta = "DistintaPartePerArca";
-
-
-
-                //        bomView = aFile.GetComputedBOM(cTipoDistinta, /*poRetDat.mlLatestVersion*/ -1, sConfig, (int)EdmBomFlag.EdmBf_ShowSelected);
-
-                //        object[] ppoRows = null;
-                //        IEdmBomCell ppoRow = default(IEdmBomCell);
-                //        bomView.GetRows(out ppoRows);
-                //        int arrSize = ppoRows.Length;
-
-                //        //MessageBox.Show(arrSize.ToString());
-                //        string sBomName;
-
-                //        sBomName = (configurationGUID + "_" + sConfig + "_" + sVersion);
-
-                //        sBomName = sBomName.Replace("\\", "_");
-
-                //        bomView.Commit(sBomName, out sErrorMessage, out plFocusNode);
-
-                //        if (sErrorMessage != "")
-                //        {
-
-                //            TS.WriteLine(sErrorMessage, TraceEventType.Error);
-
-
-                //        }
-
-                //    }
-
-
-                //}
-
-
 
             }
 
 
-            /*
-            vCustPropNameArr = (string[])swDoc19.GetCustomPropertyNames();
-
-            lFoundGuid = false;
-
-            if ((vCustPropNameArr != null))
-            {
-
-                for (int k = 0; k < vCustPropNameArr.Length; k++)
-                {
-
-
-                    if (vCustPropNameArr[k].ToUpper() == "GUIDDOCUMENTO")
-                    {
-                        lFoundGuid = true;
-                    }
-
-
-                }
-
-                if (lFoundGuid)
-                {
-                    string sCurrentGuid;
-                    SwDmCustomInfoType parType;
-
-                    sCurrentGuid = swDoc19.GetCustomProperty("GuidDocumento", out parType);
-
-                    if (sCurrentGuid == null || sCurrentGuid.Trim() == "")
-                    {
-                        Guid newGuid;
-
-                        newGuid = Guid.NewGuid();
-
-                        swDoc19.SetCustomProperty("GuidDocumento", newGuid.ToString());
-
-                    }
-
-                }
-                else
-                {
-                    Guid newGuid;
-
-                    newGuid = Guid.NewGuid();
-
-                    swDoc19.AddCustomProperty("GuidDocumento", SwDmCustomInfoType.swDmCustomInfoText, newGuid.ToString());
-
-                }
-
-            }
-
-            */
 
             PopulateFile (swDoc19, cFileName, first);
 
@@ -3280,6 +3142,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             int i;
             string sConfig;
             string useConfig;
+
+            bool bThis,rsFileNameDocCostr;
+
+            string sFileNameDocCostr;
+            string sGuidConfCostr;
+            int newIdToTake;
+
 
 
             Dictionary<Int32, String> compDict;
@@ -3320,6 +3189,130 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 {
 
                     throw new ApplicationException("ERROR: Errore in ottenimento configurazione " + sConfig + "per file: " + swDoc19.FullName);
+
+                }
+
+                /* controllo se si tratta di sostituto ed eventualmente sostituisco con originale */
+                string sCustPropStr;
+                SwDmCustomInfoType nPropType;
+
+
+                sCustPropStr = config.GetCustomProperty("ICMRefBOMGUID", out nPropType);
+
+                if (sCustPropStr != "THIS")
+                {
+
+                    bThis = false;
+                    sFileNameDocCostr = "";
+
+                    sGuidConfCostr = sCustPropStr;
+
+                    IEdmSearch9 Search = (IEdmSearch9)((IEdmVault21)vault).CreateSearch2();
+                    if (Search != null)
+                    {
+
+
+                        Search.FindFiles = true;
+                        Search.FindFolders = false;
+
+                        Search.AddVariable2("ICMBOMGUID", sGuidConfCostr);
+
+
+                        IEdmSearchResult5 SearchResult = Search.GetFirstResult();
+                        while ((SearchResult != null))
+                        {
+
+                            int id;
+                            int parent_folder_id;
+
+                            IEdmObject5 pdmObject;
+                            IEdmFile5 pdmFile;
+
+                            id = SearchResult.ID;
+
+                            parent_folder_id = SearchResult.ParentFolderID;
+
+                            pdmObject = default(IEdmObject5);
+
+                            pdmObject = vault.GetObject(EdmObjectType.EdmObject_File, id);
+
+                            if (pdmObject != null)
+                            {
+
+                                pdmFile = (IEdmFile5)pdmObject;
+
+
+                                sFileNameDocCostr = pdmFile.GetLocalPath(parent_folder_id);
+
+                                newIdToTake = id;
+
+                                NavigateFile(sFileNameDocCostr, false);
+
+                                //                SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetConfiUltVerSp", cnn);
+
+                                //                command2.CommandType = CommandType.StoredProcedure;
+                                //                command2.Transaction = transaction;
+
+                                //                //MessageBox.Show(iDocument.ToString() + " - " + sConf + " - " + iVersione.ToString());
+
+
+                                //                SqlParameter sqlParam = command2.Parameters.Add("@DocumentID", SqlDbType.Int);
+                                //                sqlParam.Direction = ParameterDirection.Input;
+                                //                sqlParam.Value = id;
+
+
+                                //                sqlParam = command2.Parameters.Add("@ICMRefBOMGUID", SqlDbType.VarChar, 200);
+                                //                sqlParam.Direction = ParameterDirection.Input;
+                                //                sqlParam.Value = sGuidConfCostr;
+
+                                //                sqlParam = command2.Parameters.Add("@ConfName", SqlDbType.VarChar, 200);
+                                //                sqlParam.Direction = ParameterDirection.Output;
+
+
+                                //                sqlParam = new SqlParameter("@UltRevisionNo", SqlDbType.Int);
+                                //                //sqlParam.ParameterName = "@Result";
+                                //                //sqlParam.DbType = DbType.Boolean;
+                                //                sqlParam.Direction = ParameterDirection.Output;
+                                //                command2.Parameters.Add(sqlParam);
+
+                                //                command2.ExecuteNonQuery();
+
+                                //                string sConfigurazioneCostruttiva;
+                                //                string sUltimaRevisione;
+                                //                bool bUltimaRevisione;
+                                //                int newVersionToTake;
+
+                                //                sConfigurazioneCostruttiva = command2.Parameters["@ConfName"].Value.ToString();
+
+                                //                if (sConfigurazioneCostruttiva.Trim() == "" || sConfigurazioneCostruttiva == null)
+                                //                {
+
+                                //                    throw new ApplicationException("Errore nel recuperare il nome della configurazione costruttiva nella BOM di " + cFileName);
+                                //                }
+
+
+                                //                sUltimaRevisione = command2.Parameters["@UltRevisionNo"].Value.ToString();
+
+                                //                if (sUltimaRevisione.Trim() == "" || sUltimaRevisione == null)
+                                //                {
+
+                                //                    throw new ApplicationException("Errore nel recuperare l'ultima versione della configurazione costruttiva nella BOM di " + cFileName);
+                                //                }
+
+                                //                bUltimaRevisione = Int32.TryParse(sUltimaRevisione, out newVersionToTake);
+
+                                //                if (!bUltimaRevisione)
+                                //                {
+
+                                //                    throw new ApplicationException("Errore nel recuperare l'ultima versione della configurazione costruttiva nella BOM di " + cFileName);
+
+                                //                }
+
+                            }
+
+                        }
+
+                    }
 
                 }
 
