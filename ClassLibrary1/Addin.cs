@@ -22,8 +22,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
         public void GetAddInInfo(ref EdmAddInInfo poInfo, IEdmVault5 poVault, IEdmCmdMgr5 poCmdMgr)
         {
-
-            this.vault = poVault;
+                       
 
             //Specify information to display in the add-in's Properties dialog box
             poInfo.mbsAddInName = "ICM Add-in";
@@ -50,6 +49,9 @@ namespace ICM.SWPDM.EsportaDistintaAddin
             int version;
             int iDocument;
 
+
+            this.vault = (IEdmVault5) poCmd.mpoVault;
+            
 
             // Handle the menu command
             if (poCmd.meCmdType == EdmCmdType.EdmCmd_CardButton)

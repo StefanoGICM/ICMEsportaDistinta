@@ -232,7 +232,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //Connessione al DB e inizio transazione
 
-                        connectionString = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                        connectionString = "Data Source='PDMTEST';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
                         //connectionString = "Data Source='ws91';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
 
                         cnn = new SqlConnection(connectionString);
@@ -410,7 +410,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         TS.WriteLine("Importazione distinta in ARCA");
 
                         //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='erp';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='erp';Initial Catalog = ADB_FREDDO2; User ID = sa; Password = 'Logitech0'";
 
                         //MessageBox.Show(connectionString);
 
@@ -2821,7 +2821,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             if (edmFile5 == null)
             {
-
+                
                 throw new ApplicationException("ERROR: Impossibile ottenere interfaccia PDM per il file: " + cFileName);
 
             }
@@ -3196,11 +3196,14 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 string sCustPropStr;
                 SwDmCustomInfoType nPropType;
 
-
+                sCustPropStr = "";
+                 
                 sCustPropStr = config.GetCustomProperty("ICMRefBOMGUID", out nPropType);
 
-                if (sCustPropStr != "THIS")
+                if (sCustPropStr != null && sCustPropStr.Trim() != ""  && sCustPropStr != "THIS")
                 {
+
+                    //Debugger.Launch();
 
                     bThis = false;
                     sFileNameDocCostr = "";
@@ -3250,6 +3253,8 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
 
                             }
+
+                            break;
 
                         }
 
@@ -3454,7 +3459,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
             if (bTS)
                 TS.WriteLine("Apertura file con Document Manager: " + sDocFileName);
+
             
+
+
             swDoc19 = (SwDM.SwDMDocument19)swDocMgr.GetDocument(sDocFileName, nDocType, lReadonly, out nRetVal);
             
             
