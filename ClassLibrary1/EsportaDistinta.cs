@@ -232,7 +232,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
 
                         //Connessione al DB e inizio transazione
 
-                        connectionString = "Data Source='PDMTEST';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
+                        connectionString = "Data Source='database';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
                         //connectionString = "Data Source='ws91';Initial Catalog = EPDMSuite; User ID = sa; Password = 'P@ssw0rd'";
 
                         cnn = new SqlConnection(connectionString);
@@ -410,7 +410,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                         TS.WriteLine("Importazione distinta in ARCA");
 
                         //connectionString = "Data Source='gestionale';Initial Catalog = ADB_FREDDO; User ID = sa; Password = 'Logitech0'";
-                        connectionString = "Data Source='erp';Initial Catalog = ADB_FREDDO2; User ID = sa; Password = 'Logitech0'";
+                        connectionString = "Data Source='erp';Initial Catalog = ADB_ICM; User ID = sa; Password = 'Logitech0'";
 
                         //MessageBox.Show(connectionString);
 
@@ -1802,6 +1802,13 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                                             sFileNameDocCostr = pdmFile.GetLocalPath(parent_folder_id);
 
                                             newIdToTake = id;
+
+
+                                            TS.WriteLine("Chiamo ICM_Conf_GetConfiUltVerSp");
+                                            TS.WriteLine("Documento: " + id.ToString());
+                                            TS.WriteLine("Documento Padre: " + iDocument.ToString());
+                                            TS.WriteLine("Conf Costruttiva: " + sGuidConfCostr);
+                                            
 
                                             SqlCommand command2 = new SqlCommand("dbo.ICM_Conf_GetConfiUltVerSp", cnn);
 
