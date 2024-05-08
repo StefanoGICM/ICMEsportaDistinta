@@ -2918,8 +2918,10 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                 config15 = (SwDMConfiguration15)config;
 
 
-                if (config15.ShowChildComponentsInBOM2 == (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_TRUE)
-                    config15.ShowChildComponentsInBOM2 = (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_FALSE;
+                
+                /* 08/05/2024 by guic: asteriscato per vedere la distinta sul PDM */
+                //if (config15.ShowChildComponentsInBOM2 == (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_TRUE)
+                //    config15.ShowChildComponentsInBOM2 = (int)swDmShowChildComponentsInBOMResult.swDmShowChildComponentsInBOM_FALSE;
 
                 
 
