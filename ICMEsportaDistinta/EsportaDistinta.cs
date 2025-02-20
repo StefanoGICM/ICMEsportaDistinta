@@ -1726,7 +1726,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                             //DEBUG: Fine
 
 
-                            if (poValue.ToString().ToUpper() == "THIS")
+                            if (poValue.ToString().ToUpper() == "THIS" || poValue.ToString().Trim() == "" || poValue.ToString().Trim() == "-")
                             {
                                 bThis = true;
                                 sFileNameDocCostr = ppoRow.GetPathName();
@@ -3210,7 +3210,7 @@ namespace ICM.SWPDM.EsportaDistintaAddin
                  
                 sCustPropStr = config.GetCustomProperty("ICMRefBOMGUID", out nPropType);
 
-                if (sCustPropStr != null && sCustPropStr.Trim() != ""  && sCustPropStr != "THIS")
+                if (sCustPropStr != null && sCustPropStr.Trim() != ""  && sCustPropStr.ToUpper() != "THIS" && sCustPropStr.Trim() != "-")
                 {
 
                     //Debugger.Launch();
